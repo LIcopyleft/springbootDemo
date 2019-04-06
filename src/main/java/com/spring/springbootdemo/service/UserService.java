@@ -10,6 +10,7 @@ import java.util.List;
  * @Created by 2019/4/6
  */
 public interface UserService {
+
     int addUser(TUser user);
 
     List<TUser> findAllUser(int pageNum, int pageSize);

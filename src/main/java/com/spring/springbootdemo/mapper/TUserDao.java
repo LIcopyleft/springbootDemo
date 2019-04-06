@@ -3,9 +3,7 @@ package com.spring.springbootdemo.mapper;
 import com.github.pagehelper.Page;
 import com.spring.springbootdemo.model.TUser;
 
-import java.util.List;
 
-import generator.TUserExample;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -13,9 +11,7 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface TUserDao {
-    long countByExample(TUserExample example);
 
-    int deleteByExample(TUserExample example);
 
     int deleteByPrimaryKey(Integer userId);
 
@@ -23,13 +19,7 @@ public interface TUserDao {
 
     int insertSelective(TUser record);
 
-    List<TUser> selectByExample(TUserExample example);
-
     TUser selectByPrimaryKey(Integer userId);
-
-    int updateByExampleSelective(@Param("record") TUser record, @Param("example") TUserExample example);
-
-    int updateByExample(@Param("record") TUser record, @Param("example") TUserExample example);
 
     int updateByPrimaryKeySelective(TUser record);
 
