@@ -1,7 +1,7 @@
 package com.spring.springbootdemo.controller;
 
 import com.github.pagehelper.Page;
-import com.spring.springbootdemo.PageInfo;
+import com.spring.springbootdemo.pageinfo.PageInfo;
 import com.spring.springbootdemo.model.TUser;
 import com.spring.springbootdemo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

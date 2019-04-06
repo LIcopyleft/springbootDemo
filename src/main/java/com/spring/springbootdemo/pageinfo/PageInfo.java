@@ -1,4 +1,4 @@
-package com.spring.springbootdemo;
+package com.spring.springbootdemo.pageinfo;
 
 import com.github.pagehelper.Page;
 import lombok.Data;
