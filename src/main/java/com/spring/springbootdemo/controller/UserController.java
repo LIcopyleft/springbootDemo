@@ -5,6 +5,7 @@ import com.spring.springbootdemo.pageinfo.PageInfo;
 import com.spring.springbootdemo.model.TUser;
 import com.spring.springbootdemo.redis.RedisService;
 import com.spring.springbootdemo.service.UserService;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,8 +58,8 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "/redis",method = RequestMethod.GET)
-    public Object setRedisService(){
-        redisService.set("1","value222");
-        return redisService.get("1");
+    public Object setRedisService(@Param("name") String name, @Param("values") String values){
+        redisService.set(name,values);
+        return redisService.get(name);
     }
 }
