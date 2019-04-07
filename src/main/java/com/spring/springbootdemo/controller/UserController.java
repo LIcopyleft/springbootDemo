@@ -62,4 +62,18 @@ public class UserController {
         redisService.set(name,values);
         return redisService.get(name);
     }
+
+    /**
+     *
+     * @param key   key
+     * @param list  list
+     * @param time 缓存失效
+     * @return  测试返回
+     */
+    @ResponseBody
+    @RequestMapping(value = "/redisSet",method = RequestMethod.POST)
+    public Object redisSet(@Param("key") String key,@Param("list") List<TUser> list,@Param("time") Long time){
+        redisService.set(key,list,time);
+        return redisService.hmGet(key,list);
+    }
 }

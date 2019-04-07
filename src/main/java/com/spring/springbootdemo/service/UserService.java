@@ -18,4 +18,8 @@ public interface UserService {
     List<TUser> findByName(String userName);
 
     Page<TUser> selectAllUser(int pageNum, int pageSize);
+
+    int deleteByPrimaryKey(Integer id);
+
+    int updateByPrimaryKey(TUser record);
 }
