@@ -10,7 +10,6 @@ import java.io.Serializable;
  * @author 
  */
 @Data
-@Mapper
 public class TUser implements Serializable {
 
 

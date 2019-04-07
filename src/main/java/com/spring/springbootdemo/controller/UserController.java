@@ -3,11 +3,13 @@ package com.spring.springbootdemo.controller;
 import com.github.pagehelper.Page;
 import com.spring.springbootdemo.pageinfo.PageInfo;
 import com.spring.springbootdemo.model.TUser;
+import com.spring.springbootdemo.redis.RedisService;
 import com.spring.springbootdemo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -22,6 +24,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RedisService redisService;
 
     @ResponseBody
     @RequestMapping(value = "/add", produces = {"application/json;charset=UTF-8"})
@@ -48,5 +53,12 @@ public class UserController {
         Page<TUser> tUsers = userService.selectAllUser(pageNum,pageSize);
         PageInfo<TUser> pageInfo = new PageInfo<>(tUsers);
         return pageInfo;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/redis",method = RequestMethod.GET)
+    public Object setRedisService(){
+        redisService.set("1","value222");
+        return redisService.get("1");
     }
 }
