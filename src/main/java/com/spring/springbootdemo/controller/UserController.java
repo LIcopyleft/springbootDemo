@@ -5,6 +5,9 @@ import com.spring.springbootdemo.pageinfo.PageInfo;
 import com.spring.springbootdemo.model.TUser;
 import com.spring.springbootdemo.redis.RedisService;
 import com.spring.springbootdemo.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +22,7 @@ import java.util.List;
  * @author dong
  * @Created by 2019/4/6
  */
+@Api(value = "/user")
 @Controller
 @RequestMapping("/user")
 public class UserController {
@@ -31,6 +35,8 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "/add", produces = {"application/json;charset=UTF-8"})
+    @ApiOperation(value = "addUser",notes = "add user",tags = {"add method"})
+    @ApiImplicitParam(paramType = "add",name = "user",value = "用户属性",required = true,dataType = "int")
     public int addUser(TUser user){
         return userService.addUser(user);
     }

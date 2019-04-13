@@ -1,5 +1,6 @@
 package com.spring.springbootdemo.model;
 
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -11,7 +12,6 @@ import java.io.Serializable;
  */
 @Data
 public class TUser implements Serializable {
-
 
     private Integer userId;
 
