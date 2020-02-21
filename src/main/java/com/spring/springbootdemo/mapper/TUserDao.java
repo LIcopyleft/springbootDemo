@@ -13,17 +13,6 @@ import org.apache.ibatis.annotations.Select;
 public interface TUserDao {
 
 
-    int deleteByPrimaryKey(Integer userId);
-
-    int insert(TUser record);
-
-    int insertSelective(TUser record);
-
-    TUser selectByPrimaryKey(Integer userId);
-
-    int updateByPrimaryKeySelective(TUser record);
-
-    int updateByPrimaryKey(TUser record);
 
     @Select("select t.user_id,t.user_name,t.password,t.phone from t_user t")
     Page<TUser> selectAllUser();

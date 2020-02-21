@@ -31,9 +31,9 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "/all/{pageNum}/{pageSize}", produces = {"application/json;charset=UTF-8"})
-    public Object findAllUser(@PathVariable("pageNum") int pageNum, @PathVariable("pageSize") int pageSize){
+    public Object findAllUser(@PathVariable("pageNum") long pageNum, @PathVariable("pageSize") long pageSize){
 
-        return userService.findAllUser(pageNum,pageSize);
+        return userService.selectAll(pageNum,pageSize);
     }
 
     @ResponseBody

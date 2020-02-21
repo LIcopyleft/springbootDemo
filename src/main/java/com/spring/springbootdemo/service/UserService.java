@@ -12,6 +12,8 @@ import java.util.List;
 public interface UserService {
 
     int addUser(TUser user);
+    List selectAll(long pageNum, long pageSize);
+
 
     List<TUser> findAllUser(int pageNum, int pageSize);
 

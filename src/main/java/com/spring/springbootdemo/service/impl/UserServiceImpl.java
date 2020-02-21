@@ -2,7 +2,9 @@ package com.spring.springbootdemo.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.spring.springbootdemo.mapper.DataContentMapper;
 import com.spring.springbootdemo.mapper.TUserDao;
+import com.spring.springbootdemo.model.DataContentWithBLOBs;
 import com.spring.springbootdemo.model.TUser;
 import com.spring.springbootdemo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +22,17 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private TUserDao tUserDao;
+    @Autowired
+    private DataContentMapper mapper;
     @Override
     public int addUser(TUser user) {
-        return tUserDao.insertSelective(user);
+        return 0;
+    }
+
+    @Override
+    public List selectAll(long pageNum, long pageSize) {
+        List<DataContentWithBLOBs> dataContents = mapper.selectAll(pageNum,pageSize);
+        return dataContents;
     }
 
     @Override
