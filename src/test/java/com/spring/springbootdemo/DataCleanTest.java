@@ -58,20 +58,21 @@ public class DataCleanTest {
     //采购合同
     @Test
     public void test() {
+        int i = 0;
+        while (true) {
+            List<DataContentWithBLOBs> dataContent = mapper.selectAll(0, 100);
+            LinkedBlockingQueue<DataContentWithBLOBs> queue = new LinkedBlockingQueue();
+            for (DataContentWithBLOBs data : dataContent) {
 
-        List<DataContentWithBLOBs> dataContent = mapper.selectAll(0, 100);
-        LinkedBlockingQueue<DataContentWithBLOBs> queue = new LinkedBlockingQueue();
-        for (DataContentWithBLOBs data : dataContent) {
+                if ("采购合同".equals(data.getStageshow())) {
 
-            if ("采购合同".equals(data.getStageshow())) {
+                    queue.add(data);
 
-                queue.add(data);
+                }
 
             }
+            EXECUTOR.execute(new ThreadTask(queue));
 
         }
-        EXECUTOR.execute(new ThreadTask(queue));
-
     }
-
 }
