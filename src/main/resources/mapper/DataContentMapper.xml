@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.springbootdemo.mapper.DataContentMapper">
+  <resultMap id="BaseResultMap" type="com.spring.springbootdemo.model.DataContent">
+    <id column="url_id" jdbcType="INTEGER" property="urlId" />
+    <result column="classify" jdbcType="VARCHAR" property="classify" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="stageName" jdbcType="VARCHAR" property="stagename" />
+    <result column="platformName" jdbcType="VARCHAR" property="platformname" />
+    <result column="classifyShow" jdbcType="VARCHAR" property="classifyshow" />
+    <result column="tradeShow" jdbcType="VARCHAR" property="tradeshow" />
+    <result column="districtShow" jdbcType="VARCHAR" property="districtshow" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="stageShow" jdbcType="VARCHAR" property="stageshow" />
+    <result column="titleShow" jdbcType="VARCHAR" property="titleshow" />
+    <result column="proContact" jdbcType="VARCHAR" property="procontact" />
+    <result column="proPhone" jdbcType="VARCHAR" property="prophone" />
+    <result column="buyingUnit" jdbcType="VARCHAR" property="buyingunit" />
+    <result column="buyingAddr" jdbcType="VARCHAR" property="buyingaddr" />
+    <result column="buyingPhone" jdbcType="VARCHAR" property="buyingphone" />
+    <result column="proxyOrgAddr" jdbcType="VARCHAR" property="proxyorgaddr" />
+    <result column="proxyOrgPhone" jdbcType="VARCHAR" property="proxyorgphone" />
+    <result column="proName" jdbcType="VARCHAR" property="proname" />
+    <result column="classes" jdbcType="VARCHAR" property="classes" />
+    <result column="noticeTime" jdbcType="VARCHAR" property="noticetime" />
+    <result column="region" jdbcType="VARCHAR" property="region" />
+    <result column="submitFileDeadTime" jdbcType="VARCHAR" property="submitfiledeadtime" />
+    <result column="entitledCheckTime" jdbcType="VARCHAR" property="entitledchecktime" />
+    <result column="appendix" jdbcType="VARCHAR" property="appendix" />
+    <result column="proNo" jdbcType="VARCHAR" property="prono" />
+    <result column="obtainFileTime" jdbcType="VARCHAR" property="obtainfiletime" />
+    <result column="tenderingFilePrice" jdbcType="VARCHAR" property="tenderingfileprice" />
+    <result column="tenderingFileAddr" jdbcType="VARCHAR" property="tenderingfileaddr" />
+    <result column="openTenderTime" jdbcType="VARCHAR" property="opentendertime" />
+    <result column="openTenderAddr" jdbcType="VARCHAR" property="opentenderaddr" />
+    <result column="budgetAmount" jdbcType="VARCHAR" property="budgetamount" />
+    <result column="resFileSubTime" jdbcType="VARCHAR" property="resfilesubtime" />
+    <result column="resFileSubAddr" jdbcType="VARCHAR" property="resfilesubaddr" />
+    <result column="resFileOpenTime" jdbcType="VARCHAR" property="resfileopentime" />
+    <result column="winBidTime" jdbcType="VARCHAR" property="winbidtime" />
+    <result column="tenderingNoticeTime" jdbcType="VARCHAR" property="tenderingnoticetime" />
+    <result column="winBidTotalAmount" jdbcType="VARCHAR" property="winbidtotalamount" />
+    <result column="winBidBisName" jdbcType="VARCHAR" property="winbidbisname" />
+    <result column="winBidBisAddr" jdbcType="VARCHAR" property="winbidbisaddr" />
+    <result column="winBidBisAmount" jdbcType="VARCHAR" property="winbidbisamount" />
+    <result column="firstNoticeTime" jdbcType="VARCHAR" property="firstnoticetime" />
+    <result column="other" jdbcType="VARCHAR" property="other" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.spring.springbootdemo.model.DataContentWithBLOBs">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+    <result column="expertName" jdbcType="LONGVARCHAR" property="expertname" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    url_id, classify, title, stageName, platformName, classifyShow, tradeShow, districtShow, 
+    url, stageShow, titleShow, proContact, proPhone, buyingUnit, buyingAddr, buyingPhone, 
+    proxyOrgAddr, proxyOrgPhone, proName, classes, noticeTime, region, submitFileDeadTime, 
+    entitledCheckTime, appendix, proNo, obtainFileTime, tenderingFilePrice, tenderingFileAddr, 
+    openTenderTime, openTenderAddr, budgetAmount, resFileSubTime, resFileSubAddr, resFileOpenTime, 
+    winBidTime, tenderingNoticeTime, winBidTotalAmount, winBidBisName, winBidBisAddr, 
+    winBidBisAmount, firstNoticeTime, other
+  </sql>
+  <sql id="Blob_Column_List">
+    content, expertName
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.spring.springbootdemo.model.DataContentExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from spider_2_ggzy_content_clean
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.spring.springbootdemo.model.DataContentExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from spider_2_ggzy_content_clean
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from spider_2_ggzy_content_clean
+    where url_id = #{urlId,jdbcType=INTEGER}
+  </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from spider_2_ggzy_content_clean
+    where url_id = #{urlId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.spring.springbootdemo.model.DataContentWithBLOBs">
+    insert into spider_2_ggzy_content_clean (url_id, classify, title, 
+      stageName, platformName, classifyShow, 
+      tradeShow, districtShow, url, 
+      stageShow, titleShow, proContact, 
+      proPhone, buyingUnit, buyingAddr, 
+      buyingPhone, proxyOrgAddr, proxyOrgPhone, 
+      proName, classes, noticeTime, 
+      region, submitFileDeadTime, entitledCheckTime, 
+      appendix, proNo, obtainFileTime, 
+      tenderingFilePrice, tenderingFileAddr, 
+      openTenderTime, openTenderAddr, budgetAmount, 
+      resFileSubTime, resFileSubAddr, resFileOpenTime, 
+      winBidTime, tenderingNoticeTime, winBidTotalAmount, 
+      winBidBisName, winBidBisAddr, winBidBisAmount, 
+      firstNoticeTime, other, content, 
+      expertName)
+    values (#{urlId,jdbcType=INTEGER}, #{classify,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, 
+      #{stagename,jdbcType=VARCHAR}, #{platformname,jdbcType=VARCHAR}, #{classifyshow,jdbcType=VARCHAR}, 
+      #{tradeshow,jdbcType=VARCHAR}, #{districtshow,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, 
+      #{stageshow,jdbcType=VARCHAR}, #{titleshow,jdbcType=VARCHAR}, #{procontact,jdbcType=VARCHAR}, 
+      #{prophone,jdbcType=VARCHAR}, #{buyingunit,jdbcType=VARCHAR}, #{buyingaddr,jdbcType=VARCHAR}, 
+      #{buyingphone,jdbcType=VARCHAR}, #{proxyorgaddr,jdbcType=VARCHAR}, #{proxyorgphone,jdbcType=VARCHAR}, 
+      #{proname,jdbcType=VARCHAR}, #{classes,jdbcType=VARCHAR}, #{noticetime,jdbcType=VARCHAR}, 
+      #{region,jdbcType=VARCHAR}, #{submitfiledeadtime,jdbcType=VARCHAR}, #{entitledchecktime,jdbcType=VARCHAR}, 
+      #{appendix,jdbcType=VARCHAR}, #{prono,jdbcType=VARCHAR}, #{obtainfiletime,jdbcType=VARCHAR}, 
+      #{tenderingfileprice,jdbcType=VARCHAR}, #{tenderingfileaddr,jdbcType=VARCHAR}, 
+      #{opentendertime,jdbcType=VARCHAR}, #{opentenderaddr,jdbcType=VARCHAR}, #{budgetamount,jdbcType=VARCHAR}, 
+      #{resfilesubtime,jdbcType=VARCHAR}, #{resfilesubaddr,jdbcType=VARCHAR}, #{resfileopentime,jdbcType=VARCHAR}, 
+      #{winbidtime,jdbcType=VARCHAR}, #{tenderingnoticetime,jdbcType=VARCHAR}, #{winbidtotalamount,jdbcType=VARCHAR}, 
+      #{winbidbisname,jdbcType=VARCHAR}, #{winbidbisaddr,jdbcType=VARCHAR}, #{winbidbisamount,jdbcType=VARCHAR}, 
+      #{firstnoticetime,jdbcType=VARCHAR}, #{other,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}, 
+      #{expertname,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.spring.springbootdemo.model.DataContentWithBLOBs">
+    insert into spider_2_ggzy_content_clean
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="urlId != null">
+        url_id,
+      </if>
+      <if test="classify != null">
+        classify,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="stagename != null">
+        stageName,
+      </if>
+      <if test="platformname != null">
+        platformName,
+      </if>
+      <if test="classifyshow != null">
+        classifyShow,
+      </if>
+      <if test="tradeshow != null">
+        tradeShow,
+      </if>
+      <if test="districtshow != null">
+        districtShow,
+      </if>
+      <if test="url != null">
+        url,
+      </if>
+      <if test="stageshow != null">
+        stageShow,
+      </if>
+      <if test="titleshow != null">
+        titleShow,
+      </if>
+      <if test="procontact != null">
+        proContact,
+      </if>
+      <if test="prophone != null">
+        proPhone,
+      </if>
+      <if test="buyingunit != null">
+        buyingUnit,
+      </if>
+      <if test="buyingaddr != null">
+        buyingAddr,
+      </if>
+      <if test="buyingphone != null">
+        buyingPhone,
+      </if>
+      <if test="proxyorgaddr != null">
+        proxyOrgAddr,
+      </if>
+      <if test="proxyorgphone != null">
+        proxyOrgPhone,
+      </if>
+      <if test="proname != null">
+        proName,
+      </if>
+      <if test="classes != null">
+        classes,
+      </if>
+      <if test="noticetime != null">
+        noticeTime,
+      </if>
+      <if test="region != null">
+        region,
+      </if>
+      <if test="submitfiledeadtime != null">
+        submitFileDeadTime,
+      </if>
+      <if test="entitledchecktime != null">
+        entitledCheckTime,
+      </if>
+      <if test="appendix != null">
+        appendix,
+      </if>
+      <if test="prono != null">
+        proNo,
+      </if>
+      <if test="obtainfiletime != null">
+        obtainFileTime,
+      </if>
+      <if test="tenderingfileprice != null">
+        tenderingFilePrice,
+      </if>
+      <if test="tenderingfileaddr != null">
+        tenderingFileAddr,
+      </if>
+      <if test="opentendertime != null">
+        openTenderTime,
+      </if>
+      <if test="opentenderaddr != null">
+        openTenderAddr,
+      </if>
+      <if test="budgetamount != null">
+        budgetAmount,
+      </if>
+      <if test="resfilesubtime != null">
+        resFileSubTime,
+      </if>
+      <if test="resfilesubaddr != null">
+        resFileSubAddr,
+      </if>
+      <if test="resfileopentime != null">
+        resFileOpenTime,
+      </if>
+      <if test="winbidtime != null">
+        winBidTime,
+      </if>
+      <if test="tenderingnoticetime != null">
+        tenderingNoticeTime,
+      </if>
+      <if test="winbidtotalamount != null">
+        winBidTotalAmount,
+      </if>
+      <if test="winbidbisname != null">
+        winBidBisName,
+      </if>
+      <if test="winbidbisaddr != null">
+        winBidBisAddr,
+      </if>
+      <if test="winbidbisamount != null">
+        winBidBisAmount,
+      </if>
+      <if test="firstnoticetime != null">
+        firstNoticeTime,
+      </if>
+      <if test="other != null">
+        other,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="expertname != null">
+        expertName,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="urlId != null">
+        #{urlId,jdbcType=INTEGER},
+      </if>
+      <if test="classify != null">
+        #{classify,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="stagename != null">
+        #{stagename,jdbcType=VARCHAR},
+      </if>
+      <if test="platformname != null">
+        #{platformname,jdbcType=VARCHAR},
+      </if>
+      <if test="classifyshow != null">
+        #{classifyshow,jdbcType=VARCHAR},
+      </if>
+      <if test="tradeshow != null">
+        #{tradeshow,jdbcType=VARCHAR},
+      </if>
+      <if test="districtshow != null">
+        #{districtshow,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="stageshow != null">
+        #{stageshow,jdbcType=VARCHAR},
+      </if>
+      <if test="titleshow != null">
+        #{titleshow,jdbcType=VARCHAR},
+      </if>
+      <if test="procontact != null">
+        #{procontact,jdbcType=VARCHAR},
+      </if>
+      <if test="prophone != null">
+        #{prophone,jdbcType=VARCHAR},
+      </if>
+      <if test="buyingunit != null">
+        #{buyingunit,jdbcType=VARCHAR},
+      </if>
+      <if test="buyingaddr != null">
+        #{buyingaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="buyingphone != null">
+        #{buyingphone,jdbcType=VARCHAR},
+      </if>
+      <if test="proxyorgaddr != null">
+        #{proxyorgaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="proxyorgphone != null">
+        #{proxyorgphone,jdbcType=VARCHAR},
+      </if>
+      <if test="proname != null">
+        #{proname,jdbcType=VARCHAR},
+      </if>
+      <if test="classes != null">
+        #{classes,jdbcType=VARCHAR},
+      </if>
+      <if test="noticetime != null">
+        #{noticetime,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null">
+        #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="submitfiledeadtime != null">
+        #{submitfiledeadtime,jdbcType=VARCHAR},
+      </if>
+      <if test="entitledchecktime != null">
+        #{entitledchecktime,jdbcType=VARCHAR},
+      </if>
+      <if test="appendix != null">
+        #{appendix,jdbcType=VARCHAR},
+      </if>
+      <if test="prono != null">
+        #{prono,jdbcType=VARCHAR},
+      </if>
+      <if test="obtainfiletime != null">
+        #{obtainfiletime,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderingfileprice != null">
+        #{tenderingfileprice,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderingfileaddr != null">
+        #{tenderingfileaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="opentendertime != null">
+        #{opentendertime,jdbcType=VARCHAR},
+      </if>
+      <if test="opentenderaddr != null">
+        #{opentenderaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="budgetamount != null">
+        #{budgetamount,jdbcType=VARCHAR},
+      </if>
+      <if test="resfilesubtime != null">
+        #{resfilesubtime,jdbcType=VARCHAR},
+      </if>
+      <if test="resfilesubaddr != null">
+        #{resfilesubaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="resfileopentime != null">
+        #{resfileopentime,jdbcType=VARCHAR},
+      </if>
+      <if test="winbidtime != null">
+        #{winbidtime,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderingnoticetime != null">
+        #{tenderingnoticetime,jdbcType=VARCHAR},
+      </if>
+      <if test="winbidtotalamount != null">
+        #{winbidtotalamount,jdbcType=VARCHAR},
+      </if>
+      <if test="winbidbisname != null">
+        #{winbidbisname,jdbcType=VARCHAR},
+      </if>
+      <if test="winbidbisaddr != null">
+        #{winbidbisaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="winbidbisamount != null">
+        #{winbidbisamount,jdbcType=VARCHAR},
+      </if>
+      <if test="firstnoticetime != null">
+        #{firstnoticetime,jdbcType=VARCHAR},
+      </if>
+      <if test="other != null">
+        #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="expertname != null">
+        #{expertname,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.spring.springbootdemo.model.DataContentWithBLOBs">
+    update spider_2_ggzy_content_clean
+    <set>
+      <if test="classify != null">
+        classify = #{classify,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="stagename != null">
+        stageName = #{stagename,jdbcType=VARCHAR},
+      </if>
+      <if test="platformname != null">
+        platformName = #{platformname,jdbcType=VARCHAR},
+      </if>
+      <if test="classifyshow != null">
+        classifyShow = #{classifyshow,jdbcType=VARCHAR},
+      </if>
+      <if test="tradeshow != null">
+        tradeShow = #{tradeshow,jdbcType=VARCHAR},
+      </if>
+      <if test="districtshow != null">
+        districtShow = #{districtshow,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="stageshow != null">
+        stageShow = #{stageshow,jdbcType=VARCHAR},
+      </if>
+      <if test="titleshow != null">
+        titleShow = #{titleshow,jdbcType=VARCHAR},
+      </if>
+      <if test="procontact != null">
+        proContact = #{procontact,jdbcType=VARCHAR},
+      </if>
+      <if test="prophone != null">
+        proPhone = #{prophone,jdbcType=VARCHAR},
+      </if>
+      <if test="buyingunit != null">
+        buyingUnit = #{buyingunit,jdbcType=VARCHAR},
+      </if>
+      <if test="buyingaddr != null">
+        buyingAddr = #{buyingaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="buyingphone != null">
+        buyingPhone = #{buyingphone,jdbcType=VARCHAR},
+      </if>
+      <if test="proxyorgaddr != null">
+        proxyOrgAddr = #{proxyorgaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="proxyorgphone != null">
+        proxyOrgPhone = #{proxyorgphone,jdbcType=VARCHAR},
+      </if>
+      <if test="proname != null">
+        proName = #{proname,jdbcType=VARCHAR},
+      </if>
+      <if test="classes != null">
+        classes = #{classes,jdbcType=VARCHAR},
+      </if>
+      <if test="noticetime != null">
+        noticeTime = #{noticetime,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null">
+        region = #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="submitfiledeadtime != null">
+        submitFileDeadTime = #{submitfiledeadtime,jdbcType=VARCHAR},
+      </if>
+      <if test="entitledchecktime != null">
+        entitledCheckTime = #{entitledchecktime,jdbcType=VARCHAR},
+      </if>
+      <if test="appendix != null">
+        appendix = #{appendix,jdbcType=VARCHAR},
+      </if>
+      <if test="prono != null">
+        proNo = #{prono,jdbcType=VARCHAR},
+      </if>
+      <if test="obtainfiletime != null">
+        obtainFileTime = #{obtainfiletime,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderingfileprice != null">
+        tenderingFilePrice = #{tenderingfileprice,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderingfileaddr != null">
+        tenderingFileAddr = #{tenderingfileaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="opentendertime != null">
+        openTenderTime = #{opentendertime,jdbcType=VARCHAR},
+      </if>
+      <if test="opentenderaddr != null">
+        openTenderAddr = #{opentenderaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="budgetamount != null">
+        budgetAmount = #{budgetamount,jdbcType=VARCHAR},
+      </if>
+      <if test="resfilesubtime != null">
+        resFileSubTime = #{resfilesubtime,jdbcType=VARCHAR},
+      </if>
+      <if test="resfilesubaddr != null">
+        resFileSubAddr = #{resfilesubaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="resfileopentime != null">
+        resFileOpenTime = #{resfileopentime,jdbcType=VARCHAR},
+      </if>
+      <if test="winbidtime != null">
+        winBidTime = #{winbidtime,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderingnoticetime != null">
+        tenderingNoticeTime = #{tenderingnoticetime,jdbcType=VARCHAR},
+      </if>
+      <if test="winbidtotalamount != null">
+        winBidTotalAmount = #{winbidtotalamount,jdbcType=VARCHAR},
+      </if>
+      <if test="winbidbisname != null">
+        winBidBisName = #{winbidbisname,jdbcType=VARCHAR},
+      </if>
+      <if test="winbidbisaddr != null">
+        winBidBisAddr = #{winbidbisaddr,jdbcType=VARCHAR},
+      </if>
+      <if test="winbidbisamount != null">
+        winBidBisAmount = #{winbidbisamount,jdbcType=VARCHAR},
+      </if>
+      <if test="firstnoticetime != null">
+        firstNoticeTime = #{firstnoticetime,jdbcType=VARCHAR},
+      </if>
+      <if test="other != null">
+        other = #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="expertname != null">
+        expertName = #{expertname,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where url_id = #{urlId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.spring.springbootdemo.model.DataContentWithBLOBs">
+    update spider_2_ggzy_content_clean
+    set classify = #{classify,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      stageName = #{stagename,jdbcType=VARCHAR},
+      platformName = #{platformname,jdbcType=VARCHAR},
+      classifyShow = #{classifyshow,jdbcType=VARCHAR},
+      tradeShow = #{tradeshow,jdbcType=VARCHAR},
+      districtShow = #{districtshow,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      stageShow = #{stageshow,jdbcType=VARCHAR},
+      titleShow = #{titleshow,jdbcType=VARCHAR},
+      proContact = #{procontact,jdbcType=VARCHAR},
+      proPhone = #{prophone,jdbcType=VARCHAR},
+      buyingUnit = #{buyingunit,jdbcType=VARCHAR},
+      buyingAddr = #{buyingaddr,jdbcType=VARCHAR},
+      buyingPhone = #{buyingphone,jdbcType=VARCHAR},
+      proxyOrgAddr = #{proxyorgaddr,jdbcType=VARCHAR},
+      proxyOrgPhone = #{proxyorgphone,jdbcType=VARCHAR},
+      proName = #{proname,jdbcType=VARCHAR},
+      classes = #{classes,jdbcType=VARCHAR},
+      noticeTime = #{noticetime,jdbcType=VARCHAR},
+      region = #{region,jdbcType=VARCHAR},
+      submitFileDeadTime = #{submitfiledeadtime,jdbcType=VARCHAR},
+      entitledCheckTime = #{entitledchecktime,jdbcType=VARCHAR},
+      appendix = #{appendix,jdbcType=VARCHAR},
+      proNo = #{prono,jdbcType=VARCHAR},
+      obtainFileTime = #{obtainfiletime,jdbcType=VARCHAR},
+      tenderingFilePrice = #{tenderingfileprice,jdbcType=VARCHAR},
+      tenderingFileAddr = #{tenderingfileaddr,jdbcType=VARCHAR},
+      openTenderTime = #{opentendertime,jdbcType=VARCHAR},
+      openTenderAddr = #{opentenderaddr,jdbcType=VARCHAR},
+      budgetAmount = #{budgetamount,jdbcType=VARCHAR},
+      resFileSubTime = #{resfilesubtime,jdbcType=VARCHAR},
+      resFileSubAddr = #{resfilesubaddr,jdbcType=VARCHAR},
+      resFileOpenTime = #{resfileopentime,jdbcType=VARCHAR},
+      winBidTime = #{winbidtime,jdbcType=VARCHAR},
+      tenderingNoticeTime = #{tenderingnoticetime,jdbcType=VARCHAR},
+      winBidTotalAmount = #{winbidtotalamount,jdbcType=VARCHAR},
+      winBidBisName = #{winbidbisname,jdbcType=VARCHAR},
+      winBidBisAddr = #{winbidbisaddr,jdbcType=VARCHAR},
+      winBidBisAmount = #{winbidbisamount,jdbcType=VARCHAR},
+      firstNoticeTime = #{firstnoticetime,jdbcType=VARCHAR},
+      other = #{other,jdbcType=VARCHAR},
+      content = #{content,jdbcType=LONGVARCHAR},
+      expertName = #{expertname,jdbcType=LONGVARCHAR}
+    where url_id = #{urlId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.spring.springbootdemo.model.DataContent">
+    update spider_2_ggzy_content_clean
+    set classify = #{classify,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      stageName = #{stagename,jdbcType=VARCHAR},
+      platformName = #{platformname,jdbcType=VARCHAR},
+      classifyShow = #{classifyshow,jdbcType=VARCHAR},
+      tradeShow = #{tradeshow,jdbcType=VARCHAR},
+      districtShow = #{districtshow,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      stageShow = #{stageshow,jdbcType=VARCHAR},
+      titleShow = #{titleshow,jdbcType=VARCHAR},
+      proContact = #{procontact,jdbcType=VARCHAR},
+      proPhone = #{prophone,jdbcType=VARCHAR},
+      buyingUnit = #{buyingunit,jdbcType=VARCHAR},
+      buyingAddr = #{buyingaddr,jdbcType=VARCHAR},
+      buyingPhone = #{buyingphone,jdbcType=VARCHAR},
+      proxyOrgAddr = #{proxyorgaddr,jdbcType=VARCHAR},
+      proxyOrgPhone = #{proxyorgphone,jdbcType=VARCHAR},
+      proName = #{proname,jdbcType=VARCHAR},
+      classes = #{classes,jdbcType=VARCHAR},
+      noticeTime = #{noticetime,jdbcType=VARCHAR},
+      region = #{region,jdbcType=VARCHAR},
+      submitFileDeadTime = #{submitfiledeadtime,jdbcType=VARCHAR},
+      entitledCheckTime = #{entitledchecktime,jdbcType=VARCHAR},
+      appendix = #{appendix,jdbcType=VARCHAR},
+      proNo = #{prono,jdbcType=VARCHAR},
+      obtainFileTime = #{obtainfiletime,jdbcType=VARCHAR},
+      tenderingFilePrice = #{tenderingfileprice,jdbcType=VARCHAR},
+      tenderingFileAddr = #{tenderingfileaddr,jdbcType=VARCHAR},
+      openTenderTime = #{opentendertime,jdbcType=VARCHAR},
+      openTenderAddr = #{opentenderaddr,jdbcType=VARCHAR},
+      budgetAmount = #{budgetamount,jdbcType=VARCHAR},
+      resFileSubTime = #{resfilesubtime,jdbcType=VARCHAR},
+      resFileSubAddr = #{resfilesubaddr,jdbcType=VARCHAR},
+      resFileOpenTime = #{resfileopentime,jdbcType=VARCHAR},
+      winBidTime = #{winbidtime,jdbcType=VARCHAR},
+      tenderingNoticeTime = #{tenderingnoticetime,jdbcType=VARCHAR},
+      winBidTotalAmount = #{winbidtotalamount,jdbcType=VARCHAR},
+      winBidBisName = #{winbidbisname,jdbcType=VARCHAR},
+      winBidBisAddr = #{winbidbisaddr,jdbcType=VARCHAR},
+      winBidBisAmount = #{winbidbisamount,jdbcType=VARCHAR},
+      firstNoticeTime = #{firstnoticetime,jdbcType=VARCHAR},
+      other = #{other,jdbcType=VARCHAR}
+    where url_id = #{urlId,jdbcType=INTEGER}
+  </update>
+</mapper>
