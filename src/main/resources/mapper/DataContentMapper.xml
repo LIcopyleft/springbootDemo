@@ -134,6 +134,60 @@
     delete from spider_2_ggzy_content_clean
     where url_id = #{urlId,jdbcType=INTEGER}
   </delete>
+
+
+  <insert id="insertList" parameterType="java.util.List">
+    insert into spider_2_ggzy_content_clean (url_id, classify, title,
+      stageName, platformName, classifyShow,
+      tradeShow, districtShow, url,
+      stageShow, titleShow, proContact,
+      proPhone, buyingUnit, buyingAddr,
+      buyingPhone, proxyOrgAddr, proxyOrgPhone,
+      proName, classes, noticeTime,
+      region, submitFileDeadTime, entitledCheckTime,
+      appendix, proNo, obtainFileTime,
+      tenderingFilePrice, tenderingFileAddr,
+      openTenderTime, openTenderAddr, budgetAmount,
+      resFileSubTime, resFileSubAddr, resFileOpenTime,
+      winBidTime, tenderingNoticeTime, winBidTotalAmount,
+      winBidBisName, winBidBisAddr, winBidBisAmount,
+      firstNoticeTime, other, content,
+      expertName)
+    values
+    <foreach collection="list"  item="tag" separator="," index="index">
+
+    (#{tag.urlId,jdbcType=INTEGER}, #{tag.classify,jdbcType=VARCHAR}, #{tag.title,jdbcType=VARCHAR},
+      #{tag.stagename,jdbcType=VARCHAR}, #{tag.platformname,jdbcType=VARCHAR}, #{tag.classifyshow,jdbcType=VARCHAR},
+      #{tag.tradeshow,jdbcType=VARCHAR}, #{tag.districtshow,jdbcType=VARCHAR}, #{tag.url,jdbcType=VARCHAR},
+      #{tag.stageshow,jdbcType=VARCHAR}, #{tag.titleshow,jdbcType=VARCHAR}, #{tag.procontact,jdbcType=VARCHAR},
+      #{tag.prophone,jdbcType=VARCHAR}, #{tag.buyingunit,jdbcType=VARCHAR}, #{tag.buyingaddr,jdbcType=VARCHAR},
+      #{tag.buyingphone,jdbcType=VARCHAR}, #{tag.proxyorgaddr,jdbcType=VARCHAR}, #{tag.proxyorgphone,jdbcType=VARCHAR},
+      #{tag.proname,jdbcType=VARCHAR}, #{tag.classes,jdbcType=VARCHAR}, #{tag.noticetime,jdbcType=VARCHAR},
+      #{tag.region,jdbcType=VARCHAR}, #{tag.submitfiledeadtime,jdbcType=VARCHAR}, #{tag.entitledchecktime,jdbcType=VARCHAR},
+      #{tag.appendix,jdbcType=VARCHAR}, #{tag.prono,jdbcType=VARCHAR}, #{tag.obtainfiletime,jdbcType=VARCHAR},
+      #{tag.tenderingfileprice,jdbcType=VARCHAR}, #{tag.tenderingfileaddr,jdbcType=VARCHAR},
+      #{tag.opentendertime,jdbcType=VARCHAR}, #{tag.opentenderaddr,jdbcType=VARCHAR}, #{tag.budgetamount,jdbcType=VARCHAR},
+      #{tag.resfilesubtime,jdbcType=VARCHAR}, #{tag.resfilesubaddr,jdbcType=VARCHAR}, #{tag.resfileopentime,jdbcType=VARCHAR},
+      #{tag.winbidtime,jdbcType=VARCHAR}, #{tag.tenderingnoticetime,jdbcType=VARCHAR}, #{tag.winbidtotalamount,jdbcType=VARCHAR},
+      #{tag.winbidbisname,jdbcType=VARCHAR}, #{tag.winbidbisaddr,jdbcType=VARCHAR}, #{tag.winbidbisamount,jdbcType=VARCHAR},
+      #{tag.firstnoticetime,jdbcType=VARCHAR}, #{tag.other,jdbcType=VARCHAR}, #{tag.content,jdbcType=LONGVARCHAR},
+      #{tag.expertname,jdbcType=LONGVARCHAR})
+
+    </foreach>
+  </insert>
+
+
+
+
+
+
+
+
+
+
+
+
+
   <insert id="insert" parameterType="com.spring.springbootdemo.model.DataContentWithBLOBs">
     insert into spider_2_ggzy_content_clean (url_id, classify, title, 
       stageName, platformName, classifyShow, 

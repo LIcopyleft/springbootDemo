@@ -20,4 +20,9 @@ public class DataContentWithBLOBs extends DataContent {
     public void setExpertname(String expertname) {
         this.expertname = expertname == null ? null : expertname.trim();
     }
+
+    @Override
+    public String toString() {
+        return "DataContentWithBLOBs{} " + super.toString();
+    }
 }
