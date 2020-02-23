@@ -39,7 +39,7 @@ public class DataCleanTest {
     private CountDownLatch latch;
 /*
             "交易结果公示"
-            "采购合同"
+            "采购合同 Over"
             "招标/资审文件澄清"
             "中标公告"
             "采购/资审公告"
@@ -68,23 +68,58 @@ public class DataCleanTest {
         try {
             while (true) {
                 List<DataContentWithBLOBs> dataContent = mapper.selectAll(i, 1000);
+                if(dataContent == null || dataContent.size() < 1){
+                    break;
+                }
                 i += 1000;
                 LinkedBlockingQueue<DataContentWithBLOBs> queue = new LinkedBlockingQueue();
                 for (DataContentWithBLOBs data : dataContent) {
                     if ("采购合同".equals(data.getStageshow())) {
                         queue.add(data);
                     }
-
                 }
                 if (queue.size() > 0) {
                     EXECUTOR.execute(new ThreadTask(queue, latch));
                 }
-
             }
         } catch (Exception e) {
             logger.error("========= 采购合同 index" + i + "==============");
             return;
         }
-        //   Thread.sleep(100000000);
     }
+//交易结果公示
+    @Test
+    public void test2() throws InterruptedException {
+        long i = 0;
+        try {
+            while (true) {
+                List<DataContentWithBLOBs> dataContent = mapper.selectAll(i, 1000);
+                if(dataContent == null || dataContent.size() < 1){
+                    break;
+                }
+                i += 1000;
+                LinkedBlockingQueue<DataContentWithBLOBs> queue = new LinkedBlockingQueue();
+                for (DataContentWithBLOBs data : dataContent) {
+                    if ("交易结果公示".equals(data.getStageshow())) {
+                        queue.add(data);
+                    }
+                }
+                if (queue.size() > 0) {
+                    EXECUTOR.execute(new ThreadTask(queue, latch));
+                }
+            }
+        } catch (Exception e) {
+            logger.error("========= 交易结果公示 index" + i + "==============");
+            return;
+        }
+    }
+
+
+    //===================
+
+
+
+
+
+
 }

@@ -137,7 +137,7 @@
 
 
   <insert id="insertList" parameterType="java.util.List">
-    insert into spider_2_ggzy_content_clean (url_id, classify, title,
+    insert into spider_2_ggzy_content_clean_temp (url_id, classify, title,
       stageName, platformName, classifyShow,
       tradeShow, districtShow, url,
       stageShow, titleShow, proContact,
