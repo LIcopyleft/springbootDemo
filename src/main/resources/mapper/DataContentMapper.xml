@@ -137,7 +137,7 @@
 
 
   <insert id="insertList" parameterType="java.util.List">
-    insert into spider_2_ggzy_content_clean_temp (url_id, classify, title,
+    insert into spider_2_ggzy_content_clean_temp (judgeMethod,fileOpenWay,url_id, classify, title,
       stageName, platformName, classifyShow,
       tradeShow, districtShow, url,
       stageShow, titleShow, proContact,
@@ -156,7 +156,7 @@
     values
     <foreach collection="list"  item="tag" separator="," index="index">
 
-    (#{tag.urlId,jdbcType=INTEGER}, #{tag.classify,jdbcType=VARCHAR}, #{tag.title,jdbcType=VARCHAR},
+    (#{tag.judgeMethod,jdbcType=VARCHAR},#{tag.fileOpenWay,jdbcType=VARCHAR},#{tag.urlId,jdbcType=INTEGER}, #{tag.classify,jdbcType=VARCHAR}, #{tag.title,jdbcType=VARCHAR},
       #{tag.stagename,jdbcType=VARCHAR}, #{tag.platformname,jdbcType=VARCHAR}, #{tag.classifyshow,jdbcType=VARCHAR},
       #{tag.tradeshow,jdbcType=VARCHAR}, #{tag.districtshow,jdbcType=VARCHAR}, #{tag.url,jdbcType=VARCHAR},
       #{tag.stageshow,jdbcType=VARCHAR}, #{tag.titleshow,jdbcType=VARCHAR}, #{tag.procontact,jdbcType=VARCHAR},

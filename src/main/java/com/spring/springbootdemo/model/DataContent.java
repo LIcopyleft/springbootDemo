@@ -3,6 +3,8 @@ package com.spring.springbootdemo.model;
 public class DataContent {
     private Integer urlId;
 
+    private String fileOpenWay;
+    private String judgeMethod;
     private String classify;
 
     private String title;
@@ -221,6 +223,22 @@ public class DataContent {
 
     public void setProxyorgaddr(String proxyorgaddr) {
         this.proxyorgaddr = proxyorgaddr == null ? null : proxyorgaddr.trim();
+    }
+
+    public String getFileOpenWay() {
+        return fileOpenWay;
+    }
+
+    public void setFileOpenWay(String fileOpenWay) {
+        this.fileOpenWay = fileOpenWay;
+    }
+
+    public String getJudgeMethod() {
+        return judgeMethod;
+    }
+
+    public void setJudgeMethod(String judgeMethod) {
+        this.judgeMethod = judgeMethod;
     }
 
     public String getProxyorgphone() {

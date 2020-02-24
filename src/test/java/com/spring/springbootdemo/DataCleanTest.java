@@ -2,6 +2,7 @@ package com.spring.springbootdemo;
 
 import com.spring.springbootdemo.mapper.DataContentMapper;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
+import com.spring.springbootdemo.thread.BisResultShowTask;
 import com.spring.springbootdemo.thread.ThreadTask;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -87,6 +88,7 @@ public class DataCleanTest {
             return;
         }
     }
+    private static final String StageShow = "招标/资审文件澄清";
 //交易结果公示
     @Test
     public void test2() throws InterruptedException {
@@ -95,17 +97,18 @@ public class DataCleanTest {
             while (true) {
                 List<DataContentWithBLOBs> dataContent = mapper.selectAll(i, 1000);
                 if(dataContent == null || dataContent.size() < 1){
+                    logger.warn("is end========i="+i);
                     break;
                 }
                 i += 1000;
                 LinkedBlockingQueue<DataContentWithBLOBs> queue = new LinkedBlockingQueue();
                 for (DataContentWithBLOBs data : dataContent) {
-                    if ("交易结果公示".equals(data.getStageshow())) {
+                    if (StageShow.equals(data.getStageshow())) {
                         queue.add(data);
                     }
                 }
                 if (queue.size() > 0) {
-                    EXECUTOR.execute(new ThreadTask(queue, latch));
+                    EXECUTOR.execute(new BisResultShowTask(queue, latch));
                 }
             }
         } catch (Exception e) {

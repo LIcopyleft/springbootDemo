@@ -3,6 +3,7 @@ package com.spring.springbootdemo.model;
 public class DataContentWithBLOBs extends DataContent {
     private String content;
 
+
     private String expertname;
 
     public String getContent() {
