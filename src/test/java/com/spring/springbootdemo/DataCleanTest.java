@@ -3,6 +3,7 @@ package com.spring.springbootdemo;
 import com.spring.springbootdemo.mapper.DataContentMapper;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
 import com.spring.springbootdemo.thread.BisResultShowTask;
+import com.spring.springbootdemo.thread.CleanTask;
 import com.spring.springbootdemo.thread.ThreadTask;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -33,13 +34,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class DataCleanTest {
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(10);
     private static final Logger logger = LoggerFactory.getLogger(DataCleanTest.class);
+    private static final long QUERY_SIZE = 1000;
 
     @Autowired
     private DataContentMapper mapper;
 
 
- //   private static final String StageShow = "招标/资审文件澄清";
-    private static final String StageShow = "成交公示";
+    //   private static final String STAGE_SHOW = "招标/资审文件澄清";
+    private static final String STAGE_SHOW = "开标记录";
 
  //   private CountDownLatch latch;
 /*
@@ -65,68 +67,34 @@ public class DataCleanTest {
             "20.出让结果"
     */
 
-
-    //采购合同
-    @Test
-    public void test() throws InterruptedException {
-        long i = 335708;
-        try {
-            while (true) {
-                List<DataContentWithBLOBs> dataContent = mapper.selectAll(i, 1000);
-                if(dataContent == null || dataContent.size() < 1){
-                    break;
-                }
-                i += 1000;
-                LinkedBlockingQueue<DataContentWithBLOBs> queue = new LinkedBlockingQueue();
-                for (DataContentWithBLOBs data : dataContent) {
-                    if ("采购合同".equals(data.getStageshow())) {
-                        queue.add(data);
-                    }
-                }
-                if (queue.size() > 0) {
-                    EXECUTOR.execute(new ThreadTask(queue));
-                }
-            }
-        } catch (Exception e) {
-            logger.error("========= 采购合同 index" + i + "==============");
-            return;
-        }
-    }
-
+//采购合同
 //交易结果公示
     @Test
-    public void test2() throws InterruptedException {
+    public void doClean(){
         long i = 0;
         try {
             while (true) {
-                List<DataContentWithBLOBs> dataContent = mapper.selectAll(i, 1000);
+                List<DataContentWithBLOBs> dataContent = mapper.selectAll(i, QUERY_SIZE);
                 if(dataContent == null || dataContent.size() < 1){
-                    logger.warn("is end========i="+i);
+                    logger.warn("end========i="+i);
                     break;
                 }
-                i += 1000;
+                i += QUERY_SIZE;
                 LinkedBlockingQueue<DataContentWithBLOBs> queue = new LinkedBlockingQueue();
                 for (DataContentWithBLOBs data : dataContent) {
-                    if (StageShow.equals(data.getStageshow())) {
+                    if (STAGE_SHOW.equals(data.getStageshow())) {
                         queue.add(data);
                     }
                 }
                 if (queue.size() > 0) {
-                    EXECUTOR.execute(new BisResultShowTask(queue));
+                    EXECUTOR.execute(new CleanTask(queue));
                 }
             }
         } catch (Exception e) {
-            logger.error("========= 交易结果公示 index" + i + "==============");
+            logger.error("========= "+STAGE_SHOW +" index" + i + "==============");
             return;
         }
     }
-
-
-    //===================
-
-
-
-
 
 
 }
