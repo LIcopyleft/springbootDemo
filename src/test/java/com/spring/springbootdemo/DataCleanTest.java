@@ -37,28 +37,32 @@ public class DataCleanTest {
     @Autowired
     private DataContentMapper mapper;
 
-    private CountDownLatch latch;
+
+ //   private static final String StageShow = "招标/资审文件澄清";
+    private static final String StageShow = "成交公示";
+
+ //   private CountDownLatch latch;
 /*
-            "交易结果公示"
-            "采购合同 Over"
-            "招标/资审文件澄清"
-            "中标公告"
-            "采购/资审公告"
-            "更正事项"
-            "招标/资审公告"
-            "成交公示"
-            "开标记录"
-            "成交宗地"
-            "交易公告"
-            "信息披露"
-            "出让公告"
-            "挂牌披露"
-            "出让公示"
-            "交易结果"
-            "结果公示"
-            "交易目录"
-            "成交公告"
-            "出让结果"
+            "1.交易结果公示"
+            "2.采购合同 Over"
+            "3.招标/资审文件澄清 Over"
+            "4.中标公告"
+            "5.采购/资审公告"
+            "6.更正事项"
+            "7.招标/资审公告"
+            "8.成交公示"
+            "9.开标记录"
+            "10.成交宗地"
+            "11.交易公告"
+            "12.信息披露"
+            "13.出让公告"
+            "14.挂牌披露"
+            "15.出让公示"
+            "16.交易结果"
+            "17.结果公示"
+            "18.交易目录"
+            "19.成交公告"
+            "20.出让结果"
     */
 
 
@@ -80,7 +84,7 @@ public class DataCleanTest {
                     }
                 }
                 if (queue.size() > 0) {
-                    EXECUTOR.execute(new ThreadTask(queue, latch));
+                    EXECUTOR.execute(new ThreadTask(queue));
                 }
             }
         } catch (Exception e) {
@@ -88,7 +92,7 @@ public class DataCleanTest {
             return;
         }
     }
-    private static final String StageShow = "招标/资审文件澄清";
+
 //交易结果公示
     @Test
     public void test2() throws InterruptedException {
@@ -108,7 +112,7 @@ public class DataCleanTest {
                     }
                 }
                 if (queue.size() > 0) {
-                    EXECUTOR.execute(new BisResultShowTask(queue, latch));
+                    EXECUTOR.execute(new BisResultShowTask(queue));
                 }
             }
         } catch (Exception e) {

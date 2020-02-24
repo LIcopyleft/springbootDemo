@@ -22,7 +22,7 @@ public class BisResultShowTask implements Runnable {
     private LinkedBlockingQueue<DataContentWithBLOBs> queues;
     private static final Logger logger = LoggerFactory.getLogger(BisResultShowTask.class);
 
-    public BisResultShowTask(LinkedBlockingQueue<DataContentWithBLOBs> queue, CountDownLatch latch) {
+    public BisResultShowTask(LinkedBlockingQueue<DataContentWithBLOBs> queue) {
         this.queues = queue;
     }
 

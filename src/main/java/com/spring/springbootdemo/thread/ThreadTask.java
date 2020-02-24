@@ -20,13 +20,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ThreadTask implements Runnable {
-    private final CountDownLatch latch;
     private LinkedBlockingQueue<DataContentWithBLOBs> queues;
     private static final Logger logger = LoggerFactory.getLogger(ThreadTask.class);
 
-    public ThreadTask(LinkedBlockingQueue<DataContentWithBLOBs> queue, CountDownLatch latch) {
+    public ThreadTask(LinkedBlockingQueue<DataContentWithBLOBs> queue) {
         this.queues = queue;
-        this.latch = latch;
+
     }
 
     @Override
