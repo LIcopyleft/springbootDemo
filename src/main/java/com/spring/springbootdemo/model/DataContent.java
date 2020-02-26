@@ -3,7 +3,10 @@ package com.spring.springbootdemo.model;
 public class DataContent {
     private Integer urlId;
 
+
     private String fileOpenWay;
+    private String location;
+    private String coordinate;
     private String judgeMethod;
     private String classify;
 
@@ -239,6 +242,22 @@ public class DataContent {
 
     public void setJudgeMethod(String judgeMethod) {
         this.judgeMethod = judgeMethod;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getCoordinate() {
+        return coordinate;
+    }
+
+    public void setCoordinate(String coordinate) {
+        this.coordinate = coordinate;
     }
 
     public String getProxyorgphone() {

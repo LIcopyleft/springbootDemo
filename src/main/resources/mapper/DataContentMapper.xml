@@ -122,7 +122,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
-    select 
+    select
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -130,14 +130,10 @@
     where url_id = #{urlId,jdbcType=INTEGER}
   </select>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from spider_2_ggzy_content_clean
-    where url_id = #{urlId,jdbcType=INTEGER}
-  </delete>
 
 
   <insert id="insertList" parameterType="java.util.List">
-    insert into spider_2_ggzy_content_clean_temp (judgeMethod,fileOpenWay,url_id, classify, title,
+    insert into spider_2_ggzy_content_clean_temp (location,coordinate,judgeMethod,fileOpenWay,url_id, classify, title,
       stageName, platformName, classifyShow,
       tradeShow, districtShow, url,
       stageShow, titleShow, proContact,
@@ -156,7 +152,7 @@
     values
     <foreach collection="list"  item="tag" separator="," index="index">
 
-    (#{tag.judgeMethod,jdbcType=VARCHAR},#{tag.fileOpenWay,jdbcType=VARCHAR},#{tag.urlId,jdbcType=INTEGER}, #{tag.classify,jdbcType=VARCHAR}, #{tag.title,jdbcType=VARCHAR},
+    (#{tag.location,jdbcType=VARCHAR},#{tag.coordinate,jdbcType=VARCHAR},#{tag.judgeMethod,jdbcType=VARCHAR},#{tag.fileOpenWay,jdbcType=VARCHAR},#{tag.urlId,jdbcType=INTEGER}, #{tag.classify,jdbcType=VARCHAR}, #{tag.title,jdbcType=VARCHAR},
       #{tag.stagename,jdbcType=VARCHAR}, #{tag.platformname,jdbcType=VARCHAR}, #{tag.classifyshow,jdbcType=VARCHAR},
       #{tag.tradeshow,jdbcType=VARCHAR}, #{tag.districtshow,jdbcType=VARCHAR}, #{tag.url,jdbcType=VARCHAR},
       #{tag.stageshow,jdbcType=VARCHAR}, #{tag.titleshow,jdbcType=VARCHAR}, #{tag.procontact,jdbcType=VARCHAR},
@@ -685,50 +681,5 @@
       expertName = #{expertname,jdbcType=LONGVARCHAR}
     where url_id = #{urlId,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.spring.springbootdemo.model.DataContent">
-    update spider_2_ggzy_content_clean
-    set classify = #{classify,jdbcType=VARCHAR},
-      title = #{title,jdbcType=VARCHAR},
-      stageName = #{stagename,jdbcType=VARCHAR},
-      platformName = #{platformname,jdbcType=VARCHAR},
-      classifyShow = #{classifyshow,jdbcType=VARCHAR},
-      tradeShow = #{tradeshow,jdbcType=VARCHAR},
-      districtShow = #{districtshow,jdbcType=VARCHAR},
-      url = #{url,jdbcType=VARCHAR},
-      stageShow = #{stageshow,jdbcType=VARCHAR},
-      titleShow = #{titleshow,jdbcType=VARCHAR},
-      proContact = #{procontact,jdbcType=VARCHAR},
-      proPhone = #{prophone,jdbcType=VARCHAR},
-      buyingUnit = #{buyingunit,jdbcType=VARCHAR},
-      buyingAddr = #{buyingaddr,jdbcType=VARCHAR},
-      buyingPhone = #{buyingphone,jdbcType=VARCHAR},
-      proxyOrgAddr = #{proxyorgaddr,jdbcType=VARCHAR},
-      proxyOrgPhone = #{proxyorgphone,jdbcType=VARCHAR},
-      proName = #{proname,jdbcType=VARCHAR},
-      classes = #{classes,jdbcType=VARCHAR},
-      noticeTime = #{noticetime,jdbcType=VARCHAR},
-      region = #{region,jdbcType=VARCHAR},
-      submitFileDeadTime = #{submitfiledeadtime,jdbcType=VARCHAR},
-      entitledCheckTime = #{entitledchecktime,jdbcType=VARCHAR},
-      appendix = #{appendix,jdbcType=VARCHAR},
-      proNo = #{prono,jdbcType=VARCHAR},
-      obtainFileTime = #{obtainfiletime,jdbcType=VARCHAR},
-      tenderingFilePrice = #{tenderingfileprice,jdbcType=VARCHAR},
-      tenderingFileAddr = #{tenderingfileaddr,jdbcType=VARCHAR},
-      openTenderTime = #{opentendertime,jdbcType=VARCHAR},
-      openTenderAddr = #{opentenderaddr,jdbcType=VARCHAR},
-      budgetAmount = #{budgetamount,jdbcType=VARCHAR},
-      resFileSubTime = #{resfilesubtime,jdbcType=VARCHAR},
-      resFileSubAddr = #{resfilesubaddr,jdbcType=VARCHAR},
-      resFileOpenTime = #{resfileopentime,jdbcType=VARCHAR},
-      winBidTime = #{winbidtime,jdbcType=VARCHAR},
-      tenderingNoticeTime = #{tenderingnoticetime,jdbcType=VARCHAR},
-      winBidTotalAmount = #{winbidtotalamount,jdbcType=VARCHAR},
-      winBidBisName = #{winbidbisname,jdbcType=VARCHAR},
-      winBidBisAddr = #{winbidbisaddr,jdbcType=VARCHAR},
-      winBidBisAmount = #{winbidbisamount,jdbcType=VARCHAR},
-      firstNoticeTime = #{firstnoticetime,jdbcType=VARCHAR},
-      other = #{other,jdbcType=VARCHAR}
-    where url_id = #{urlId,jdbcType=INTEGER}
-  </update>
+
 </mapper>

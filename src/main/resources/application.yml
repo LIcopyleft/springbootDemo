@@ -29,10 +29,11 @@ pagehelper:
 logging:
   path: log
   level:
-    com.spring.springbootdemo: warn
+    com.spring.springbootdemo: info
  # pattern:
  #   file: %d{yyyy-MM-dd} === [%thread] === %-5level === %logger{50} ==== %msg%n
 
 
+# regular:"项目名称"/"项目名":"proName"|"项目编号"/"编号":"proNo"
 
 
