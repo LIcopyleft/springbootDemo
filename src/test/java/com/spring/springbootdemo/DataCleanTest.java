@@ -24,16 +24,16 @@ import java.util.concurrent.*;
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DataCleanTest {
-    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(15);
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(1);
     private static final Logger logger = LoggerFactory.getLogger(DataCleanTest.class);
-    private static final long QUERY_SIZE = 1000;
+    private static final long QUERY_SIZE = 5000;
 
     @Autowired
     private DataContentMapper mapper;
 
 
     //   private static final String STAGE_SHOW = "招标/资审文件澄清";
-    private static final String STAGE_SHOW = "采购合同";
+    private static final String STAGE_SHOW = "中标公告";
 
  //   private CountDownLatch latch;
 /*
