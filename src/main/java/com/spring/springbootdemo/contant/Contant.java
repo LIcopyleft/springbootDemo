@@ -45,20 +45,20 @@ public class Contant {
 */
     private static final String PRO_NAME = "proname:项目名称/采购项目名称/";
     private static final String PRO_NO = "prono:项目编号/采购项目编号/交易编号/招标编号";
-    private static final String BUY_ORG = "buyingunit:招标单位/采购人名称/招标人/采购人";//采购单位
-    private static final String BUY_ORG_ADDR = "buyingaddr:采购单位地址/地址/址/";//采购单位地址
-    private static final String NOTICE_TIME = "noticetime:采购公告发布日期/";//采购公告日期
+    private static final String BUY_ORG = "buyingunit:招标单位/采购人名称/招标人/采购人/招标采购人名称";//采购单位
+    private static final String BUY_ORG_ADDR = "buyingaddr:采购单位地址/采购人地址/地址/址/";//采购单位地址
+    private static final String NOTICE_TIME = "noticetime:采购公告发布日期/采购公告日期";//采购公告日期
     private static final String ORIGIN= "origin:地区/";
-    private static final String TENDER_TIME = "winbidtime:中标日期/";//中标日期
-    private static final String EXPERT_NAME = "expertname:评标委员会成员名单/评审小组名单/名单/评审小组成员/谈判小组专家名单/采购结果确认谈判小组";//评标委员会成员名单
-    private static final String TENDER_TOTAL_AMOUNT = "winbidtotalamount:中标金额/中标总金额/总金额/成交金额";//中标金额
-    private static final String WIN_ORG_NAME = "winbidbisname:中标人名称/中标人/中标机构名称/成交供应商/供应商名称/成交单位名称/成交供应商名称";//
-    private static final String WIN_ORG_ADDR = "winbidbisaddr:中标单位地址/中标成交供应商地址/成交单位地址";//中标单位地址
+    private static final String TENDER_TIME = "winbidtime:中标日期/成交日期";//中标日期
+    private static final String EXPERT_NAME = "expertname:评标委员会成员名单/评审委员会名单/评审小组名单/名单/评审小组成员/谈判小组专家名单/采购结果确认谈判小组/磋商小组名单/评标委员会名单";//评标委员会成员名单
+    private static final String TENDER_TOTAL_AMOUNT = "winbidtotalamount:中标金额/中标总金额/总金额/成交金额/中标(成交)金额";//中标金额
+    private static final String WIN_ORG_NAME = "winbidbisname:中标人名称/中标人/中标机构名称/成交供应商/供应商名称/成交单位名称/成交供应商名称/中标供应商名称/中标成交供应商名称";//
+    private static final String WIN_ORG_ADDR = "winbidbisaddr:中标单位地址/中标成交供应商地址/成交单位地址/成交供应商地址/中标供应商联系地址/中标供应商地址/中标成交供应商联系地址";//中标单位地址
     private static final String PRO_CONTACT = "procontact:项目联系人/联系人/联系人及联系方式";//项目联系人
  //   private static final String PRO_CONTACT_PHONE = "proname:电话/项目联系电话";//项目联系电话
-    private static final String PROXY_ORG_NAME = "proxyorgName:代理机构/代理机构名称/招标代理机构/采购代理机构名称";//代理机构名称
-    private static final String PROXY_ORG_ADDR = "proxyorgaddr:代理机构地址/";//代理机构地址
-    private static final String PROXY_ORG_CONTACT_PHONE = "proxyorgphone:代理机构电话/代理机构联系方式";//
+    private static final String PROXY_ORG_NAME = "proxyorgName:代理机构/代理机构名称/招标代理机构/采购代理机构名称/代理机构全称/招标采购代理机构名称";//代理机构名称
+    private static final String PROXY_ORG_ADDR = "proxyorgaddr:代理机构地址/政府采购代理机构联系地址/招标代理机构";//代理机构地址
+    private static final String PROXY_ORG_CONTACT_PHONE = "proxyorgphone:代理机构电话/代理机构联系方式/政府采购代理机构联系电话";//
  //   private static final String TENDER_WAY = "proname:";//
 
     private static Set set = new HashSet();

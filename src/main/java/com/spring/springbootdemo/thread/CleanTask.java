@@ -22,6 +22,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -32,6 +33,11 @@ import java.util.regex.Pattern;
 public class CleanTask implements Runnable {
 
     private static final String KEY_WORD = "区域坐标";
+
+    private static final Set<String> FLAG =  new HashSet<>();
+    // 1
+
+
     private static final int INSERT_MAX = 1000;
     private static final int KEY_NUM = 6;
 

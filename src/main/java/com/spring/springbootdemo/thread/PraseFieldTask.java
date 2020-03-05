@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.spring.springbootdemo.contant.Contant;
 import com.spring.springbootdemo.mapper.DataContentMapper;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
+import com.spring.springbootdemo.utils.FileUtils;
 import com.spring.springbootdemo.utils.SpringContextHolder;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -228,31 +229,20 @@ public class PraseFieldTask implements Runnable {
         代理机构地址
         代理机构联系方式
 */
-        //TODO 暫不支持多表格
+        //TODO 暫不解析表格内容
         Map<String, Map> resMap = new HashMap();
-        if (tableList.size() > 1) {
+     /*   if (tableList.size() > 1) {
             logger.error("tableSize > 1 urlId = " + data.getUrlId());
             return null;
         }
 
-        Map<String, String> tableMap = parseRowTable(tableList);
+        Map<String, String> tableMap = parseRowTable(tableList);*/
         DataContentWithBLOBs dcb = new DataContentWithBLOBs();
         BeanUtils.copyProperties(data, dcb);
         dcb.setProname(proName);
-      /*  dcb.setProno();
-        dcb.setTenderingnoticetime();//招标公告日期
-        dcb.setProxyorgphone();
-        dcb.setProxyorgaddr();
-        dcb.setBuyingunit();
-        dcb.setBuyingaddr();
-        dcb.setBuyingphone();
-        dcb.setExpertname();
-        dcb.setWinbidtime();
-        dcb.setWinbidtotalamount();
-        dcb.setWin
-        dcb.setProphone();
-*/
-        resMap.put("table", tableMap);
+
+        // TODO 咱不添加表格内容
+        //resMap.put("table", tableMap);
         resMap.put("text", colMap);
 
         getFild(dcb, resMap);
@@ -270,10 +260,6 @@ public class PraseFieldTask implements Runnable {
      * @param
      */
     public static Map<String, String> parseRowTable(List<String> tables) {
-    /*    Elements ps = parse.select(".detail_content").get(0).getElementsByTag("p");
-        Elements table1 = ps.get(0).getElementsByTag("table");
-        */
-        //   html(tables.get(0));
 
         Map<String, String> map = new HashMap();
         StringBuffer sb = new StringBuffer();
@@ -281,7 +267,6 @@ public class PraseFieldTask implements Runnable {
         for (String table : tables) {
             Document tab = Jsoup.parse(table);
 
-            //   getTableColumnData(tab,"0,9");
 
             Elements trs = tab.getElementsByTag("tr");
             Elements first = trs.first().children();
@@ -343,11 +328,14 @@ public class PraseFieldTask implements Runnable {
 
     private static DataContentWithBLOBs getFild(DataContentWithBLOBs datas, Map<String, Map> map) throws IllegalAccessException, InvocationTargetException {
 
+        Set keySet = new LinkedHashSet();
         Map<String, String> table = map.get("table");
-        Map<String, String> text = map.get("text");
-        // 合并
         Map<String, String> combineResultMap = new HashMap();
-        combineResultMap.putAll(text);
+        if (map.containsKey("text")) {
+            Map<String, String> text = map.get("text");
+            combineResultMap.putAll(text);
+        }
+        // 合并
         combineResultMap.putAll(table);
         Set set = Contant.filedValueSet();
         //遍历 Map中key
@@ -355,6 +343,9 @@ public class PraseFieldTask implements Runnable {
         // 合并后打印出所有内容
         for (Map.Entry<String, String> entry : combineResultMap.entrySet()) {
             String key = entry.getKey();
+            //将所有key，保存set，最后写入文件
+            keySet.add(key);
+
             Iterator<String> iterator = set.iterator();
             while (iterator.hasNext()) {
                 String next = iterator.next();
@@ -390,6 +381,8 @@ public class PraseFieldTask implements Runnable {
             }
         }
         logger.info(JSON.toJSONString(map));
+
+        FileUtils.writeAppendFile("key.txt",keySet);
         return datas;
     }
 
