@@ -133,7 +133,7 @@
 
 
   <insert id="insertList" parameterType="java.util.List">
-    insert into spider_2_ggzy_content_clean_temp (location,coordinate,judgeMethod,fileOpenWay,url_id, classify, title,
+    insert into spider_2_ggzy_content_clean_temp (proxyOrgName,location,coordinate,judgeMethod,fileOpenWay,url_id, classify, title,
       stageName, platformName, classifyShow,
       tradeShow, districtShow, url,
       stageShow, titleShow, proContact,
@@ -152,7 +152,7 @@
     values
     <foreach collection="list"  item="tag" separator="," index="index">
 
-    (#{tag.location,jdbcType=VARCHAR},#{tag.coordinate,jdbcType=VARCHAR},#{tag.judgeMethod,jdbcType=VARCHAR},#{tag.fileOpenWay,jdbcType=VARCHAR},#{tag.urlId,jdbcType=INTEGER}, #{tag.classify,jdbcType=VARCHAR}, #{tag.title,jdbcType=VARCHAR},
+    (#{tag.proxyorgName,jdbcType=VARCHAR},#{tag.location,jdbcType=VARCHAR},#{tag.coordinate,jdbcType=VARCHAR},#{tag.judgeMethod,jdbcType=VARCHAR},#{tag.fileOpenWay,jdbcType=VARCHAR},#{tag.urlId,jdbcType=INTEGER}, #{tag.classify,jdbcType=VARCHAR}, #{tag.title,jdbcType=VARCHAR},
       #{tag.stagename,jdbcType=VARCHAR}, #{tag.platformname,jdbcType=VARCHAR}, #{tag.classifyshow,jdbcType=VARCHAR},
       #{tag.tradeshow,jdbcType=VARCHAR}, #{tag.districtshow,jdbcType=VARCHAR}, #{tag.url,jdbcType=VARCHAR},
       #{tag.stageshow,jdbcType=VARCHAR}, #{tag.titleshow,jdbcType=VARCHAR}, #{tag.procontact,jdbcType=VARCHAR},

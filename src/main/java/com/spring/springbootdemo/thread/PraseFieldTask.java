@@ -1,20 +1,11 @@
 package com.spring.springbootdemo.thread;
 
 import com.alibaba.fastjson.JSON;
+import com.spring.springbootdemo.contant.Contant;
 import com.spring.springbootdemo.mapper.DataContentMapper;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
 import com.spring.springbootdemo.utils.SpringContextHolder;
 import org.apache.commons.lang3.StringUtils;
-import org.htmlparser.NodeFilter;
-import org.htmlparser.Parser;
-import org.htmlparser.filters.NodeClassFilter;
-import org.htmlparser.filters.TagNameFilter;
-import org.htmlparser.tags.Html;
-import org.htmlparser.tags.TableColumn;
-import org.htmlparser.tags.TableRow;
-import org.htmlparser.tags.TableTag;
-import org.htmlparser.util.NodeList;
-import org.htmlparser.util.ParserException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,13 +14,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-public class CleanTask implements Runnable {
+public class PraseFieldTask implements Runnable {
 
     private static final String KEY_WORD = "区域坐标";
     private static final int INSERT_MAX = 1000;
@@ -40,11 +38,9 @@ public class CleanTask implements Runnable {
     private String stageShow;
     private CountDownLatch latch;
 
+    private static final Logger logger = LoggerFactory.getLogger(PraseFieldTask.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(CleanTask.class);
-
-
-    public CleanTask(long beginIndex, long querySize, String stageShow, CountDownLatch latch) {
+    public PraseFieldTask(long beginIndex, long querySize, String stageShow, CountDownLatch latch) {
         this.beginIndex = beginIndex;
         this.querySize = querySize;
         this.stageShow = stageShow;
@@ -58,7 +54,7 @@ public class CleanTask implements Runnable {
             List<DataContentWithBLOBs> list = new LinkedList<>();
             List<DataContentWithBLOBs> dataContent = mapper.selectAll(beginIndex, querySize);
             if (dataContent == null || dataContent.size() < 1) {
-                logger.warn(Thread.currentThread().getName() + "end====query db is null====beginIndex=" + beginIndex);
+                logger.info(Thread.currentThread().getName() + "end====query db is null====beginIndex=" + beginIndex);
                 return;
             }
             LinkedBlockingQueue<DataContentWithBLOBs> queues = new LinkedBlockingQueue();
@@ -79,7 +75,7 @@ public class CleanTask implements Runnable {
                     if (StringUtils.isBlank(content)) {
                         continue;
                     }
-                    //    Document parse = Jsoup.parse(content);
+                    // Document parse = Jsoup.parse(content);
                     // DataContentWithBLOBs dcb = cleanMethod(data,parse);
                     DataContentWithBLOBs dcb = cleanMethodBisReport(data);
                     if (dcb == null) {
@@ -87,7 +83,7 @@ public class CleanTask implements Runnable {
                     }
                     list.add(dcb);
                 } catch (Exception e) {
-                    logger.error("ParaseErr{urlId:" + data.getUrlId() + "====url:" + data.getUrl() + "}");
+                    logger.error("ParaseErr{urlId:" + data.getUrlId() + "====url:" + data.getUrl() + "}\n" + e.getMessage());
                     continue;
                 }
 
@@ -96,7 +92,7 @@ public class CleanTask implements Runnable {
                     if (list.size() < 1) {
                         continue;
                     }
-                 //   row += mapper.insertList(list);
+                    row += mapper.insertList(list);
                     list.clear();
                     continue;
                 }
@@ -104,137 +100,9 @@ public class CleanTask implements Runnable {
             }
             logger.info(Thread.currentThread().getName() + "==url_id over" + dataContent.get(dataContent.size() - 1).getUrlId() + "=====insert\t" + row + "行");
         } finally {
+
             latch.countDown();
         }
-    }
-
-    /*
-     * @description    表格类型清洗, 可复用
-     * @author tengchao.li
-     * @date 2020/2/23
-     * @param dcb
-     * @param data
-     * @param content
-     * @return void
-     */
-    private DataContentWithBLOBs cleanMethod(DataContentWithBLOBs data, Document parse) throws Exception {
-
-        String proName = parse.select(".h4_o").get(0).text();
-        // String subTime = parse.select(".p_o").get(0).children().get(0).text();
-        Elements tds = parse.select("td");
-        Elements ths = parse.select("th");
-
-        if (!KEY_WORD.contains(ths.get(KEY_NUM).text())) {
-            logger.error("========type diff==" + data.getUrlId() + "==========" + ths.get(4).text());
-            return null;
-        }
-/*
-        Elements select = parse.select(".detail");
-        Elements select1 = parse.select(".p_o");
-        Elements select2 = parse.select(".h4_o");
-        Elements table = parse.select("table");
-        Elements p = parse.select("p");
-        Elements tr = parse.select("tr");
-        Elements td = parse.select("td");
-
-*/
-       /* if(!KEY_WORD.equals(ths.get(5).text())){
-            logger.error("========type diff==" + data.getUrlId() + "=========="+ths.get(5).text());
-            return null;
-        }*/
-
-        String d0 = tds.get(0).text();
-        String d1 = tds.get(1).text(); //zi ge
-        String d2 = tds.get(2).text(); // apply dead line
-        String d3 = tds.get(3).text(); //kaibiao shijian
-        String d4 = tds.get(4).text(); //kaibiao shijian
-        String d5 = tds.get(5).text(); //kaibiao shijian
-        String d6 = tds.get(6).text(); //kaibiao shijian
-  /*      String fileOpenWay = tds.get(4).text();//
-        // String subTime = tds.get(18).text();// tijiaoshijian
-        String method = tds.get(5).text(); //评审方法
-        String contents = tds.get(6).text(); //修改 澄清内容 */
-
-        DataContentWithBLOBs dcb = new DataContentWithBLOBs();
-        BeanUtils.copyProperties(data, dcb);
-        //dcb.setOpentendertime(time);
-        // dcb.setBuyingunit(d0);
-        //   dcb.setOpentenderaddr(d1);
-        //  dcb.set
-        dcb.setProname(d0);
-        //    dcb.setOpentendertime(d2);
-        dcb.setOther(ths.get(1).text() + ":" + d1 + "|" + ths.get(2).text() + ":" + d2 + "|" + ths.get(3).text() + ":" + d3 + "|" + ths.get(4).text() + ":" + d4);
-        dcb.setLocation(d5);
-        if (d6.length() < 200) {
-            dcb.setCoordinate(d6);
-        }
-        //  dcb.setWinbidtime(d6);
-        dcb.setContent(null);
-
-        return dcb;
-    }
-
-    /*
-     * @description  中标公告 清洗
-     * @author tengchao.li
-     * @date 2020/2/25
-     * @param data
-     * @param parse
-     * @return com.spring.springbootdemo.model.DataContentWithBLOBs
-     */
-    private DataContentWithBLOBs cleanMethodWinBidRes(DataContentWithBLOBs data, Document parse) throws Exception {
-        String proName = parse.select(".h4_o").get(0).text();
-        String subTime = parse.select(".p_o").get(0).children().get(0).text();
-        Elements tds = parse.select("td");
-        Elements ths = parse.select("th");
-        Elements ps = parse.select(".detail_content").get(0).getElementsByTag("p");
-        String text = ps.text();
-        if (!KEY_WORD.contains(ths.get(KEY_NUM).text())) {
-            logger.error("========type diff==" + data.getUrlId() + "==========" + ths.get(4).text());
-            return null;
-        }
-/*
-        Elements select = parse.select(".detail");
-
-        Elements select1 = parse.select(".p_o");
-        Elements select2 = parse.select(".h4_o");
-        Elements table = parse.select("table");
-        Elements p = parse.select("p");
-        Elements tr = parse.select("tr");
-        Elements td = parse.select("td");
-*/
-       /* if(!KEY_WORD.equals(ths.get(5).text())){
-            logger.error("========type diff==" + data.getUrlId() + "=========="+ths.get(5).text());
-            return null;
-        }*/
-
-        String d0 = tds.get(0).text();
-        String d1 = tds.get(1).text(); //zi ge
-        String d2 = tds.get(2).text(); // apply dead line
-        String d3 = tds.get(3).text(); //kaibiao shijian
-        String d4 = tds.get(4).text(); //kaibiao shijian
-        String d5 = tds.get(5).text(); //kaibiao shijian
-        String d6 = tds.get(6).text(); //kaibiao shijian
-  /*      String fileOpenWay = tds.get(4).text();//
-        // String subTime = tds.get(18).text();// tijiaoshijian
-        String method = tds.get(5).text(); //评审方法
-        String contents = tds.get(6).text(); //修改 澄清内容 */
-        DataContentWithBLOBs dcb = new DataContentWithBLOBs();
-        BeanUtils.copyProperties(data, dcb);
-        //dcb.setOpentendertime(time);
-        // dcb.setBuyingunit(d0);
-        //   dcb.setOpentenderaddr(d1);
-        //  dcb.set
-        dcb.setProname(d0);
-        //    dcb.setOpentendertime(d2);
-        dcb.setOther(ths.get(1).text() + ":" + d1 + "|" + ths.get(2).text() + ":" + d2 + "|" + ths.get(3).text() + ":" + d3 + "|" + ths.get(4).text() + ":" + d4);
-        dcb.setLocation(d5);
-        if (d6.length() < 200) {
-            dcb.setCoordinate(d6);
-        }
-        //  dcb.setWinbidtime(d6);
-        dcb.setContent(null);
-        return dcb;
     }
 
     /*
@@ -246,6 +114,12 @@ public class CleanTask implements Runnable {
      * @return com.spring.springbootdemo.model.DataContentWithBLOBs
      */
     private static final String REG_TABLE = "<table.*?>[\\s\\S]*?<\\/table>";
+    private static String regEx_script = "<script[^>]*?>[\\s\\S]*?<\\/script>"; // 定义script的正则表达式
+    private static String regEx_style = "<style[^>]*?>[\\s\\S]*?<\\/style>"; // 定义style的正则表达式
+    private static String regEx_ts = "(\\d{1,2},)|(十一,)|(二,)|(三,)|(四,)|(五,)|(六,)|(七,)|(八,)|(九,)|(十,)|(一,)|([（一）（二）（三）（四）（五）（六）（七）（八）（九）（十）],{0,1})"; // 清除数字编号
+    //   String regEx_az ="[\\s\\@\\#\\$\\%\\^\\&\\*\\{\\}\\[\\]\\、\\;\\'\\“\\”\\.\\。\\,\\，\\+\\/\\<\\>\\?\\《\\》\\=]+";
+    private static String regEx_az = "[\\s\\@\\#\\$\\%\\^\\&\\*\\{\\}\\[\\]\\;\\'\\“\\”\\。\\，\\+\\/\\<\\>\\?\\《\\》\\=]+";
+
 
     private DataContentWithBLOBs cleanMethodBisReport(DataContentWithBLOBs data) throws Exception {
         String content = data.getContent();
@@ -381,6 +255,8 @@ public class CleanTask implements Runnable {
         resMap.put("table", tableMap);
         resMap.put("text", colMap);
 
+        getFild(dcb, resMap);
+
         String mapStr = JSON.toJSONString(resMap);
         logger.info(mapStr);
         dcb.setOther(mapStr);
@@ -405,7 +281,7 @@ public class CleanTask implements Runnable {
         for (String table : tables) {
             Document tab = Jsoup.parse(table);
 
-         //   getTableColumnData(tab,"0,9");
+            //   getTableColumnData(tab,"0,9");
 
             Elements trs = tab.getElementsByTag("tr");
             Elements first = trs.first().children();
@@ -415,9 +291,9 @@ public class CleanTask implements Runnable {
                 for (int j = 0; j < element.size(); j++) {
                     String name = first.get(j).text() + ":" + element.get(j).text();
                     if (element.get(j).hasAttr("colspan")) {
-                        colSpanStr.append(element.get(j).text()+"|");
+                        colSpanStr.append(element.get(j).text() + "|");
                         continue;
-                      //  logger.info("has colspan = " + element.get(j).attr("colspan") + element.get(j).text());
+                        //  logger.info("has colspan = " + element.get(j).attr("colspan") + element.get(j).text());
                     }
                     if (element.get(j).hasAttr("rowspan")) {
                         String num = (element.get(j)).attr("rowspan");
@@ -465,49 +341,74 @@ public class CleanTask implements Runnable {
     }
 
 
-    public static Map<String, String> getTableColumnData(Element table, String rowSelectRange) {
-        Map<String, String> map = new LinkedHashMap<>();
-        Elements trs = table.select("tr");
-        if (!StringUtils.isEmpty(rowSelectRange)) {
-            String[] deleteRows = rowSelectRange.split(",");
-            int offsetIndex = 0;
-            for (int i = deleteRows.length - 1; i >= 0; i--) {
-                int index = Integer.parseInt(deleteRows[i]);
-                if (index < 0) {
-                    index = Math.abs(index);
-                    index = trs.size() - (index - offsetIndex);
-                    trs.remove(index);
-                    offsetIndex++;
-                } else {
-                    trs.remove(index - 1);
+    private static DataContentWithBLOBs getFild(DataContentWithBLOBs datas, Map<String, Map> map) throws IllegalAccessException, InvocationTargetException {
+
+        Map<String, String> table = map.get("table");
+        Map<String, String> text = map.get("text");
+        // 合并
+        Map<String, String> combineResultMap = new HashMap();
+        combineResultMap.putAll(text);
+        combineResultMap.putAll(table);
+        Set set = Contant.filedValueSet();
+        //遍历 Map中key
+        //proNo ： 项目标号，编号，
+        // 合并后打印出所有内容
+        for (Map.Entry<String, String> entry : combineResultMap.entrySet()) {
+            String key = entry.getKey();
+            Iterator<String> iterator = set.iterator();
+            while (iterator.hasNext()) {
+                String next = iterator.next();
+                //   if (next.contains(key) /*|| keyIsContains(key, next)*/) {
+                if (keyIsContains(key, next)) {
+                    //   DataContentWithBLOBs datas = new DataContentWithBLOBs();
+                    //   Field[] declaredFields = datas.getClass().getDeclaredFields();
+                    BeanInfo beanInfo;
+                    try {
+                        beanInfo = Introspector.getBeanInfo(datas.getClass());
+                    } catch (IntrospectionException e) {
+                        return datas;
+                    }
+                    List<PropertyDescriptor> descriptors = Arrays.stream(beanInfo.getPropertyDescriptors()).filter(p -> {
+                        String name = p.getName();
+                        //过滤掉不需要修改的属性
+                        return !"class".equals(name) && !"id".equals(name);
+                    }).collect(Collectors.toList());
+                    for (PropertyDescriptor descriptor : descriptors) {
+                        //descriptor.getWriteMethod()方法对应set方法
+
+
+                        if (descriptor.getName().equals(next.split(":")[0])) {
+                            /*   System.err.println(descriptor.getName()+"==="+next.split(":")[0]);
+                            if(next.split(":")[0].contains("buyingunit")){
+                                logger.info("");
+                            } */
+                            Method writeMethod = descriptor.getWriteMethod();
+                            writeMethod.invoke(datas, entry.getValue());
+                        }
+                    }
                 }
             }
         }
-        for (Element tr : trs) {
-            Elements tds = tr.select("td");
-            // th 和 td 混合的情况下，取子元素
-            if (tr.select("th").size() > 0) {
-                tds = tr.children();
-            }
-            int index = 0;
-            String name = "";
-            for (Element td : tds) {
-                index++;
-                if (index % 2 == 0) {
-                    if (StringUtils.isEmpty(name)) {
-                        continue;
-                    }
-                    map.put(name, td.text().trim());
-                } else {
-                    name = td.text();
-                    if (name.endsWith(":") || name.endsWith("：")) {
-                        name = name.substring(0, name.length() - 1);
-                    }
-                    name = name.trim();
-                }
+        logger.info(JSON.toJSONString(map));
+        return datas;
+    }
+
+
+    private static boolean keyIsContains(String key, String fieldStr) {
+   /*     if(key.contains("采购人") && fieldStr.contains("采购人")){
+            logger.info("");
+        }
+*/
+        Pattern p_script = Pattern.compile("[^\u4e00-\u9fa5]", Pattern.CASE_INSENSITIVE);
+        Matcher m_script = p_script.matcher(key);
+        key = m_script.replaceAll(""); // 过滤script标签
+        String[] split = fieldStr.split(":")[1].split("/");
+        for (String str : split) {
+            if (key.equals(str)) {
+                return true;
             }
         }
-        return map;
+        return false;
     }
 
 }

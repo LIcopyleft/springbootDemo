@@ -9,21 +9,13 @@ public class DataContent {
     private String coordinate;
     private String judgeMethod;
     private String classify;
-
     private String title;
-
     private String stagename;
-
     private String platformname;
-
     private String classifyshow;
-
     private String tradeshow;
-
     private String districtshow;
-
     private String url;
-
     private String stageshow;
 
     private String titleshow;
@@ -39,6 +31,7 @@ public class DataContent {
     private String buyingphone;
 
     private String proxyorgaddr;
+    private String proxyorgName;
 
     private String proxyorgphone;
 
@@ -198,6 +191,14 @@ public class DataContent {
 
     public String getBuyingunit() {
         return buyingunit;
+    }
+
+    public String getProxyorgName() {
+        return proxyorgName;
+    }
+
+    public void setProxyorgName(String proxyorgName) {
+        this.proxyorgName = proxyorgName;
     }
 
     public void setBuyingunit(String buyingunit) {

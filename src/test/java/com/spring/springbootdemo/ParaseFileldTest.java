@@ -1,8 +1,7 @@
 package com.spring.springbootdemo;
 
 import com.spring.springbootdemo.mapper.DataContentMapper;
-import com.spring.springbootdemo.model.DataContentWithBLOBs;
-import com.spring.springbootdemo.thread.*;
+import com.spring.springbootdemo.thread.PraseFieldTask;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -12,8 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author tengchao.li
@@ -23,9 +23,9 @@ import java.util.concurrent.*;
 @SpringBootTest(value = "application.yml")
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-public class DataCleanTest {
+public class ParaseFileldTest {
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(30);
-    private static final Logger logger = LoggerFactory.getLogger(DataCleanTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ParaseFileldTest.class);
     private static final long QUERY_SIZE = 5000;
 
     @Autowired
@@ -74,7 +74,7 @@ public class DataCleanTest {
         CountDownLatch latch = new CountDownLatch(Integer.valueOf(String.valueOf(times)));
     //    List<Runnable> tasks = new ArrayList<Runnable>();//添加任务
         for(int i = 0; i <times ; i++){
-            Runnable task = new CleanTask(beginIndex,QUERY_SIZE,STAGE_SHOW,latch);
+            Runnable task = new PraseFieldTask(beginIndex,QUERY_SIZE,STAGE_SHOW,latch);
         //    tasks.add(task);
             beginIndex += QUERY_SIZE;
             EXECUTOR.execute(task);
@@ -93,29 +93,9 @@ public class DataCleanTest {
      * @param
      * @return void
      */
-    @Test
-    public void doClean2() {
-        try {
-                List<DataContentWithBLOBs> dataContent = mapper.selectAllByStageShow(STAGE_SHOW);
-                if (dataContent == null || dataContent.size() < 1) {
 
-                }
-                LinkedBlockingQueue<DataContentWithBLOBs> queue = new LinkedBlockingQueue();
-                for (DataContentWithBLOBs data : dataContent) {
-                    if (STAGE_SHOW.equals(data.getStageshow())) {
-                        queue.add(data);
-                    }
-                }
-                if (queue.size() > 0) {
-                    EXECUTOR.execute(new CleanDealNoticeTask(queue));
-                }
 
-        } catch (Exception e) {
-          //  logger.error("========= " + STAGE_SHOW + " index" + i + "==============");
 
-        }
-
-    }
 
 
 
