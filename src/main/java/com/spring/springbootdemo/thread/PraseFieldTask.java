@@ -84,7 +84,8 @@ public class PraseFieldTask implements Runnable {
                     }
                     list.add(dcb);
                 } catch (Exception e) {
-                    logger.error("ParaseErr{urlId:" + data.getUrlId() + "====url:" + data.getUrl() + "}\n" + e.getMessage());
+                    logger.error("ParaseErr{urlId:" + data.getUrlId() + "====url:" + data.getUrl() + "}\n");
+                    logger.error("错误信息:", e);
                     continue;
                 }
 
@@ -124,6 +125,10 @@ public class PraseFieldTask implements Runnable {
 
     private DataContentWithBLOBs cleanMethodBisReport(DataContentWithBLOBs data) throws Exception {
         String content = data.getContent();
+        if (data.getUrlId() == 18164 || data.getUrlId() == 1062) {
+            logger.error("");
+        }
+
         if (StringUtils.isBlank(content)) {
             return null;
         }
@@ -329,14 +334,22 @@ public class PraseFieldTask implements Runnable {
     private static DataContentWithBLOBs getFild(DataContentWithBLOBs datas, Map<String, Map> map) throws IllegalAccessException, InvocationTargetException {
 
         Set keySet = new LinkedHashSet();
-        Map<String, String> table = map.get("table");
         Map<String, String> combineResultMap = new HashMap();
+        if (map.containsKey("table")) {
+            Map<String, String> table = map.get("table");
+            combineResultMap.putAll(table);
+
+        }
+
         if (map.containsKey("text")) {
             Map<String, String> text = map.get("text");
             combineResultMap.putAll(text);
         }
+        if(combineResultMap.size() < 1){
+            return datas;
+        }
+
         // 合并
-        combineResultMap.putAll(table);
         Set set = Contant.filedValueSet();
         //遍历 Map中key
         //proNo ： 项目标号，编号，
@@ -382,7 +395,7 @@ public class PraseFieldTask implements Runnable {
         }
         logger.info(JSON.toJSONString(map));
 
-        FileUtils.writeAppendFile("key.txt",keySet);
+        FileUtils.writeAppendFile("key.txt", keySet);
         return datas;
     }
 

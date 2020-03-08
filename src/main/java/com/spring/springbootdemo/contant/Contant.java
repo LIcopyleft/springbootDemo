@@ -50,7 +50,7 @@ public class Contant {
     private static final String NOTICE_TIME = "noticetime:采购公告发布日期/采购公告日期";//采购公告日期
     private static final String ORIGIN= "origin:地区/";
     private static final String TENDER_TIME = "winbidtime:中标日期/成交日期";//中标日期
-    private static final String EXPERT_NAME = "expertname:评标委员会成员名单/评审委员会名单/评审小组名单/名单/评审小组成员/谈判小组专家名单/采购结果确认谈判小组/磋商小组名单/评标委员会名单";//评标委员会成员名单
+    private static final String EXPERT_NAME = "expertname:评标委员会成员名单/采购小组成员名单/评审委员会名单/评审小组名单/名单/评审小组成员/谈判小组专家名单/采购结果确认谈判小组/磋商小组名单/评标委员会名单";//评标委员会成员名单
     private static final String TENDER_TOTAL_AMOUNT = "winbidtotalamount:中标金额/中标总金额/总金额/成交金额/中标(成交)金额";//中标金额
     private static final String WIN_ORG_NAME = "winbidbisname:中标人名称/中标人/中标机构名称/成交供应商/供应商名称/成交单位名称/成交供应商名称/中标供应商名称/中标成交供应商名称";//
     private static final String WIN_ORG_ADDR = "winbidbisaddr:中标单位地址/中标成交供应商地址/成交单位地址/成交供应商地址/中标供应商联系地址/中标供应商地址/中标成交供应商联系地址";//中标单位地址

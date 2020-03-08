@@ -24,6 +24,7 @@ public class FileUtils {
             String line;
             while ((line = br.readLine()) != null) {
                 stringBuilder.append(line);
+                stringBuilder.append("|");
 
             }
             return stringBuilder.toString();
