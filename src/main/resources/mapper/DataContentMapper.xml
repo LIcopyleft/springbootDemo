@@ -129,6 +129,49 @@
     from spider_2_ggzy_content_clean
     where url_id = #{urlId,jdbcType=INTEGER}
   </select>
+  <insert id="insertList_BJ" parameterType="java.util.List">
+    insert into spider_2_ggzy_beijing_content_clean_temp (win_bid_info,email,url_id, classify,
+    stage_name, platform_name, classify_show,
+    trade_show, district_show, url,
+    stage_show, title, pro_contact,
+    pro_phone, buying_org, buying_addr,
+    buying_org_phone, proxy_org_addr, proxy_org_phone,
+    pro_name, classes, notice_time,
+    region, submit_file_dead_time, entitled_check_time,
+    appendix, pro_no, obtain_file_time,
+    tender_way, tendering_file_price, tendering_file_addr,
+    openTenderTime, open_tender_addr, budget_amount,
+    res_file_sub_time, res_file_sub_addr, res_file_open_time,
+    win_bid_time, tendering_notice_time, win_bid_total_amount,
+    win_bid_bis_name, win_bid_bis_addr, win_bid_bis_amount,
+    first_notice_time, file_open_way, judge_method,
+    location, coordinate, pub_time,
+    content, expert_name, other,category,proxy_org_name,proxy_org_contact
+    )
+    values
+    <foreach collection="list"  item="tag" separator="," index="index">
+      (#{ tag.winBisInfoStr,jdbcType=VARCHAR},#{ tag.email,jdbcType=VARCHAR},#{ tag.urlId,jdbcType=INTEGER}, #{ tag.classify,jdbcType=VARCHAR},
+      #{ tag.stageName,jdbcType=VARCHAR}, #{ tag.platformName,jdbcType=VARCHAR}, #{ tag.classifyShow,jdbcType=VARCHAR},
+      #{ tag.tradeShow,jdbcType=VARCHAR}, #{ tag.districtShow,jdbcType=VARCHAR}, #{ tag.url,jdbcType=VARCHAR},
+      #{ tag.stageShow,jdbcType=VARCHAR}, #{ tag.title,jdbcType=VARCHAR}, #{ tag.proContact,jdbcType=VARCHAR},
+      #{ tag.proPhone,jdbcType=VARCHAR}, #{ tag.buyingOrg,jdbcType=VARCHAR}, #{ tag.buyingAddr,jdbcType=VARCHAR},
+      #{ tag.buyingOrgPhone,jdbcType=VARCHAR}, #{ tag.proxyOrgAddr,jdbcType=VARCHAR}, #{ tag.proxyOrgPhone,jdbcType=VARCHAR},
+      #{ tag.proName,jdbcType=VARCHAR}, #{ tag.classes,jdbcType=VARCHAR}, #{ tag.noticeTime,jdbcType=VARCHAR},
+      #{ tag.region,jdbcType=VARCHAR}, #{ tag.submitFileDeadTime,jdbcType=VARCHAR}, #{ tag.entitledCheckTime,jdbcType=VARCHAR},
+      #{ tag.appendix,jdbcType=VARCHAR}, #{ tag.proNo,jdbcType=VARCHAR}, #{ tag.obtainFileTime,jdbcType=VARCHAR},
+      #{ tag.tenderWay,jdbcType=VARCHAR}, #{ tag.tenderingFilePrice,jdbcType=VARCHAR}, #{ tag.tenderingFileAddr,jdbcType=VARCHAR},
+      #{ tag.opentendertime,jdbcType=VARCHAR}, #{ tag.openTenderAddr,jdbcType=VARCHAR}, #{ tag.budgetAmount,jdbcType=VARCHAR},
+      #{ tag.resFileSubTime,jdbcType=VARCHAR}, #{ tag.resFileSubAddr,jdbcType=VARCHAR}, #{ tag.resFileOpenTime,jdbcType=VARCHAR},
+      #{ tag.winBidTime,jdbcType=VARCHAR}, #{ tag.tenderingNoticeTime,jdbcType=VARCHAR}, #{ tag.winBidTotalAmount,jdbcType=VARCHAR},
+      #{ tag.winBidBisName,jdbcType=VARCHAR}, #{ tag.winBidBisAddr,jdbcType=VARCHAR}, #{ tag.winBidBisAmount,jdbcType=VARCHAR},
+      #{ tag.firstNoticeTime,jdbcType=VARCHAR}, #{ tag.fileOpenWay,jdbcType=VARCHAR}, #{ tag.judgeMethod,jdbcType=VARCHAR},
+      #{ tag.location,jdbcType=VARCHAR}, #{ tag.coordinate,jdbcType=VARCHAR}, #{ tag.pubTime,jdbcType=VARCHAR},
+      #{ tag.content,jdbcType=LONGVARCHAR}, #{ tag.expertName,jdbcType=LONGVARCHAR}, #{ tag.other,jdbcType=LONGVARCHAR},#{ tag.category,jdbcType=VARCHAR}
+      ,#{ tag.proxyOrgName,jdbcType=VARCHAR},#{ tag.proxyOrgContact,jdbcType=VARCHAR}
+      )
+
+    </foreach>
+  </insert>
 
 
 

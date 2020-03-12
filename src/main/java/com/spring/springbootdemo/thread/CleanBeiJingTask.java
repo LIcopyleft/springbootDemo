@@ -1,20 +1,14 @@
 package com.spring.springbootdemo.thread;
 
 import com.alibaba.fastjson.JSON;
+import com.spring.springbootdemo.contant.Contant;
 import com.spring.springbootdemo.mapper.DataContentMapper;
-import com.spring.springbootdemo.model.DataContentWithBLOBs;
+import com.spring.springbootdemo.model.GovData;
+import com.spring.springbootdemo.model.WinBisInfo;
+import com.spring.springbootdemo.utils.HtmlUtils;
+import com.spring.springbootdemo.utils.ReflectionUtils;
 import com.spring.springbootdemo.utils.SpringContextHolder;
 import org.apache.commons.lang3.StringUtils;
-import org.htmlparser.NodeFilter;
-import org.htmlparser.Parser;
-import org.htmlparser.filters.NodeClassFilter;
-import org.htmlparser.filters.TagNameFilter;
-import org.htmlparser.tags.Html;
-import org.htmlparser.tags.TableColumn;
-import org.htmlparser.tags.TableRow;
-import org.htmlparser.tags.TableTag;
-import org.htmlparser.util.NodeList;
-import org.htmlparser.util.ParserException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,35 +16,36 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CleanTask implements Runnable {
+public class CleanBeiJingTask implements Runnable {
 
     private static final String KEY_WORD = "区域坐标";
+    private static final String TABLE_NAME = "spider_2_ggzy_beijing_content";
 
-    private static final Set<String> FLAG =  new HashSet<>();
+    private static final Set<String> FLAG = new HashSet<>();
     // 1
 
 
     private static final int INSERT_MAX = 1000;
     private static final int KEY_NUM = 6;
-    private static final String TABLE_NAME = "spider_2_ggzy_content";
-    private long beginIndex;
-    private long querySize;
+
+    private int beginIndex;
+    private int querySize;
     private String stageShow;
     private CountDownLatch latch;
 
 
-    private static final Logger logger = LoggerFactory.getLogger(CleanTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(CleanBeiJingTask.class);
 
 
-    public CleanTask(long beginIndex, long querySize, String stageShow, CountDownLatch latch) {
+    public CleanBeiJingTask(int beginIndex, int querySize, String stageShow, CountDownLatch latch) {
         this.beginIndex = beginIndex;
         this.querySize = querySize;
         this.stageShow = stageShow;
@@ -61,39 +56,39 @@ public class CleanTask implements Runnable {
     public void run() {
         try {
             DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-            List<DataContentWithBLOBs> list = new LinkedList<>();
-            List<DataContentWithBLOBs> dataContent = mapper.selectAll(beginIndex, querySize,TABLE_NAME);
+            List<GovData> list = new LinkedList<>();
+            List<GovData> dataContent = mapper.selectAllBJ(beginIndex, querySize);
             if (dataContent == null || dataContent.size() < 1) {
                 logger.warn(Thread.currentThread().getName() + "end====query db is null====beginIndex=" + beginIndex);
                 return;
             }
-            LinkedBlockingQueue<DataContentWithBLOBs> queues = new LinkedBlockingQueue();
-            for (DataContentWithBLOBs data : dataContent) {
-                if (stageShow.equals(data.getStageshow()) && "政府采购".equals(data.getClassifyshow())) {
+            LinkedBlockingQueue<GovData> queues = new LinkedBlockingQueue();
+            for (GovData data : dataContent) {
+                if (stageShow.equals(data.getCategory())) {
                     queues.add(data);
                 }
             }
             if (queues.size() < 1) {
-                logger.info(Thread.currentThread().getName() + "end====no " + stageShow + "=====beginIndex = " + beginIndex);
+                // logger.info(Thread.currentThread().getName() + "end====no " + stageShow + "=====beginIndex = " + beginIndex);
                 return;
             }
             int row = 0;
             while (queues.iterator().hasNext()) {
-                DataContentWithBLOBs data = queues.poll();
+                GovData data = queues.poll();
                 try {
                     String content = data.getContent();
                     if (StringUtils.isBlank(content)) {
                         continue;
                     }
                     //    Document parse = Jsoup.parse(content);
-                    // DataContentWithBLOBs dcb = cleanMethod(data,parse);
-                    DataContentWithBLOBs dcb = cleanMethodBisReport(data);
+                    // GovData dcb = cleanMethod(data,parse);
+                    GovData dcb = cleanMethod_2(data);
                     if (dcb == null) {
                         continue;
                     }
                     list.add(dcb);
                 } catch (Exception e) {
-                    logger.error("ParaseErr{urlId:" + data.getUrlId() + "====url:" + data.getUrl() + "}");
+                    logger.error("ParaseErr{urlId:" + data.getUrlId() + "====url:" + data.getUrl() + "}", e);
                     continue;
                 }
 
@@ -102,7 +97,7 @@ public class CleanTask implements Runnable {
                     if (list.size() < 1) {
                         continue;
                     }
-                 //   row += mapper.insertList(list);
+                    row += mapper.insertList_BJ(list);
                     list.clear();
                     continue;
                 }
@@ -114,134 +109,149 @@ public class CleanTask implements Runnable {
         }
     }
 
-    /*
-     * @description    表格类型清洗, 可复用
-     * @author tengchao.li
-     * @date 2020/2/23
-     * @param dcb
-     * @param data
-     * @param content
-     * @return void
-     */
-    private DataContentWithBLOBs cleanMethod(DataContentWithBLOBs data, Document parse) throws Exception {
+    //政府采购
+    private static GovData cleanMethod_1(GovData data) throws InvocationTargetException, IllegalAccessException {
 
-        String proName = parse.select(".h4_o").get(0).text();
-        // String subTime = parse.select(".p_o").get(0).children().get(0).text();
-        Elements tds = parse.select("td");
-        Elements ths = parse.select("th");
+        Document parse = Jsoup.parse(data.getContent());
+        Elements sitemap = parse.getElementsByClass("sitemap");
 
-        if (!KEY_WORD.contains(ths.get(KEY_NUM).text())) {
-            logger.error("========type diff==" + data.getUrlId() + "==========" + ths.get(4).text());
+        String memu = "";
+        if (sitemap != null && sitemap.size() > 0) {
+            memu = sitemap.get(0).text();
+        }
+
+        Map map = new HashMap();
+        //    Elements tables = parse.getElementsByTag("table");
+        Elements tables = parse.getElementsByClass("lc-table");
+        //     Element element = table;
+        if (tables == null || tables.size() < 2) {
             return null;
         }
-/*
-        Elements select = parse.select(".detail");
-        Elements select1 = parse.select(".p_o");
-        Elements select2 = parse.select(".h4_o");
-        Elements table = parse.select("table");
-        Elements p = parse.select("p");
-        Elements tr = parse.select("tr");
-        Elements td = parse.select("td");
+        Element table = tables.get(1);
+        Elements trs = table.getElementsByTag("tr");
+        for (Element tr : trs) {
+            Elements ttr = tr.getElementsByTag("th");
+            Elements td = tr.getElementsByTag("td");
 
-*/
-       /* if(!KEY_WORD.equals(ths.get(5).text())){
-            logger.error("========type diff==" + data.getUrlId() + "=========="+ths.get(5).text());
-            return null;
-        }*/
+            for (int i = 0; i < ttr.size(); i++) {
+                map.put(ttr.get(i).text().replaceAll(":", ""), td.get(i).text());
+            }
 
-        String d0 = tds.get(0).text();
-        String d1 = tds.get(1).text(); //zi ge
-        String d2 = tds.get(2).text(); // apply dead line
-        String d3 = tds.get(3).text(); //kaibiao shijian
-        String d4 = tds.get(4).text(); //kaibiao shijian
-        String d5 = tds.get(5).text(); //kaibiao shijian
-        String d6 = tds.get(6).text(); //kaibiao shijian
-  /*      String fileOpenWay = tds.get(4).text();//
-        // String subTime = tds.get(18).text();// tijiaoshijian
-        String method = tds.get(5).text(); //评审方法
-        String contents = tds.get(6).text(); //修改 澄清内容 */
-
-        DataContentWithBLOBs dcb = new DataContentWithBLOBs();
-        BeanUtils.copyProperties(data, dcb);
-        //dcb.setOpentendertime(time);
-        // dcb.setBuyingunit(d0);
-        //   dcb.setOpentenderaddr(d1);
-        //  dcb.set
-        dcb.setProname(d0);
-        //    dcb.setOpentendertime(d2);
-        dcb.setOther(ths.get(1).text() + ":" + d1 + "|" + ths.get(2).text() + ":" + d2 + "|" + ths.get(3).text() + ":" + d3 + "|" + ths.get(4).text() + ":" + d4);
-        dcb.setLocation(d5);
-        if (d6.length() < 200) {
-            dcb.setCoordinate(d6);
         }
-        //  dcb.setWinbidtime(d6);
-        dcb.setContent(null);
+        //   Set set = Contant.filedValueSet();
 
-        return dcb;
+        data = (GovData) ReflectionUtils.mapToField(map, data, Contant.filedBJValueSet());// mapToField
+        data.setOther(JSON.toJSONString(map));
+        data.setClasses(memu);
+        data.setContent(null);
+
+        // System.out.println(JSON.toJSONString(map));
+        return data;
     }
 
-    /*
-     * @description  中标公告 清洗
-     * @author tengchao.li
-     * @date 2020/2/25
-     * @param data
-     * @param parse
-     * @return com.spring.springbootdemo.model.DataContentWithBLOBs
-     */
-    private DataContentWithBLOBs cleanMethodWinBidRes(DataContentWithBLOBs data, Document parse) throws Exception {
-        String proName = parse.select(".h4_o").get(0).text();
-        String subTime = parse.select(".p_o").get(0).children().get(0).text();
-        Elements tds = parse.select("td");
-        Elements ths = parse.select("th");
-        Elements ps = parse.select(".detail_content").get(0).getElementsByTag("p");
-        String text = ps.text();
-        if (!KEY_WORD.contains(ths.get(KEY_NUM).text())) {
-            logger.error("========type diff==" + data.getUrlId() + "==========" + ths.get(4).text());
-            return null;
-        }
-/*
-        Elements select = parse.select(".detail");
+    //政府采购>成交结果公告 清洗
+    private static GovData cleanMethod_2(GovData data) throws InvocationTargetException, IllegalAccessException {
+        // logger.info(data.getUrl());
+        //   String regEx_az = "[\\s\\@\\#\\$\\%\\^\\&\\*\\{\\}\\[\\]\\;\\'\\“\\”\\。\\，\\+\\/\\<\\>\\?\\《\\》\\=]+";
+        //    String regEx_html = "<[^>]+>"; // 定义HTML标签的正则表达式
+        String content = data.getContent();
+        Pattern p_script = Pattern.compile("：", Pattern.CASE_INSENSITIVE);
+        Matcher m_script = p_script.matcher(content);
+        content = m_script.replaceAll(":");
+        Document parse = Jsoup.parse(content);
+        Elements sitemap = parse.getElementsByClass("sitemap");
 
-        Elements select1 = parse.select(".p_o");
-        Elements select2 = parse.select(".h4_o");
-        Elements table = parse.select("table");
-        Elements p = parse.select("p");
-        Elements tr = parse.select("tr");
-        Elements td = parse.select("td");
-*/
-       /* if(!KEY_WORD.equals(ths.get(5).text())){
-            logger.error("========type diff==" + data.getUrlId() + "=========="+ths.get(5).text());
-            return null;
-        }*/
-
-        String d0 = tds.get(0).text();
-        String d1 = tds.get(1).text(); //zi ge
-        String d2 = tds.get(2).text(); // apply dead line
-        String d3 = tds.get(3).text(); //kaibiao shijian
-        String d4 = tds.get(4).text(); //kaibiao shijian
-        String d5 = tds.get(5).text(); //kaibiao shijian
-        String d6 = tds.get(6).text(); //kaibiao shijian
-  /*      String fileOpenWay = tds.get(4).text();//
-        // String subTime = tds.get(18).text();// tijiaoshijian
-        String method = tds.get(5).text(); //评审方法
-        String contents = tds.get(6).text(); //修改 澄清内容 */
-        DataContentWithBLOBs dcb = new DataContentWithBLOBs();
-        BeanUtils.copyProperties(data, dcb);
-        //dcb.setOpentendertime(time);
-        // dcb.setBuyingunit(d0);
-        //   dcb.setOpentenderaddr(d1);
-        //  dcb.set
-        dcb.setProname(d0);
-        //    dcb.setOpentendertime(d2);
-        dcb.setOther(ths.get(1).text() + ":" + d1 + "|" + ths.get(2).text() + ":" + d2 + "|" + ths.get(3).text() + ":" + d3 + "|" + ths.get(4).text() + ":" + d4);
-        dcb.setLocation(d5);
-        if (d6.length() < 200) {
-            dcb.setCoordinate(d6);
+        String memu = "";
+        if (sitemap != null && sitemap.size() > 0) {
+            memu = sitemap.get(0).text();
         }
-        //  dcb.setWinbidtime(d6);
-        dcb.setContent(null);
-        return dcb;
+
+        Map map = new HashMap();
+        //    Elements tables = parse.getElementsByTag("table");
+        Elements tables = parse.getElementsByTag("p");
+
+        if ("政府采购>成交结果公告".equals(data.getCategory())) {
+
+            //TODO 判断表格类型
+
+            Elements newsCon = parse.getElementsByClass("newsCon");
+            List<String> tableList = new ArrayList<>();
+            if (newsCon != null && newsCon.size() > 0) {
+
+                Element element = newsCon.get(0);
+                Elements ts = element.getElementsByTag("table");
+                if (ts != null && ts.size() > 0) {
+
+                    Pattern pt = Pattern.compile(REG_TABLE);
+                    Matcher m = pt.matcher(element.html());
+                    //   List<String> tableList = new ArrayList<>();
+                    while (m.find()) {
+                        tableList.add(m.group());
+
+                    }
+
+                }
+
+
+            }
+            logger.info(data.getUrl());
+            if(data.getUrlId() == 51219){
+                logger.info("");
+            }
+            List<WinBisInfo> winBisInfos = HtmlUtils.parseRowTable(tableList);
+
+            data.setWinBisInfoStr(winBisInfos.size()>0?JSON.toJSONString(winBisInfos):null);
+        }
+
+        List<String> list = new LinkedList<>();
+        boolean flag = false;
+        String names = "";
+        for (Element element : tables) {
+            String text = element.text();
+            if (flag) {
+                names = names + "专家名单:" + text;
+                list.add(names);
+                flag = false;
+                names = "";
+                continue;
+            }
+            if (StringUtils.isNotBlank(text) && text.contains(":")) {
+
+                if (text.split(":").length < 2 || text.split(":")[0].length() > 15) {
+                    continue;
+                } else if (text.contains("名单") && text.split(":").length < 2) {
+                    flag = true;
+                }
+                list.add(text);
+            }
+        }
+
+        for (String p : list) {
+            p = p.replaceFirst(":", "#");
+            String[] split = p.split("#");
+            if (split.length == 2) {
+                map.put(split[0], split[1]);
+            }
+        }
+        //  Set set = Contant.filedValueSet();
+        data = (GovData) ReflectionUtils.mapToField(map, data, Contant.filedBJValueSet());// mapToField
+        data.setOther(JSON.toJSONString(map));
+        data.setClasses(memu.length() > 200 ? null : memu);
+        data.setContent(null);
+        data.setClassifyShow("成交结果公告");//政府采购  更正公告
+        // System.out.println(JSON.toJSONString(map));
+        // TODO 时间 金额 等字段在这里处理
+        String proName = data.getProName();
+        if (StringUtils.isNotBlank(proName) && proName.length() > 200) {
+            data.setProName(proName.substring(0, 200));
+        }
+        //对金额 日期等字段处理
+        //   String budgetAmount = data.getBudgetAmount();
+        //   logger.info("预算金额： "+ budgetAmount);
+        //   System.err.println(data.getTenderingFilePrice() + "/" + data.getBudgetAmount() + "/" + data.getWinBidTotalAmount());
+        return data;
     }
+
 
     /*
      * @description  交易公告 / 中标公告类型清洗
@@ -249,11 +259,11 @@ public class CleanTask implements Runnable {
      * @date 2020/2/26
      * @param data
      * @param parse
-     * @return com.spring.springbootdemo.model.DataContentWithBLOBs
+     * @return com.spring.springbootdemo.model.GovData
      */
     private static final String REG_TABLE = "<table.*?>[\\s\\S]*?<\\/table>";
 
-    private DataContentWithBLOBs cleanMethodBisReport(DataContentWithBLOBs data) throws Exception {
+    private GovData cleanMethodBisReport(GovData data) throws Exception {
         String content = data.getContent();
         if (StringUtils.isBlank(content)) {
             return null;
@@ -368,9 +378,9 @@ public class CleanTask implements Runnable {
         }
 
         Map<String, String> tableMap = parseRowTable(tableList);
-        DataContentWithBLOBs dcb = new DataContentWithBLOBs();
+        GovData dcb = new GovData();
         BeanUtils.copyProperties(data, dcb);
-        dcb.setProname(proName);
+        dcb.setProName(proName);
       /*  dcb.setProno();
         dcb.setTenderingnoticetime();//招标公告日期
         dcb.setProxyorgphone();
@@ -411,7 +421,7 @@ public class CleanTask implements Runnable {
         for (String table : tables) {
             Document tab = Jsoup.parse(table);
 
-         //   getTableColumnData(tab,"0,9");
+            //   getTableColumnData(tab,"0,9");
 
             Elements trs = tab.getElementsByTag("tr");
             Elements first = trs.first().children();
@@ -421,9 +431,9 @@ public class CleanTask implements Runnable {
                 for (int j = 0; j < element.size(); j++) {
                     String name = first.get(j).text() + ":" + element.get(j).text();
                     if (element.get(j).hasAttr("colspan")) {
-                        colSpanStr.append(element.get(j).text()+"|");
+                        colSpanStr.append(element.get(j).text() + "|");
                         continue;
-                      //  logger.info("has colspan = " + element.get(j).attr("colspan") + element.get(j).text());
+                        //  logger.info("has colspan = " + element.get(j).attr("colspan") + element.get(j).text());
                     }
                     if (element.get(j).hasAttr("rowspan")) {
                         String num = (element.get(j)).attr("rowspan");
@@ -470,50 +480,5 @@ public class CleanTask implements Runnable {
         return tableMap;
     }
 
-
-    public static Map<String, String> getTableColumnData(Element table, String rowSelectRange) {
-        Map<String, String> map = new LinkedHashMap<>();
-        Elements trs = table.select("tr");
-        if (!StringUtils.isEmpty(rowSelectRange)) {
-            String[] deleteRows = rowSelectRange.split(",");
-            int offsetIndex = 0;
-            for (int i = deleteRows.length - 1; i >= 0; i--) {
-                int index = Integer.parseInt(deleteRows[i]);
-                if (index < 0) {
-                    index = Math.abs(index);
-                    index = trs.size() - (index - offsetIndex);
-                    trs.remove(index);
-                    offsetIndex++;
-                } else {
-                    trs.remove(index - 1);
-                }
-            }
-        }
-        for (Element tr : trs) {
-            Elements tds = tr.select("td");
-            // th 和 td 混合的情况下，取子元素
-            if (tr.select("th").size() > 0) {
-                tds = tr.children();
-            }
-            int index = 0;
-            String name = "";
-            for (Element td : tds) {
-                index++;
-                if (index % 2 == 0) {
-                    if (StringUtils.isEmpty(name)) {
-                        continue;
-                    }
-                    map.put(name, td.text().trim());
-                } else {
-                    name = td.text();
-                    if (name.endsWith(":") || name.endsWith("：")) {
-                        name = name.substring(0, name.length() - 1);
-                    }
-                    name = name.trim();
-                }
-            }
-        }
-        return map;
-    }
 
 }

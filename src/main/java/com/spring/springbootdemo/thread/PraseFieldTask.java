@@ -33,6 +33,7 @@ public class PraseFieldTask implements Runnable {
     private static final String KEY_WORD = "区域坐标";
     private static final int INSERT_MAX = 1000;
     private static final int KEY_NUM = 6;
+    private static final String TABLE_NAME = "spider_2_ggzy_content";
 
     private long beginIndex;
     private long querySize;
@@ -53,7 +54,7 @@ public class PraseFieldTask implements Runnable {
         try {
             DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
             List<DataContentWithBLOBs> list = new LinkedList<>();
-            List<DataContentWithBLOBs> dataContent = mapper.selectAll(beginIndex, querySize);
+            List<DataContentWithBLOBs> dataContent = mapper.selectAll(beginIndex, querySize,TABLE_NAME);
             if (dataContent == null || dataContent.size() < 1) {
                 logger.info(Thread.currentThread().getName() + "end====query db is null====beginIndex=" + beginIndex);
                 return;
@@ -102,7 +103,6 @@ public class PraseFieldTask implements Runnable {
             }
             logger.info(Thread.currentThread().getName() + "==url_id over" + dataContent.get(dataContent.size() - 1).getUrlId() + "=====insert\t" + row + "行");
         } finally {
-
             latch.countDown();
         }
     }
@@ -379,8 +379,6 @@ public class PraseFieldTask implements Runnable {
                     }).collect(Collectors.toList());
                     for (PropertyDescriptor descriptor : descriptors) {
                         //descriptor.getWriteMethod()方法对应set方法
-
-
                         if (descriptor.getName().equals(next.split(":")[0])) {
                             /*   System.err.println(descriptor.getName()+"==="+next.split(":")[0]);
                             if(next.split(":")[0].contains("buyingunit")){
