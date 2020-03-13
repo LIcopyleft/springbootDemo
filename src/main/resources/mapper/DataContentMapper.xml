@@ -80,12 +80,12 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    url_id, classify, title, stageName, platformName, classifyShow, tradeShow, districtShow, 
-    url, stageShow, titleShow, proContact, proPhone, buyingUnit, buyingAddr, buyingPhone, 
-    proxyOrgAddr, proxyOrgPhone, proName, classes, noticeTime, region, submitFileDeadTime, 
-    entitledCheckTime, appendix, proNo, obtainFileTime, tenderingFilePrice, tenderingFileAddr, 
-    openTenderTime, openTenderAddr, budgetAmount, resFileSubTime, resFileSubAddr, resFileOpenTime, 
-    winBidTime, tenderingNoticeTime, winBidTotalAmount, winBidBisName, winBidBisAddr, 
+    url_id, classify, title, stageName, platformName, classifyShow, tradeShow, districtShow,
+    url, stageShow, titleShow, proContact, proPhone, buyingUnit, buyingAddr, buyingPhone,
+    proxyOrgAddr, proxyOrgPhone, proName, classes, noticeTime, region, submitFileDeadTime,
+    entitledCheckTime, appendix, proNo, obtainFileTime, tenderingFilePrice, tenderingFileAddr,
+    openTenderTime, openTenderAddr, budgetAmount, resFileSubTime, resFileSubAddr, resFileOpenTime,
+    winBidTime, tenderingNoticeTime, winBidTotalAmount, winBidBisName, winBidBisAddr,
     winBidBisAmount, firstNoticeTime, other
   </sql>
   <sql id="Blob_Column_List">
@@ -130,7 +130,7 @@
     where url_id = #{urlId,jdbcType=INTEGER}
   </select>
   <insert id="insertList_BJ" parameterType="java.util.List">
-    insert into spider_2_ggzy_beijing_content_clean_temp (win_bid_info,email,url_id, classify,
+    insert into ${tableName} (win_bid_info,email,url_id, classify,
     stage_name, platform_name, classify_show,
     trade_show, district_show, url,
     stage_show, title, pro_contact,
@@ -227,40 +227,7 @@
 
 
 
-  <insert id="insert" parameterType="com.spring.springbootdemo.model.DataContentWithBLOBs">
-    insert into spider_2_ggzy_content_clean (url_id, classify, title, 
-      stageName, platformName, classifyShow, 
-      tradeShow, districtShow, url, 
-      stageShow, titleShow, proContact, 
-      proPhone, buyingUnit, buyingAddr, 
-      buyingPhone, proxyOrgAddr, proxyOrgPhone, 
-      proName, classes, noticeTime, 
-      region, submitFileDeadTime, entitledCheckTime, 
-      appendix, proNo, obtainFileTime, 
-      tenderingFilePrice, tenderingFileAddr, 
-      openTenderTime, openTenderAddr, budgetAmount, 
-      resFileSubTime, resFileSubAddr, resFileOpenTime, 
-      winBidTime, tenderingNoticeTime, winBidTotalAmount, 
-      winBidBisName, winBidBisAddr, winBidBisAmount, 
-      firstNoticeTime, other, content, 
-      expertName)
-    values (#{urlId,jdbcType=INTEGER}, #{classify,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, 
-      #{stagename,jdbcType=VARCHAR}, #{platformname,jdbcType=VARCHAR}, #{classifyshow,jdbcType=VARCHAR}, 
-      #{tradeshow,jdbcType=VARCHAR}, #{districtshow,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, 
-      #{stageshow,jdbcType=VARCHAR}, #{titleshow,jdbcType=VARCHAR}, #{procontact,jdbcType=VARCHAR}, 
-      #{prophone,jdbcType=VARCHAR}, #{buyingunit,jdbcType=VARCHAR}, #{buyingaddr,jdbcType=VARCHAR}, 
-      #{buyingphone,jdbcType=VARCHAR}, #{proxyorgaddr,jdbcType=VARCHAR}, #{proxyorgphone,jdbcType=VARCHAR}, 
-      #{proname,jdbcType=VARCHAR}, #{classes,jdbcType=VARCHAR}, #{noticetime,jdbcType=VARCHAR}, 
-      #{region,jdbcType=VARCHAR}, #{submitfiledeadtime,jdbcType=VARCHAR}, #{entitledchecktime,jdbcType=VARCHAR}, 
-      #{appendix,jdbcType=VARCHAR}, #{prono,jdbcType=VARCHAR}, #{obtainfiletime,jdbcType=VARCHAR}, 
-      #{tenderingfileprice,jdbcType=VARCHAR}, #{tenderingfileaddr,jdbcType=VARCHAR}, 
-      #{opentendertime,jdbcType=VARCHAR}, #{opentenderaddr,jdbcType=VARCHAR}, #{budgetamount,jdbcType=VARCHAR}, 
-      #{resfilesubtime,jdbcType=VARCHAR}, #{resfilesubaddr,jdbcType=VARCHAR}, #{resfileopentime,jdbcType=VARCHAR}, 
-      #{winbidtime,jdbcType=VARCHAR}, #{tenderingnoticetime,jdbcType=VARCHAR}, #{winbidtotalamount,jdbcType=VARCHAR}, 
-      #{winbidbisname,jdbcType=VARCHAR}, #{winbidbisaddr,jdbcType=VARCHAR}, #{winbidbisamount,jdbcType=VARCHAR}, 
-      #{firstnoticetime,jdbcType=VARCHAR}, #{other,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}, 
-      #{expertname,jdbcType=LONGVARCHAR})
-  </insert>
+
   <insert id="insertSelective" parameterType="com.spring.springbootdemo.model.DataContentWithBLOBs">
     insert into spider_2_ggzy_content_clean
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -724,5 +691,7 @@
       expertName = #{expertname,jdbcType=LONGVARCHAR}
     where url_id = #{urlId,jdbcType=INTEGER}
   </update>
+
+
 
 </mapper>

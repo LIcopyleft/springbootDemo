@@ -27,9 +27,10 @@ import java.util.regex.Pattern;
 public class CleanBeiJingTask implements Runnable {
 
     private static final String KEY_WORD = "区域坐标";
-    private static final String TABLE_NAME = "spider_2_ggzy_beijing_content";
+	private static final String INSERT_TABLE_NAME = "spider_2_ggzy_shanxi_content_clean_temp";
 
-    private static final Set<String> FLAG = new HashSet<>();
+
+	private static final Set<String> FLAG = new HashSet<>();
     // 1
 
 
@@ -97,7 +98,7 @@ public class CleanBeiJingTask implements Runnable {
                     if (list.size() < 1) {
                         continue;
                     }
-                    row += mapper.insertList_BJ(list);
+                    row += mapper.insertList_BJ(list,INSERT_TABLE_NAME);
                     list.clear();
                     continue;
                 }

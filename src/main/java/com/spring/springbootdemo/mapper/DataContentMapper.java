@@ -1,9 +1,6 @@
 package com.spring.springbootdemo.mapper;
 
-import com.spring.springbootdemo.model.DataContent;
-import com.spring.springbootdemo.model.DataContentExample;
-import com.spring.springbootdemo.model.DataContentWithBLOBs;
-import com.spring.springbootdemo.model.GovData;
+import com.spring.springbootdemo.model.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -38,5 +35,8 @@ public interface DataContentMapper {
     int updateByPrimaryKeyWithBLOBs(DataContentWithBLOBs record);
 
     int insertList(List<DataContentWithBLOBs> list);
-    int insertList_BJ(List<GovData> list);
+    int insertList_BJ(List<GovData> list,@Param("tableName") String tableName);
+
+	@Select("select * from spider_5_ggzy_shanxi_content where url_id>=(select url_id from spider_5_ggzy_shanxi_content order by url_id limit #{from},1) limit #{to}")
+	List<ShanXiData> selectAllShanXi(@Param("from") int from , @Param("to") int to);
 }
