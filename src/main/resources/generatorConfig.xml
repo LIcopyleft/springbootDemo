@@ -59,8 +59,8 @@
         <!-- schema即为数据库名 tableName为对应的数据库表 domainObjectName是要生成的实体类 enable*ByExample
             是否生成 example类 -->
 
-        <table schema="spider_2020" tableName="spider_2_ggzy_beijing_content_clean"
-               domainObjectName="GovData" enableCountByExample="false"
+        <table schema="spider_2020" tableName="spider_5_ggzy_shanxi_content"
+               domainObjectName="ShanXiData" enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="true"
                enableUpdateByExample="false">
         </table>
