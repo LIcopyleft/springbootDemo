@@ -29,13 +29,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DataCleanShanXiTest {
-    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(30);
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(15);
     private static final Logger logger = LoggerFactory.getLogger(DataCleanShanXiTest.class);
-    private static final int QUERY_SIZE = 5000;
-
-    @Autowired
-    private DataContentMapper mapper;
-
+    private static final int QUERY_SIZE = 2000;
 
     //   private static final String STAGE_SHOW = "招标/资审文件澄清";
     private static final String STAGE_SHOW = "政府采购>成交结果公告";
@@ -46,7 +42,7 @@ public class DataCleanShanXiTest {
     public void doClean() throws InterruptedException {
         long start = System.currentTimeMillis();
         int beginIndex = 0;
-        int totalSize = 10634;//mapper.getTotal();
+        int totalSize = 171229;//mapper.getTotal();
 
         int times= totalSize / QUERY_SIZE;
         if(totalSize % QUERY_SIZE !=0) {
@@ -66,36 +62,5 @@ public class DataCleanShanXiTest {
         System.out.println("用时"+(end-start)/1000+"秒");
     }
 
-
-    /*
-     * @description  成交公告清洗  数量少，直接全文条件查询
-     * @author tengchao.li
-     * @date 2020/2/26
-     * @param
-     * @return void
-     */
-    @Test
-    public void doClean2() {
-        try {
-                List<DataContentWithBLOBs> dataContent = mapper.selectAllByStageShow(STAGE_SHOW);
-                if (dataContent == null || dataContent.size() < 1) {
-
-                }
-                LinkedBlockingQueue<DataContentWithBLOBs> queue = new LinkedBlockingQueue();
-                for (DataContentWithBLOBs data : dataContent) {
-                    if (STAGE_SHOW.equals(data.getStageshow())) {
-                        queue.add(data);
-                    }
-                }
-                if (queue.size() > 0) {
-                    EXECUTOR.execute(new CleanDealNoticeTask(queue));
-                }
-
-        } catch (Exception e) {
-          //  logger.error("========= " + STAGE_SHOW + " index" + i + "==============");
-
-        }
-
-    }
 
 }

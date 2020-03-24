@@ -90,6 +90,12 @@ public class DataCleanBeiJingTest {
         System.out.println("用时"+(end-start)/1000+"秒");
     }
 
+    /**
+     * 资审/采购公告
+     * @throws InterruptedException
+     */
+
+
 
     /*
      * @description  成交公告清洗  数量少，直接全文条件查询

@@ -24,15 +24,16 @@ import java.util.concurrent.*;
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DataCleanTest {
-    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(30);
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(10);
     private static final Logger logger = LoggerFactory.getLogger(DataCleanTest.class);
-    private static final long QUERY_SIZE = 5000;
+    private static final int QUERY_SIZE = 2000;
 
     @Autowired
     private DataContentMapper mapper;
 
 
     //   private static final String STAGE_SHOW = "招标/资审文件澄清";
+  //  private static final String STAGE_SHOW = "采购/资审公告";
     private static final String STAGE_SHOW = "中标公告";
 
  //   private CountDownLatch latch;
@@ -64,8 +65,8 @@ public class DataCleanTest {
     @Test
     public void doClean() throws InterruptedException {
         long start = System.currentTimeMillis();
-        long beginIndex = 0;
-        long totalSize = 1786444;//mapper.getTotal();
+        int beginIndex = 0;
+        int totalSize = 1786444;//mapper.getTotal();
 
         long times= totalSize / QUERY_SIZE;
         if(totalSize % QUERY_SIZE !=0) {
@@ -74,7 +75,8 @@ public class DataCleanTest {
         CountDownLatch latch = new CountDownLatch(Integer.valueOf(String.valueOf(times)));
     //    List<Runnable> tasks = new ArrayList<Runnable>();//添加任务
         for(int i = 0; i <times ; i++){
-            Runnable task = new CleanTask(beginIndex,QUERY_SIZE,STAGE_SHOW,latch);
+        //    Runnable task = new CleanTask(beginIndex,QUERY_SIZE,STAGE_SHOW,latch);
+           Runnable task = new CleanTestTask(beginIndex,QUERY_SIZE,STAGE_SHOW,latch);
         //    tasks.add(task);
             beginIndex += QUERY_SIZE;
             EXECUTOR.execute(task);
@@ -108,6 +110,7 @@ public class DataCleanTest {
                 }
                 if (queue.size() > 0) {
                     EXECUTOR.execute(new CleanDealNoticeTask(queue));
+                 //   EXECUTOR.execute(new CleanDealNoticeTask(queue));
                 }
 
         } catch (Exception e) {
@@ -116,6 +119,33 @@ public class DataCleanTest {
         }
 
     }
+
+
+
+    @Test
+    public void doClean_cggg() throws InterruptedException {
+        long start = System.currentTimeMillis();
+        int beginIndex = 0;
+        int totalSize = 329318;//mapper.getTotal();
+
+        int times= totalSize / QUERY_SIZE;
+        if(totalSize % QUERY_SIZE !=0) {
+            times=times+1;
+        }
+        CountDownLatch latch = new CountDownLatch(Integer.valueOf(String.valueOf(times)));
+        //    List<Runnable> tasks = new ArrayList<Runnable>();//添加任务
+        for(int i = 0; i <times ; i++){
+            Runnable task = new CleanTestTask(beginIndex,QUERY_SIZE,STAGE_SHOW,latch);
+            //    tasks.add(task);
+            beginIndex += QUERY_SIZE;
+            EXECUTOR.execute(task);
+        }
+        latch.await();
+        EXECUTOR.shutdown();
+        long end = System.currentTimeMillis();
+        System.out.println("用时"+(end-start)/1000+"秒");
+    }
+
 
 
 

@@ -10,7 +10,7 @@ import java.util.Set;
  * @date 2020/3/4
  */
 public class Contant {
-    private static  String FIRST_NOTICE_TIME;
+    private static String FIRST_NOTICE_TIME;
     /*
         private String procontact;
         private String prophone;
@@ -74,6 +74,11 @@ public class Contant {
     private static String Field5;// = "proxyorgphone:代理机构电话/代理机构联系方式/政府采购代理机构联系电话";//
     private static String Field6;// = "proxyorgphone:代理机构电话/代理机构联系方式/政府采购代理机构联系电话";//
     private static String Field7;// = "proxyorgphone:代理机构电话/代理机构联系方式/政府采购代理机构联系电话";//
+    private static String Field12;// = "proxyorgphone:代理机构电话/代理机构联系方式/政府采购代理机构联系电话";//
+    private static String Field11;// = "proxyorgphone:代理机构电话/代理机构联系方式/政府采购代理机构联系电话";//
+    private static String Field10;// = "proxyorgphone:代理机构电话/代理机构联系方式/政府采购代理机构联系电话";//
+    private static String Field13;// = "proxyorgphone:代理机构电话/代理机构联系方式/政府采购代理机构联系电话";//
+    private static String Field14;// = "proxyorgphone:代理机构电话/代理机构联系方式/政府采购代理机构联系电话";//
 
 
     //   private static  String TENDER_WAY = "proname:";//
@@ -85,35 +90,61 @@ public class Contant {
     // **********************政府采购北京配置信息************
 
     public static Set filedBJValueSet() {
+        /**
+         * 采购人信息
+         */
         PRO_NAME = "proName:采购项目名称/项目名称";
-        PRO_NO = "proNo:采购项目编号/项目编号/采购编号";
-        BUY_ORG = "buyingOrg:采购人名称/采购单位名称/采购单位";
-        BUY_ORG_ADDR="buyingAddr:采购单位地址/单位地址/地址/采购人地址";
-        ORIGIN = "email:邮箱";
-        PUB_TIME = "pubTime:项目创建时间";
-        EXPERT_NAME = "expertName:评标委员会成员名单/评标委员会成员/采购小组成员名单/评审委员会名单/评审小组名单/名单/评审小组成员/谈判小组专家名单/采购结果确认谈判小组/磋商小组名单/评标委员会名单";//评标委员会成员名单
-
-        PRO_CONTACT = "proContact:项目联系人/采购人联系人";
+        PRO_NO = "proNo:采购项目编号/项目编号/采购编号/采购文件编号";
+        BUY_ORG = "buyingOrg:采购人名称/采购单位名称/采购单位/采购人/招标人/本项目采购人";
+        BUY_ORG_ADDR = "buyingAddr:采购单位地址/单位地址/地址/采购人地址";
+        PRO_CONTACT = "proContact:项目联系人/采购人联系人/采购单位联系人";
         PRO_PHONE = "proPhone:联系方式/联系电话/";
-        PRO_ORG_CONTACT = "proOrgContact:采购代理机构联系人/项目联系人";
-        PROXY_ORG_ADDR = "proOrgAddr:采购代理机构地址/代理机构地址/招标代理机构地址/政府采购代理机构联系地址/";
-        PROXY_ORG_NAME = "proxyOrgName:采购代理机构名称/采购代理机构全称/代理机构/代理机构全称/招标代理机构全称/招标代理机构";
-        PROXY_ORG_CONTACT_PHONE = "proxyOrgPhone:采购代理机构联系电话/采购代理机构联系方式/代理机构联系人";
-        BUDGET_AMOUNT = "budgetAmount:项目预算/采购预算/预算金额/采购预算资金";
+        BUDGET_AMOUNT = "budgetAmount:项目预算/采购预算/采购预算金额人民币/预算金额/采购预算资金";
         CLASSIFY = "classify:采购项目类型";
+        /**
+         * 代理机构信息
+         */
+        PRO_ORG_CONTACT = "proOrgContact:采购代理机构联系人/项目联系人/代理联系人";
+        PROXY_ORG_ADDR = "proOrgAddr:采购代理机构地址/代理机构地址/招标代理机构地址/政府采购代理机构联系地址/";
+        PROXY_ORG_NAME = "proxyOrgName:采购代理机构名称/采购代理机构全称/代理机构/代理机构全称/招标代理机构全称/招标代理机构/采购代理";
+        PROXY_ORG_CONTACT_PHONE = "proxyOrgPhone:采购代理机构联系电话/采购代理机构联系方式/代理机构联系人/代理电话";
+        /**
+         * 时间类信息
+         */
+        PUB_TIME = "pubTime:项目创建时间";
         NOTICE_TIME = "noticeTime:本项目招标公告日期/招标公告日期/本次变更日期";
         FIRST_NOTICE_TIME = "firstNoticeTime:首次公告日期";
         TENDER_TIME = "tenderTime:中标成交日期";
+        Field7 = "obtainFileTime:获取文件时间/获得文件时间/得到文件时间";
+        Field8 = "resFileOpenTime:获取文件时间/获得文件时间/得到文件时间";
+        Field9 = "resFileSubAddr:获取文件时间/获得文件时间/得到文件时间";
+        Field5 = "opentendertime:开标时间/开标(谈判/磋商/询价)时间/谈判时间/磋商时间/询价时间";
+
+        /**
+         * 金额类信息
+         */
         TENDER_TOTAL_AMOUNT = "winBidTotalAmount:中标金额/总成交金额/总中标成交金额/中标总金额/总金额/成交金额/中标(成交)金额";//中标金额
-        Field1 = "tenderWay:招标方式/采购方式";
+        Field11 = "budgetAmount:项目预算金额/项目预算/采购预算/采购项目预算最高限价/预算金额/总预算价格/采购预算金额/采购预算金额元/采购预算金额万元";
+        /**
+         中标机构信息
+         */
         Field2 = "winBidBisName:中标成交供应商名称/中标供应商名称/成交供应商名称";
-        Field3 ="tenderingFilePrice:招标文件售价/磋商文件售价";
+        /**
+         * 其他 邮箱，邮编，名单等
+         */
+        ORIGIN = "email:邮箱";
+        Field10 = "zipcode:邮编/邮政编码/";
+        EXPERT_NAME = "expertName:评标委员会成员名单/评标委员会成员/采购小组成员名单/评审委员会名单/评审小组名单/名单/评审小组成员/谈判小组专家名单/采购结果确认谈判小组/磋商小组名单/评标委员会名单";//评标委员会成员名单
+
+        /**
+         * 招标文件信息
+         */
+        Field1 = "tenderWay:招标方式/采购方式";
+        Field3 = "tenderingFilePrice:招标文件售价/磋商文件售价";
         Field4 = "tenderingFileAddr:招标文件地址/招标文件报名及发售地点";
-        Field5 = "opentendertime:开标时间";
-        Field6 ="openTenderAddr:开标地点";
-        Field7 ="obtainFileTime:获取文件时间/获得文件时间/得到文件时间";
-        Field8 ="resFileOpenTime:获取文件时间/获得文件时间/得到文件时间";
-        Field9 ="resFileSubAddr:获取文件时间/获得文件时间/得到文件时间";
+        Field6 = "openTenderAddr:开标地点/投标地点/投标开标地点/磋商地点/地点";
+        Field12 = "resFileSubAddr:响应文件送达地点";
+
 
         return valueSet();
     }
@@ -125,16 +156,16 @@ public class Contant {
         PRO_NO = "prono:项目编号/采购项目编号/交易编号/招标编号";
         BUY_ORG = "buyingunit:招标单位/采购人名称/招标人/采购人/招标采购人名称";//采购单位
         BUY_ORG_ADDR = "buyingaddr:采购单位地址/采购人地址/地址/址/";//采购单位地址
-        NOTICE_TIME = "noticetime:采购公告发布日期/采购公告日期";//采购公告日期
+        NOTICE_TIME = "noticetime:采购公告发布日期/采购公告日期/日期";//采购公告日期
         ORIGIN = "origin:地区/";
         TENDER_TIME = "winbidtime:中标日期/成交日期";//中标日期
         EXPERT_NAME = "expertname:评标委员会成员名单/采购小组成员名单/评审委员会名单/评审小组名单/名单/评审小组成员/谈判小组专家名单/采购结果确认谈判小组/磋商小组名单/评标委员会名单";//评标委员会成员名单
         TENDER_TOTAL_AMOUNT = "winbidtotalamount:中标金额/总中标成交金额/中标总金额/总金额/成交金额/中标(成交)金额";//中标金额
         WIN_ORG_NAME = "winbidbisname:中标人名称/中标人/中标机构名称/成交供应商/供应商名称/成交单位名称/成交供应商名称/中标供应商名称/中标成交供应商名称";//
         WIN_ORG_ADDR = "winbidbisaddr:中标单位地址/中标成交供应商地址/成交单位地址/成交供应商地址/中标供应商联系地址/中标供应商地址/中标成交供应商联系地址";//中标单位地址
-        PRO_CONTACT = "procontact:项目联系人/联系人/联系人及联系方式";//项目联系人
+        PRO_CONTACT = "procontact:项目联系人/联系人/联系人及联系方式/采购人联系人";//项目联系人
         PROXY_ORG_NAME = "proxyorgName:代理机构/代理机构名称/招标代理机构/采购代理机构名称/代理机构全称/招标采购代理机构名称";//代理机构名称
-        PROXY_ORG_ADDR = "proxyorgaddr:代理机构地址/政府采购代理机构联系地址/招标代理机构";//代理机构地址
+        PROXY_ORG_ADDR = "proxyorgaddr:代理机构地址/政府采购代理机构联系地址/招标代理机构/招标代理机构";//代理机构地址
         PROXY_ORG_CONTACT_PHONE = "proxyorgphone:代理机构电话/代理机构联系方式/政府采购代理机构联系电话";//
         return valueSet();
     }
@@ -173,6 +204,11 @@ public class Contant {
         set.add(Field7);
         set.add(Field8);
         set.add(Field9);
+        set.add(Field10);
+        set.add(Field11);
+        set.add(Field12);
+        set.add(Field13);
+        set.add(Field14);
 
 
         return set;

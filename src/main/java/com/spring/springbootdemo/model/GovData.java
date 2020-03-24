@@ -70,6 +70,7 @@ public class GovData extends GovDataKey {
     private String location;
     private String coordinate;
     private String pubTime;
+    private String zipcode;
     private String winBisInfoStr; //中标公告中中标
     private List<WinBisInfo> bisList;
 

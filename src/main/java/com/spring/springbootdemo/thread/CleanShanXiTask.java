@@ -1,5 +1,6 @@
 package com.spring.springbootdemo.thread;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.spring.springbootdemo.contant.Contant;
 import com.spring.springbootdemo.mapper.DataContentMapper;
@@ -69,6 +70,9 @@ public class CleanShanXiTask implements Runnable {
 			}
 
 			for(ShanXiData data : shanXiData){
+				if(!"zfcg".equals(data.getCategorySecond())){
+					continue;
+				}
 				GovData content = new GovData();
 				content.setTitle(data.getProjectname());
 				content.setContent(data.getContent());
@@ -76,21 +80,25 @@ public class CleanShanXiTask implements Runnable {
 				content.setUrl(data.getArtcleUrl());
 				content.setUrlId(data.getUrlId());
 				content.setRegion(data.getRegioncode());
-				content.setStageShow("gonggao".equals(data.getCategoryFirst()) ? "交易信息" : "jiaoyi".equals(data.getCategoryFirst()) ? "成交结果公告" : null);
+				content.setTitle(data.getProjectname());
+				content.setStageShow("gonggao".equals(data.getCategoryFirst()) ? "交易信息公告" : "jiaoyi".equals(data.getCategoryFirst()) ? "成交结果公告" : null);
+				content.setClassifyShow("gonggao".equals(data.getCategoryFirst()) ? "交易信息公告" : "jiaoyi".equals(data.getCategoryFirst()) ? "成交结果公告" : null);
 
 				dataContent.add(content);
 
+			}
+			if(dataContent.size()<1){
+				return;
 			}
 
 			LinkedBlockingQueue<GovData> queues = new LinkedBlockingQueue();
 			for (GovData data : dataContent) {
 				//if (stageShow.equals(data.getStageShow()) || stageShow.equals()) {
-				if (data.getStageShow() != null) {
+			//	if (data.getStageShow() != null) {
 					queues.add(data);
-				}
+			//	}
 			}
 			if (queues.size() < 1) {
-				// logger.info(Thread.currentThread().getName() + "end====no " + stageShow + "=====beginIndex = " + beginIndex);
 				return;
 			}
 			int row = 0;
@@ -129,47 +137,7 @@ public class CleanShanXiTask implements Runnable {
 			latch.countDown();
 		}
 	}
-
-	//政府采购
-	private static GovData cleanMethod_1(GovData data) throws InvocationTargetException, IllegalAccessException {
-
-		Document parse = Jsoup.parse(data.getContent());
-		Elements sitemap = parse.getElementsByClass("sitemap");
-
-		String memu = "";
-		if (sitemap != null && sitemap.size() > 0) {
-			memu = sitemap.get(0).text();
-		}
-
-		Map map = new HashMap();
-		//    Elements tables = parse.getElementsByTag("table");
-		Elements tables = parse.getElementsByClass("lc-table");
-		//     Element element = table;
-		if (tables == null || tables.size() < 2) {
-			return null;
-		}
-		Element table = tables.get(1);
-		Elements trs = table.getElementsByTag("tr");
-		for (Element tr : trs) {
-			Elements ttr = tr.getElementsByTag("th");
-			Elements td = tr.getElementsByTag("td");
-
-			for (int i = 0; i < ttr.size(); i++) {
-				map.put(ttr.get(i).text().replaceAll(":", ""), td.get(i).text());
-			}
-
-		}
-		//   Set set = Contant.filedValueSet();
-
-		data = (GovData) ReflectionUtils.mapToField(map, data, Contant.filedBJValueSet());// mapToField
-		data.setOther(JSON.toJSONString(map));
-		data.setClasses(memu);
-		data.setContent(null);
-
-		// System.out.println(JSON.toJSONString(map));
-		return data;
-	}
-
+private static Set set = new HashSet();
 	//政府采购>成交结果公告 清洗
 	private static GovData cleanMethod_2(GovData data) throws InvocationTargetException, IllegalAccessException {
 		// logger.info(data.getUrl());
@@ -181,38 +149,32 @@ public class CleanShanXiTask implements Runnable {
 		content = m_script.replaceAll(":");
 		Document parse = Jsoup.parse(content);
 		Elements sitemap = parse.getElementsByClass("position");
-
+//获取导航目录信息
 		String memu = "";
 		if (sitemap != null && sitemap.size() > 0) {
-			memu = sitemap.get(0).text().replace("您的当前位置:","").trim();
-		}
+			memu = StrUtil.cleanBlank(sitemap.get(0).text().replace("您的当前位置:",""));
 
+		}
 		Map map = new HashMap();
-		//    Elements tables = parse.getElementsByTag("table");
 		Elements tables = parse.getElementsByTag("p");
 
+		//判断解析类型
 		if ("成交结果公告".equals(data.getStageShow())) {
 			//TODO 判断表格类型
-			Elements newsCon = parse.getElementsByClass("newsCon");
-			List<String> tableList = new ArrayList<>();
-			if (newsCon != null && newsCon.size() > 0) {
-				Element element = newsCon.get(0);
-				Elements ts = element.getElementsByTag("table");
-				if (ts != null && ts.size() > 0) {
-					Pattern pt = Pattern.compile(REG_TABLE);
-					Matcher m = pt.matcher(element.html());
-					//   List<String> tableList = new ArrayList<>();
-					while (m.find()) {
-						tableList.add(m.group());
-					}
-				}
-			}
-			logger.info(data.getUrl());
-           /* if(data.getUrlId() == 51219){
-                logger.info("");
-            }*/
-			List<WinBisInfo> winBisInfos = HtmlUtils.parseRowTable(tableList);
+			List<String> tableList = HtmlUtils.getHtmlTableList(parse);
+			//	logger.info(data.getUrl());
+			//粗略检验表格
+			for(String tab : tableList){
 
+				Document ta = Jsoup.parse(tab);
+				String tr = ta.getElementsByTag("tr").get(0).text();
+
+		//		set.add(tr);
+		//		tr.contains("中标")|| tr.contains("中标") || tr.contains("单位")
+
+			}
+		//	logger.info(JSON.toJSONString(set));
+			List<WinBisInfo> winBisInfos = HtmlUtils.parseRowTable(tableList);
 			data.setWinBisInfoStr(winBisInfos.size() > 0 ? JSON.toJSONString(winBisInfos) : null);
 		}
 
@@ -239,19 +201,39 @@ public class CleanShanXiTask implements Runnable {
 			}
 		}
 
-		for (String p : list) {
+		for(int i = 0;i< list.size();i++){
+			String p = list.get(i);
 			p = p.replaceFirst(":", "#");
 			String[] split = p.split("#");
-			if (split.length == 2) {
-				map.put(split[0], split[1]);
+
+			if (split.length == 2 && split[0].length()>1) {
+				//如果key 是联系人 . 地址 联系电话等有歧义信息,index向上 最多2 关联
+				String key = split[0];
+				key = HtmlUtils.reviseKey(key);
+				if(HtmlUtils.keyIsUnclear(key)){
+					if(i >= 1){
+						String key_up1 = list.get(i - 1);
+						//	String key_up2 = list.get(i - 2);
+						//优先认定index相隔为1的
+						if(key_up1.contains("代理")){
+							key = "代理"+key;
+						}else{
+							key = "采购单位"+key;
+						}
+					}
+					list.set(i,key+":"+split[1]);
+				}
+				//去除key非中文,以及首个字符为 一,二等
+				map.put(key, split[1]);
 			}
 		}
+
 		//  Set set = Contant.filedValueSet();
 		data = (GovData) ReflectionUtils.mapToField(map, data, Contant.filedBJValueSet());// mapToField
 		data.setOther(JSON.toJSONString(map));
 		data.setClasses(memu.length() > 200 ? null : memu);
 		data.setContent(null);
-		data.setClassifyShow("成交结果公告");//政府采购  更正公告
+		data.setClassifyShow(data.getStageShow());//政府采购  更正公告
 		// System.out.println(JSON.toJSONString(map));
 		// TODO 时间 金额 等字段在这里处理
 		String proName = data.getProName();
@@ -262,8 +244,6 @@ public class CleanShanXiTask implements Runnable {
 		//   String budgetAmount = data.getBudgetAmount();
 		//   logger.info("预算金额： "+ budgetAmount);
 		//   System.err.println(data.getTenderingFilePrice() + "/" + data.getBudgetAmount() + "/" + data.getWinBidTotalAmount());
-
-
 		//
 		if(data.getWinBisInfoStr() == null && data.getWinBidBisName() != null){
 			List<WinBisInfo> winBisInfos = new LinkedList<>();

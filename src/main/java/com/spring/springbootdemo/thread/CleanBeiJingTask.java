@@ -1,5 +1,6 @@
 package com.spring.springbootdemo.thread;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.spring.springbootdemo.contant.Contant;
 import com.spring.springbootdemo.mapper.DataContentMapper;
@@ -109,6 +110,7 @@ public class CleanBeiJingTask implements Runnable {
             latch.countDown();
         }
     }
+
 
     //政府采购
     private static GovData cleanMethod_1(GovData data) throws InvocationTargetException, IllegalAccessException {

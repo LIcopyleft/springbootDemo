@@ -130,7 +130,7 @@
     where url_id = #{urlId,jdbcType=INTEGER}
   </select>
   <insert id="insertList_BJ" parameterType="java.util.List">
-    insert into ${tableName} (win_bid_info,email,url_id, classify,
+    insert into ${tableName} (zipcode,win_bid_info,email,url_id, classify,
     stage_name, platform_name, classify_show,
     trade_show, district_show, url,
     stage_show, title, pro_contact,
@@ -150,7 +150,7 @@
     )
     values
     <foreach collection="list"  item="tag" separator="," index="index">
-      (#{ tag.winBisInfoStr,jdbcType=VARCHAR},#{ tag.email,jdbcType=VARCHAR},#{ tag.urlId,jdbcType=INTEGER}, #{ tag.classify,jdbcType=VARCHAR},
+      (#{ tag.zipcode,jdbcType=VARCHAR},#{ tag.winBisInfoStr,jdbcType=VARCHAR},#{ tag.email,jdbcType=VARCHAR},#{ tag.urlId,jdbcType=INTEGER}, #{ tag.classify,jdbcType=VARCHAR},
       #{ tag.stageName,jdbcType=VARCHAR}, #{ tag.platformName,jdbcType=VARCHAR}, #{ tag.classifyShow,jdbcType=VARCHAR},
       #{ tag.tradeShow,jdbcType=VARCHAR}, #{ tag.districtShow,jdbcType=VARCHAR}, #{ tag.url,jdbcType=VARCHAR},
       #{ tag.stageShow,jdbcType=VARCHAR}, #{ tag.title,jdbcType=VARCHAR}, #{ tag.proContact,jdbcType=VARCHAR},
@@ -176,7 +176,7 @@
 
 
   <insert id="insertList" parameterType="java.util.List">
-    insert into spider_2_ggzy_content_clean_temp (proxyOrgName,location,coordinate,judgeMethod,fileOpenWay,url_id, classify, title,
+    insert into spider_2_ggzy_content_clean_temp2 (proxyOrgName,location,coordinate,judgeMethod,fileOpenWay,url_id, classify, title,
       stageName, platformName, classifyShow,
       tradeShow, districtShow, url,
       stageShow, titleShow, proContact,

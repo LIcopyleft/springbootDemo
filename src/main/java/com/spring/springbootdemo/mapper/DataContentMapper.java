@@ -21,7 +21,7 @@ public interface DataContentMapper {
 
 
     @Select("select * from ${table} where url_id>=(select url_id from ${table} order by url_id limit ${from},1) limit ${to}")
-    List selectAll(@Param("from") long from , @Param("to") long to,@Param("table") String table);
+    List<DataContentWithBLOBs> selectAll(@Param("from") long from , @Param("to") long to,@Param("table") String table);
 
     @Select("select * from spider_2_ggzy_beijing_content where url_id>=(select url_id from spider_2_ggzy_beijing_content order by url_id limit #{from},1) limit #{to}")
     List<GovData> selectAllBJ(@Param("from") int from , @Param("to") int to);
@@ -37,6 +37,9 @@ public interface DataContentMapper {
     int insertList(List<DataContentWithBLOBs> list);
     int insertList_BJ(List<GovData> list,@Param("tableName") String tableName);
 
-	@Select("select * from spider_5_ggzy_shanxi_content where url_id>=(select url_id from spider_5_ggzy_shanxi_content order by url_id limit #{from},1) limit #{to}")
-	List<ShanXiData> selectAllShanXi(@Param("from") int from , @Param("to") int to);
+	@Select("select url_id,projectname,artcle_url,category_second ,REGIONCODE,RECEIVETIME ,category_first ,content from spider_5_ggzy_shanxi_content where url_id>=(select url_id from spider_5_ggzy_shanxi_content order by url_id limit #{from},1) limit #{to}")
+	//@Select("select url_id,category_second ,REGIONCODE,RECEIVETIME ,category_first ,content from spider_5_ggzy_shanxi_content where url_id in (select C.url_id from (select url_id from spider_5_ggzy_shanxi_content order by url_id limit #{from},#{to}) C)")
+    List<ShanXiData> selectAllShanXi(@Param("from") int from , @Param("to") int to);
+
+
 }

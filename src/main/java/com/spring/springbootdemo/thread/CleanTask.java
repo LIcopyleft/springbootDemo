@@ -5,16 +5,6 @@ import com.spring.springbootdemo.mapper.DataContentMapper;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
 import com.spring.springbootdemo.utils.SpringContextHolder;
 import org.apache.commons.lang3.StringUtils;
-import org.htmlparser.NodeFilter;
-import org.htmlparser.Parser;
-import org.htmlparser.filters.NodeClassFilter;
-import org.htmlparser.filters.TagNameFilter;
-import org.htmlparser.tags.Html;
-import org.htmlparser.tags.TableColumn;
-import org.htmlparser.tags.TableRow;
-import org.htmlparser.tags.TableTag;
-import org.htmlparser.util.NodeList;
-import org.htmlparser.util.ParserException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,7 +12,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -252,6 +241,9 @@ public class CleanTask implements Runnable {
      * @return com.spring.springbootdemo.model.DataContentWithBLOBs
      */
     private static final String REG_TABLE = "<table.*?>[\\s\\S]*?<\\/table>";
+
+
+
 
     private DataContentWithBLOBs cleanMethodBisReport(DataContentWithBLOBs data) throws Exception {
         String content = data.getContent();

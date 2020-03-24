@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class ReflectionUtils {
 
-    public static Object mapToField(Map<String, String> map, Object datas, Set set) throws InvocationTargetException, IllegalAccessException {
+    public static Object mapToField(Map<String, String> map, Object data, Set set) throws InvocationTargetException, IllegalAccessException {
 
         // 合并
         // Set set = Contant.filedValueSet();
@@ -36,14 +36,14 @@ public class ReflectionUtils {
             while (iterator.hasNext()) {
                 String next = iterator.next();
                 //   if (next.contains(key) /*|| keyIsContains(key, next)*/) {
-                if (keyIsContains(key, next)) {
-                    //   DataContentWithBLOBs datas = new DataContentWithBLOBs();
-                    //   Field[] declaredFields = datas.getClass().getDeclaredFields();
+                if (HtmlUtils.keyIsContains(key, next)) {
+                    //   DataContentWithBLOBs data = new DataContentWithBLOBs();
+                    //   Field[] declaredFields = data.getClass().getDeclaredFields();
                     BeanInfo beanInfo;
                     try {
-                        beanInfo = Introspector.getBeanInfo(datas.getClass());
+                        beanInfo = Introspector.getBeanInfo(data.getClass());
                     } catch (IntrospectionException e) {
-                        return datas;
+                        return data;
                     }
                     List<PropertyDescriptor> descriptors = Arrays.stream(beanInfo.getPropertyDescriptors()).filter(p -> {
                         String name = p.getName();
@@ -55,48 +55,17 @@ public class ReflectionUtils {
                         //descriptor.getWriteMethod()方法对应set方法
                         if (descriptor.getName().equals(next.split(":")[0])) {
                             Method writeMethod = descriptor.getWriteMethod();
-                            writeMethod.invoke(datas, entry.getValue());
+                            writeMethod.invoke(data, HtmlUtils.maxStrLen(entry.getValue()));
                         }
                     }
                 }
             }
         }
 
-        return datas;
+        return data;
     }
 
-    private static boolean keyIsContains(String key, String fieldStr) {
-   /*     if(key.contains("采购人") && fieldStr.contains("采购人")){
-            logger.info("");
-        }
-*/
-        Pattern p_script = Pattern.compile("[^\u4e00-\u9fa5]", Pattern.CASE_INSENSITIVE);
-        Matcher m_script = p_script.matcher(key);
-        key = m_script.replaceAll(""); // 过滤script标签
 
-        //首个字符为中文 一 , 二等
-        key = key.replaceFirst("[\\u4e00 \\u4e8c \\u4e09 \\u56db \\u4e94 \\u516d \\u4e03 \\u516b \\u4e5d \\u5341]{1,2}", "");
-
-        //清楚中间空白
-        key = StrUtil.cleanBlank(key);
-
-        if (StringUtils.isBlank(fieldStr) || fieldStr.split(":").length < 2) {
-            return false;
-        }
-        String s = fieldStr.split(":")[1];
-        if (!s.endsWith("/")) {
-            s = s + "/";
-        }
-
-        String[] split = s.split("/");
-        for (String str : split) {
-
-            if (key.equals(str)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 
 }

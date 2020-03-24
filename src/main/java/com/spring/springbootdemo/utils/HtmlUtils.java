@@ -1,12 +1,17 @@
 package com.spring.springbootdemo.utils;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.spring.springbootdemo.contant.Contant;
+import com.spring.springbootdemo.model.GovData;
 import com.spring.springbootdemo.model.WinBisInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,11 +22,21 @@ import java.util.regex.Pattern;
  * @date 2020/3/10
  */
 public class HtmlUtils {
+
+    private static final String REG_TABLE = "<table.*?>[\\s\\S]*?<\\/table>";
+
+
+    /**
+     * 横向表头,解析
+     *
+     * @param tables
+     * @return
+     */
     public static List<WinBisInfo> parseRowTable(List<String> tables) {
 
         List<StringBuffer> list = new ArrayList<>();
-        Map<String, String> map = new HashMap();
-        StringBuffer colSpanStr = new StringBuffer();
+        //   Map<String, String> map = new HashMap();
+        //      StringBuffer colSpanStr = new StringBuffer();
         for (String table : tables) {
             StringBuffer sb = new StringBuffer();
             Document tab = Jsoup.parse(table);
@@ -47,16 +62,17 @@ public class HtmlUtils {
                     if (element.get(j).hasAttr("rowspan")) {
                         String num = (element.get(j)).attr("rowspan");
                         m = new HashMap();
-                        m.put(j, name + "#" + num);
+                        //直接使用# 号可能会有问题
+                        m.put(j, name + "#!$" + num);
                         //下次循环到该index 直接拼接本次str
                     }
                     if (m != null && m.containsKey(j)) {
-                        String[] split = m.get(j).split("#");
+                        String[] split = m.get(j).split("\\#\\!\\$");
                         if (Integer.valueOf(split[1]) < 1) {
                             m.remove(j);
                         } else {
                             name = first.get(j).text() + ":" + split[0];
-                            m.put(j, name + "#" + (Integer.valueOf(split[1]) - 1));
+                            m.put(j, name + "#!$" + (Integer.valueOf(split[1]) - 1));
                         }
                     }
                     sb.append(name);
@@ -83,10 +99,9 @@ public class HtmlUtils {
                 continue;
             }
             int count = (contentStr.length() - contentStr.replace(m, "").length()) / m.length();
-
             if (count > 1) {
-                contentStr = contentStr.replace(m, "#" + m);
-                String[] split = contentStr.split("\\#");
+                contentStr = contentStr.replace(m, "#@" + m);
+                String[] split = contentStr.split("\\#\\@");
                 List<String> listTemp = Arrays.asList(split);
                 for (String s : listTemp) {
                     if (StringUtils.isBlank(s)) {
@@ -114,7 +129,7 @@ public class HtmlUtils {
             }
             queue.add(tableMap);//一个tableMap一条供应商信息对象
         }
-        Map tempMap = new HashMap();
+        //     Map tempMap = new HashMap();
         List resList = new LinkedList();
         for (int i = 0; i < queue.size(); i++) {
             Map map1 = queue.get(i);
@@ -178,5 +193,170 @@ public class HtmlUtils {
         return resList;
         //    return map;
     }
+
+
+    private static final String UNCLEAR_FILED = "地址|联系地址|详细地址|电话|联系方式|联系人|联系电话|电话";
+
+    public static boolean keyIsUnclear(String key) {
+        if (StringUtils.isBlank(key)) {
+            return false;
+        }
+        String[] split = UNCLEAR_FILED.split("\\|");
+
+        for (String str : split) {
+            if (str.equals(StrUtil.cleanBlank(key))) {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+
+    public static boolean keyIsContains(String key, String fieldStr) {
+   /*     if(key.contains("采购人") && fieldStr.contains("采购人")){
+            logger.info("");
+        }
+*/
+        //    key = reviseKey(key);
+
+        if (StringUtils.isBlank(fieldStr) || fieldStr.split(":").length < 2) {
+            return false;
+        }
+        String s = fieldStr.split(":")[1];
+        if (!s.endsWith("/")) {
+            s = s + "/";
+        }
+
+        String[] split = s.split("/");
+        for (String str : split) {
+
+            if (key.equals(str)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public static String reviseKey(String key) {
+        Pattern p_script = Pattern.compile("[^\u4e00-\u9fa5]", Pattern.CASE_INSENSITIVE);
+        Matcher m_script = p_script.matcher(key);
+        key = m_script.replaceAll(""); // 过滤script标签
+
+        //首个字符为中文 一 , 二等
+        key = key.replaceFirst("[\\u4e00 \\u4e8c \\u4e09 \\u56db \\u4e94 \\u516d \\u4e03 \\u516b \\u4e5d \\u5341]{1,2}", "");
+        //清楚中间空白
+        key = StrUtil.cleanBlank(key);
+        return key;
+    }
+
+
+    public static List<String> getHtmlTableList(Document parse) {
+        //    Elements newsCon = parse.getElementsByClass("newsCon");
+        Element body = parse.body();
+        List<String> tableList = new ArrayList<>();
+        if (body != null) {
+            //     Element element = newsCon.get(0);
+            Elements ts = body.getElementsByTag("table");
+            if (ts != null && ts.size() > 0) {
+                Pattern pt = Pattern.compile(REG_TABLE);
+                Matcher m = pt.matcher(body.html());
+                //   List<String> tableList = new ArrayList<>();
+                while (m.find()) {
+                    tableList.add(m.group());
+                }
+            }
+        }
+
+        return tableList;
+
+    }
+
+
+    public static String maxStrLen(String str) {
+        if (StringUtils.isBlank(str)) {
+            return null;
+        }
+        ;
+        if (str.length() > 200) {
+            return str.substring(0, 200);
+        }
+        return str;
+    }
+
+    public static String removeCNStr(String content){
+
+        Pattern p_script = Pattern.compile("：", Pattern.CASE_INSENSITIVE);
+        Matcher m_script = p_script.matcher(content);
+        content = m_script.replaceAll(":");
+        return content;
+
+    }
+
+
+
+    public static Map prasePToMap(Elements elements){
+
+        List<String> list = new LinkedList<>();
+        boolean flag = false;
+        String names = "";
+        for (Element element : elements) {
+            String text = element.text();
+            if (flag) {
+                names = names + "专家名单:" + text;
+                list.add(names);
+                flag = false;
+                names = "";
+                continue;
+            }
+            if (StringUtils.isNotBlank(text) && text.contains(":")) {
+
+                if (text.split(":").length < 2 || text.split(":")[0].length() > 15) {
+                    continue;
+                } else if (text.contains("名单") && text.split(":").length < 2) {
+                    flag = true;
+                }
+                list.add(text);
+            }
+        }
+
+        Map map = plistToMap(list);
+        return map;
+    }
+
+
+    public static Map plistToMap(List<String> list){
+        Map map = new HashMap();
+        for (int i = 0; i < list.size(); i++) {
+            String p = list.get(i);
+            p = p.replaceFirst(":", "#");
+            String[] split = p.split("#");
+
+            if (split.length == 2 && split[0].length() > 1) {
+                //如果key 是联系人 . 地址 联系电话等有歧义信息,index向上 最多2 关联
+                String key = split[0];
+                key = HtmlUtils.reviseKey(key);
+                if (HtmlUtils.keyIsUnclear(key)) {
+                    if (i >= 1) {
+                        String key_up1 = list.get(i - 1);
+                        //	String key_up2 = list.get(i - 2);
+                        //优先认定index相隔为1的
+                        if (key_up1.contains("代理")) {
+                            key = "代理" + key;
+                        } else {
+                            key = "采购单位" + key;
+                        }
+                    }
+                    list.set(i, key + ":" + split[1]);
+                }
+                //去除key非中文,以及首个字符为 一,二等
+                map.put(key, split[1]);
+            }
+        }
+
+        return map;
+    }
+
 
 }

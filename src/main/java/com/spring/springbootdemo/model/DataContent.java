@@ -17,6 +17,7 @@ public class DataContent {
     private String districtshow;
     private String url;
     private String stageshow;
+    private String timeshow;
 
     private String titleshow;
 
@@ -115,6 +116,14 @@ public class DataContent {
 
     public void setStagename(String stagename) {
         this.stagename = stagename == null ? null : stagename.trim();
+    }
+
+    public String getTimeshow() {
+        return timeshow;
+    }
+
+    public void setTimeshow(String timeshow) {
+        this.timeshow = timeshow;
     }
 
     public String getPlatformname() {
