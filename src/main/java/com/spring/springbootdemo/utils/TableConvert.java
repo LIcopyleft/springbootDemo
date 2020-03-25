@@ -28,7 +28,14 @@ public class TableConvert {
 		int tableWidth = 0;
 		for (int tr_idx = 0; tr_idx < tableHeight; tr_idx++) {
 			Elements tds = tableRows.get(tr_idx).select("td, th");
-			int td_size = tds.size();
+			int colspanNum = 0;//合并列
+			for(Element td : tds){
+				if(td.hasAttr("colspan")){
+					colspanNum = Integer.valueOf(td.attr("colspan"));
+				}
+			}
+
+			int td_size = tds.size() + colspanNum - 1;
 			if (td_size > tableWidth)
 				tableWidth = td_size;
 		}
@@ -54,7 +61,7 @@ public class TableConvert {
 			for (int rowIndex = 0; rowIndex < tableHeight; rowIndex++) {
 				Elements colCells = tableRows.get(rowIndex).select("td, th");
 
-			//	System.out.println("row" + rowIndex + ":\n" + colCells);
+				System.out.println("row" + rowIndex + ":\n" + colCells);
 				int pointIndex = 0;//列的索引
 				for (int colIndex = 0; colIndex < colCells.size(); colIndex++) {
 					Element currentCell = colCells.get(colIndex);
@@ -109,20 +116,21 @@ public class TableConvert {
 	}
 
 	private static int getPointIndex(int tableWidth, Element[][] result, int rowIndex, int pointIndex, Element currentCell) throws Exception {
-		while (!result[rowIndex][pointIndex].tagName().equalsIgnoreCase("canreplace") && pointIndex < tableWidth) {
+		while (pointIndex < tableWidth && !result[rowIndex][pointIndex].tagName().equalsIgnoreCase("canreplace") ) {
 			pointIndex++;
-			System.out.println("===rowIndex===" + pointIndex + "====tempColIndex===" + pointIndex + "===" + result[rowIndex][pointIndex].tagName());
+			System.out.println("===rowIndex===" + rowIndex + "====tempColIndex===" + pointIndex + "===" + result[rowIndex][pointIndex].tagName());
 		}
 		if (pointIndex < tableWidth && result[rowIndex][pointIndex].tagName().equalsIgnoreCase("canreplace")) {
 			result[rowIndex][pointIndex] = currentCell;
 		} else {
+
 			throw new Exception("table格式有错误！");
 		}
 		return pointIndex;
 	}
 
 
-	private static List<TableCell> printTable(Element[][] table) {
+	public static List<TableCell> printTable(Element[][] table) {
 		if (table == null) return null;
 		List<TableCell> cellList = new ArrayList<>();
 		System.out.println("==================");
