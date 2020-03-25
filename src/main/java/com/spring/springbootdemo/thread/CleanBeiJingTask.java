@@ -175,20 +175,8 @@ public class CleanBeiJingTask implements Runnable {
 
         if ("政府采购>成交结果公告".equals(data.getCategory())) {
             //TODO 判断表格类型
-            Elements newsCon = parse.getElementsByClass("newsCon");
-            List<String> tableList = new ArrayList<>();
-            if (newsCon != null && newsCon.size() > 0) {
-                Element element = newsCon.get(0);
-                Elements ts = element.getElementsByTag("table");
-                if (ts != null && ts.size() > 0) {
-                    Pattern pt = Pattern.compile(REG_TABLE);
-                    Matcher m = pt.matcher(element.html());
-                    //   List<String> tableList = new ArrayList<>();
-                    while (m.find()) {
-                        tableList.add(m.group());
-                    }
-                }
-            }
+            List<Element> tableList = HtmlUtils.getHtmlTableList(parse);
+
             logger.info(data.getUrl());
            /* if(data.getUrlId() == 51219){
                 logger.info("");

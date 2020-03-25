@@ -32,14 +32,14 @@ public class HtmlUtils {
      * @param tables
      * @return
      */
-    public static List<WinBisInfo> parseRowTable(List<String> tables) {
+    public static List<WinBisInfo> parseRowTable(List<Element> tables) {
 
         List<StringBuffer> list = new ArrayList<>();
         //   Map<String, String> map = new HashMap();
         //      StringBuffer colSpanStr = new StringBuffer();
-        for (String table : tables) {
+        for (Element tab : tables) {
             StringBuffer sb = new StringBuffer();
-            Document tab = Jsoup.parse(table);
+         //   Document tab = Jsoup.parse(table);
             Elements trs = tab.getElementsByTag("tr");
             Elements first = trs.first().children();
             for (int i = 1; i < trs.size(); i++) {
@@ -252,7 +252,7 @@ public class HtmlUtils {
     }
 
 
-    public static List<String> getHtmlTableList(Document parse) {
+    public static List<Element> getHtmlTableList(Document parse) {
         //    Elements newsCon = parse.getElementsByClass("newsCon");
         Element body = parse.body();
         List<String> tableList = new ArrayList<>();
@@ -262,14 +262,29 @@ public class HtmlUtils {
             if (ts != null && ts.size() > 0) {
                 Pattern pt = Pattern.compile(REG_TABLE);
                 Matcher m = pt.matcher(body.html());
-                //   List<String> tableList = new ArrayList<>();
                 while (m.find()) {
                     tableList.add(m.group());
                 }
             }
         }
+        List<Element> list = new ArrayList<>();
+        if (tableList.size() < 1){
+            return list;
+        }
+        for (String tableStr : tableList) {
+            Document table = Jsoup.parse(tableStr);
+            Elements tables = table.select("table");
+            Element firstTable = tables.first();
+            if (tables.size() > 1) {
+                Elements children = firstTable.children();
+                children.select("table").remove();
 
-        return tableList;
+            }
+            list.add(firstTable);
+        }
+
+
+        return list;
 
     }
 
@@ -285,7 +300,7 @@ public class HtmlUtils {
         return str;
     }
 
-    public static String removeCNStr(String content){
+    public static String removeCNStr(String content) {
 
         Pattern p_script = Pattern.compile("：", Pattern.CASE_INSENSITIVE);
         Matcher m_script = p_script.matcher(content);
@@ -295,8 +310,7 @@ public class HtmlUtils {
     }
 
 
-
-    public static Map prasePToMap(Elements elements){
+    public static Map prasePToMap(Elements elements) {
 
         List<String> list = new LinkedList<>();
         boolean flag = false;
@@ -326,7 +340,7 @@ public class HtmlUtils {
     }
 
 
-    public static Map plistToMap(List<String> list){
+    public static Map plistToMap(List<String> list) {
         Map map = new HashMap();
         for (int i = 0; i < list.size(); i++) {
             String p = list.get(i);

@@ -159,12 +159,12 @@ public class CleanTestTask implements Runnable {
         String content = data.getContent();
         Document document = Jsoup.parse(content);
 
-        List<String> tableList = HtmlUtils.getHtmlTableList(document);
-        Elements tables = document.getElementsByTag("table");
+        List<Element> tableList = HtmlUtils.getHtmlTableList(document);
+//        Elements tables = document.getElementsByTag("table");
         if (tableList.size() < 1) {
             return null;
         }
-        for (Element table : tables) {
+        for (Element table : tableList) {
             Elements trs = table.getElementsByTag("tr");
             int trSize = trs.size();
             int tdSize = table.getElementsByTag("td").size();
@@ -211,15 +211,15 @@ public class CleanTestTask implements Runnable {
             }
 
             Elements p = parse.getElementsByTag("p");
-            List<String> tableList = HtmlUtils.getHtmlTableList(parse);
+            List<Element> tableList = HtmlUtils.getHtmlTableList(parse);
             map = HtmlUtils.prasePToMap(p);
             data = (GovData) ReflectionUtils.mapToField(map, data, Contant.filedBJValueSet());
             if (tableList.size() < 1) {
 
                 return data;
             } else if (tableList.size() == 1) {
-                String tab = tableList.get(0);
-                Document table = Jsoup.parse(tab);
+                Element table = tableList.get(0);
+            //    Document table = Jsoup.parse(tab);
                 Elements thead = table.getElementsByTag("thead");
                 Elements tbody = table.getElementsByTag("tbody");
                 Elements ths = table.getElementsByTag("th");
@@ -412,14 +412,13 @@ public class CleanTestTask implements Runnable {
             }
 
             Elements p = parse.getElementsByTag("p");
-            List<String> tableList = HtmlUtils.getHtmlTableList(parse);
+            List<Element> tableList = HtmlUtils.getHtmlTableList(parse);
             map = HtmlUtils.prasePToMap(p);
             data = (GovData) ReflectionUtils.mapToField(map, data, Contant.filedBJValueSet());
             if (tableList.size() < 1) {
                 return data;
             } else if (tableList.size() == 1) {
-                String tab = tableList.get(0);
-                Document table = Jsoup.parse(tab);
+                Element table = tableList.get(0);
                 Elements thead = table.getElementsByTag("thead");
                 Elements tbody = table.getElementsByTag("tbody");
                 Elements ths = table.getElementsByTag("th");

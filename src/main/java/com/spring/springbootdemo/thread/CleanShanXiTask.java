@@ -161,12 +161,11 @@ private static Set set = new HashSet();
 		//判断解析类型
 		if ("成交结果公告".equals(data.getStageShow())) {
 			//TODO 判断表格类型
-			List<String> tableList = HtmlUtils.getHtmlTableList(parse);
+			List<Element> tableList = HtmlUtils.getHtmlTableList(parse);
 			//	logger.info(data.getUrl());
 			//粗略检验表格
-			for(String tab : tableList){
+			for(Element ta : tableList){
 
-				Document ta = Jsoup.parse(tab);
 				String tr = ta.getElementsByTag("tr").get(0).text();
 
 		//		set.add(tr);

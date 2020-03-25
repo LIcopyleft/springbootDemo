@@ -129,7 +129,7 @@ public class GOVDataCleanTask implements Runnable {
                     if (list.size() < 1) {
                         continue;
                     }
-             //       row += mapper.insertList_BJ(list, "spider_2_ggzy_content_clean_result_zbgg");
+                    //       row += mapper.insertList_BJ(list, "spider_2_ggzy_content_clean_result_zbgg");
                     list.clear();
                     continue;
                 }
@@ -159,7 +159,7 @@ public class GOVDataCleanTask implements Runnable {
         String content = data.getContent();
         Document document = Jsoup.parse(content);
 
-        List<String> tableList = HtmlUtils.getHtmlTableList(document);
+        List<Element> tableList = HtmlUtils.getHtmlTableList(document);
         Elements tables = document.getElementsByTag("table");
         if (tableList.size() < 1) {
             return null;
@@ -211,15 +211,15 @@ public class GOVDataCleanTask implements Runnable {
             }
 
             Elements p = parse.getElementsByTag("p");
-            List<String> tableList = HtmlUtils.getHtmlTableList(parse);
+            List<Element> tableList = HtmlUtils.getHtmlTableList(parse);
             map = HtmlUtils.prasePToMap(p);
             data = (GovData) ReflectionUtils.mapToField(map, data, Contant.filedBJValueSet());
             if (tableList.size() < 1) {
 
                 return data;
             } else if (tableList.size() == 1) {
-                String tab = tableList.get(0);
-                Document table = Jsoup.parse(tab);
+                Element table = tableList.get(0);
+            //    Document table = Jsoup.parse(tab);
                 Elements thead = table.getElementsByTag("thead");
                 Elements tbody = table.getElementsByTag("tbody");
                 Elements ths = table.getElementsByTag("th");
@@ -391,6 +391,7 @@ public class GOVDataCleanTask implements Runnable {
      */
     private static GovData clean_zbgg(GovData data) throws InvocationTargetException, IllegalAccessException {
         {
+
             String content = data.getContent();
             Map map = new HashMap();
             content = HtmlUtils.removeCNStr(content);
@@ -412,21 +413,19 @@ public class GOVDataCleanTask implements Runnable {
             }
 
             Elements p = parse.getElementsByTag("p");
-            List<String> tableList = HtmlUtils.getHtmlTableList(parse);
-            if(tableList.size() > 1){
-				for (String tableStr : tableList){
-					Document table = Jsoup.parse(tableStr);
-					List<TableCell> tableCells = TableConvert.toCellList(table);
-					//分析单元格是否为表头
+            List<Element> tableList = HtmlUtils.getHtmlTableList(parse);
+            if (tableList.size() > 1) {
+                logger.debug(data.getUrl());
+                for (Element table : tableList) {
+                 //   Document table = Jsoup.parse(tableStr);
+                //    Elements table1 = table.getElementsByTag("table");
+                    List<TableCell> tableCells = TableConvert.toCellList(table);
+                    //分析单元格是否为表头
 
+                //    System.err.println(JSON.toJSONString(tableCells));
+                }
 
-				}
-
-			}
-
-
-
-
+            }
 
 
             map = HtmlUtils.prasePToMap(p);

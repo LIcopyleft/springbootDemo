@@ -29,7 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 public class GOVDataCleanTest {
-    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(10);
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(1);
     private static final Logger logger = LoggerFactory.getLogger(GOVDataCleanTest.class);
     private static final int QUERY_SIZE = 2000;
 
