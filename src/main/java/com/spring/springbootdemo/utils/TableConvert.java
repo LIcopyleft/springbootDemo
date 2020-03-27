@@ -29,8 +29,8 @@ public class TableConvert {
 		for (int tr_idx = 0; tr_idx < tableHeight; tr_idx++) {
 			Elements tds = tableRows.get(tr_idx).select("td, th");
 			int colspanNum = 0;//合并列
-			for(Element td : tds){
-				if(td.hasAttr("colspan")){
+			for (Element td : tds) {
+				if (td.hasAttr("colspan")) {
 					colspanNum = Integer.valueOf(td.attr("colspan"));
 				}
 			}
@@ -42,8 +42,9 @@ public class TableConvert {
 
 		System.out.println("tableHeight:" + tableHeight + ";tableWidth:" + tableWidth);
 
-		if (tableHeight < 2 || tableWidth < 2)
+		if (tableHeight < 2 || tableWidth < 2) {
 			return null;
+		}
 
 		//定义二维数组
 		Element[][] result = new Element[tableHeight][tableWidth];
@@ -63,8 +64,14 @@ public class TableConvert {
 
 				System.out.println("row" + rowIndex + ":\n" + colCells);
 				int pointIndex = 0;//列的索引
+				int realColIndex = -1; //解决 rowspan td 列转换后位置有时对应有误
 				for (int colIndex = 0; colIndex < colCells.size(); colIndex++) {
 					Element currentCell = colCells.get(colIndex);
+					realColIndex++;
+					if(currentCell.hasAttr("colspan")){
+						Integer colspanVal = Integer.valueOf(currentCell.attr("colspan"));
+						realColIndex = realColIndex + colspanVal -1;
+					}
 					//放到二维数组
 					if (result[rowIndex][colIndex].tagName().equalsIgnoreCase("canreplace")) {
 						result[rowIndex][colIndex] = currentCell;
@@ -102,7 +109,7 @@ public class TableConvert {
 						for (int i = 1; i < rowspan; i++) {
 							if (i >= tableHeight) break; // ignore bad rowspans
 							System.out.println("===rowIndex===" + pointIndex + "====tempColIndex===" + pointIndex + "===" + result[rowIndex][pointIndex].tagName());
-							result[rowIndex + i][colIndex] = currentCell;//new Element(invalidTag, "");
+							result[rowIndex + i][realColIndex] = currentCell;//new Element(invalidTag, "");
 						}
 					}
 				}
@@ -116,7 +123,7 @@ public class TableConvert {
 	}
 
 	private static int getPointIndex(int tableWidth, Element[][] result, int rowIndex, int pointIndex, Element currentCell) throws Exception {
-		while (pointIndex < tableWidth && !result[rowIndex][pointIndex].tagName().equalsIgnoreCase("canreplace") ) {
+		while (pointIndex < tableWidth && !result[rowIndex][pointIndex].tagName().equalsIgnoreCase("canreplace")) {
 			pointIndex++;
 			System.out.println("===rowIndex===" + rowIndex + "====tempColIndex===" + pointIndex + "===" + result[rowIndex][pointIndex].tagName());
 		}
@@ -162,7 +169,7 @@ public class TableConvert {
 	}
 
 
-	public static List<TableCell> toCellList(Element table){
+	public static List<TableCell> toCellList(Element table) {
 
 		Element[][] elements = toTable(table);
 		return printTable(elements);
