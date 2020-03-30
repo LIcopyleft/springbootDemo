@@ -35,8 +35,8 @@ public class TableConvert {
 		for (int tr_idx = 0; tr_idx < tableHeight; tr_idx++) {
 			Elements tds = tableRows.get(tr_idx).select("td, th");
 			int colspanNum = 0;//合并列
-			for(Element td : tds){
-				if(td.hasAttr("colspan")){
+			for (Element td : tds) {
+				if (td.hasAttr("colspan")) {
 					colspanNum = Integer.valueOf(td.attr("colspan"));
 				}
 			}
@@ -48,9 +48,9 @@ public class TableConvert {
 
         logger.debug("tableHeight:" + tableHeight + ";tableWidth:" + tableWidth);
 
-        if (tableHeight < 2 || tableWidth < 2) {
-            return null;
-        }
+		if (tableHeight < 2 || tableWidth < 2) {
+			return null;
+		}
 
         //定义二维数组
         Element[][] result = new Element[tableHeight][tableWidth];
@@ -68,19 +68,25 @@ public class TableConvert {
             for (int rowIndex = 0; rowIndex < tableHeight; rowIndex++) {
                 Elements colCells = tableRows.get(rowIndex).select("td, th");
 
-                //	logger.debug("row" + rowIndex + ":\n" + colCells);
-                int pointIndex = 0;//列的索引
-                for (int colIndex = 0; colIndex < colCells.size(); colIndex++) {
-                    Element currentCell = colCells.get(colIndex);
-                    //放到二维数组
-                    if (result[rowIndex][colIndex].tagName().equalsIgnoreCase("canreplace")) {
-                        result[rowIndex][colIndex] = currentCell;
-                        pointIndex = colIndex;
-                    } else {
-                        pointIndex = colIndex + 1;
-                        //查找可放置 一直找到一个可替换
-                        pointIndex = getPointIndex(tableWidth, result, rowIndex, pointIndex, currentCell);
-                    }
+				System.out.println("row" + rowIndex + ":\n" + colCells);
+				int pointIndex = 0;//列的索引real
+				int realColIndex = -1; //解决 rowspan td 列转换后位置有时对应有误
+				for (int colIndex = 0; colIndex < colCells.size(); colIndex++) {
+					Element currentCell = colCells.get(colIndex);
+					realColIndex++;
+					if (currentCell.hasAttr("colspan")) {
+						Integer colspanVal = Integer.valueOf(currentCell.attr("colspan"));
+						realColIndex = realColIndex + colspanVal - 1;
+					}
+					//放到二维数组
+					if (result[rowIndex][colIndex].tagName().equalsIgnoreCase("canreplace")) {
+						result[rowIndex][colIndex] = currentCell;
+						pointIndex = colIndex;
+					} else {
+						pointIndex = colIndex + 1;
+						//查找可放置 一直找到一个可替换
+						pointIndex = getPointIndex(tableWidth, result, rowIndex, pointIndex, currentCell);
+					}
 
 
                     // 检查 colspan
@@ -94,8 +100,8 @@ public class TableConvert {
                         for (int emptyColindex = 1; emptyColindex < colspan; emptyColindex++) {
                             pointIndex++;
                             pointIndex = getPointIndex(tableWidth, result, rowIndex, pointIndex, currentCell);
-                        }
-                    }
+
+                    }}
 
                     // 检查rowspan
                     int rowspan = 1;
@@ -110,7 +116,9 @@ public class TableConvert {
                                 break; // ignore bad rowspans
                             }
                             //    logger.debug("===rowIndex===" + rowIndex + "====tempColIndex===" + pointIndex + "===" + result[rowIndex][pointIndex].tagName());
-                            result[rowIndex + i][colIndex] = currentCell;//new Element(invalidTag, "");
+                            //	result[rowIndex + i][realColIndex] = currentCell;//new Element(invalidTag, "");
+							//	currentCell.html("/");
+							result[rowIndex + i][realColIndex] = currentCell;//new Element(invalidTag, "");
                         }
                     }
                 }
@@ -155,9 +163,9 @@ public class TableConvert {
             for (int colIndex = 0; colIndex < table[rowIndex].length; colIndex++) {
                 Element element = table[rowIndex][colIndex];
 
-                TableCell cell = new TableCell();
-                cell.setColIndex(rowIndex);
-                cell.setRowIndex(colIndex);
+				TableCell cell = new TableCell();
+				cell.setColIndex(colIndex);
+				cell.setRowIndex(rowIndex);
 
                 if (element == null) {
                     cell.setText(null);
@@ -178,11 +186,42 @@ public class TableConvert {
         logger.debug(sb.toString());
         logger.debug(JSON.toJSONString(cellList));
         //    logger.debug("==================");
+				if (element == null) {
+					cell.setText("/");
+					System.out.print("  ");
+				} else {
+					cell.setText(element.text());
+					System.out.print(element.text());
+				}
+				cellList.add(cell);
+				System.out.print(" |");
+			}
+			System.out.println();
+		}
+		System.out.println("==================");
+		//去除同行相同值
+		Map<Integer, Set> map = new HashMap<>();
+		for (TableCell cell : cellList) {
+			Integer rowIndex = cell.getRowIndex();
+			if (map.containsKey(rowIndex)) {
+				if (!map.get(rowIndex).add(cell.getText())) {
+					cell.setText("/");
+				}
+			} else {
+				Set set = new HashSet();
+				set.add(cell.getText());
+				map.put(rowIndex, set);
+			}
+
+		}
+
+		System.out.println(JSON.toJSONString(cellList));
 
         return cellList;
     }
 
 
+	//public static List<TableCell> toCellList(Element table) {
     public static List<TableCell> toCellList(Element table) {
 
         Element[][] elements = toTable(table);

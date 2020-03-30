@@ -46,4 +46,6 @@ public class TableCell {
 	//单元格内容
 	private String text;
 
+	//非表头单元格的领属单元
+
 }

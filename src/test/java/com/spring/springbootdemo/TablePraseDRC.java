@@ -1,13 +1,15 @@
 package com.spring.springbootdemo;
 
-import cn.hutool.poi.excel.cell.CellUtil;
-import org.apache.poi.ss.usermodel.Cell;
+import com.spring.springbootdemo.model.TableCell;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class TablePraseDRC {
 
 	/**
-	 * 根据神州泰岳table表格解析专利，表格解析代码
+	 * table表格解析专利，表格解析代码
 	 */
 
 	/**
@@ -28,12 +30,57 @@ public class TablePraseDRC {
 	 */
 
 
-private void test(){
+private void test() {
+
+
+	//表头分析模块
+
+	List<TableCell> list = new ArrayList<>();
+
+	int rowIndexMax = 0;
+	int colIndexMax = 0;
+	for(int cellIndex = 0 ; cellIndex < list.size() ; cellIndex++){
+		TableCell cell = list.get(cellIndex);
+		if(cell.getColIndex() > colIndexMax){
+			colIndexMax = cell.getColIndex();
+		}
+		if(cell.getRowIndex() > rowIndexMax){
+			rowIndexMax = cell.getRowIndex();
+		}
+
+		//判断逻辑:判断单元格是否为表头
+		//TODO 表头分析模块
+		if(cell.getText().contains(" ")){
+			cell.setHeader(true);
+			cell.setHeaderType(null);
+			cell.setHeaderClass( null);
+			cell.setHeaderTypeName(null);
+		}else {
+			cell.setHeader(false);
+			//遍历查找 非表头单元格的领属表头单元格
+
+			//领属关系分析模块
+			//TODO
+			cell.setHeaderClass(null);
+			cell.setHeaderClass(null);
+
+		}
+
+
+
+
+	}
+
+
+}
+
+
+
 
 	//cell.setLayoutX();
 
 	//CellUtil.setCellValue(cell,1,1,true);
-}
+
 
 
 
