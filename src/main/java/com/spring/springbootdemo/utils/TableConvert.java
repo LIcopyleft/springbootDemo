@@ -6,8 +6,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class TableConvert {
 	/**
@@ -63,14 +62,14 @@ public class TableConvert {
 				Elements colCells = tableRows.get(rowIndex).select("td, th");
 
 				System.out.println("row" + rowIndex + ":\n" + colCells);
-				int pointIndex = 0;//列的索引
+				int pointIndex = 0;//列的索引real
 				int realColIndex = -1; //解决 rowspan td 列转换后位置有时对应有误
 				for (int colIndex = 0; colIndex < colCells.size(); colIndex++) {
 					Element currentCell = colCells.get(colIndex);
 					realColIndex++;
-					if(currentCell.hasAttr("colspan")){
+					if (currentCell.hasAttr("colspan")) {
 						Integer colspanVal = Integer.valueOf(currentCell.attr("colspan"));
-						realColIndex = realColIndex + colspanVal -1;
+						realColIndex = realColIndex + colspanVal - 1;
 					}
 					//放到二维数组
 					if (result[rowIndex][colIndex].tagName().equalsIgnoreCase("canreplace")) {
@@ -95,6 +94,7 @@ public class TableConvert {
 						for (int emptyColindex = 1; emptyColindex < colspan; emptyColindex++) {
 							pointIndex++;
 							pointIndex = getPointIndex(tableWidth, result, rowIndex, pointIndex, currentCell);
+
 						}
 					}
 
@@ -109,6 +109,8 @@ public class TableConvert {
 						for (int i = 1; i < rowspan; i++) {
 							if (i >= tableHeight) break; // ignore bad rowspans
 							System.out.println("===rowIndex===" + pointIndex + "====tempColIndex===" + pointIndex + "===" + result[rowIndex][pointIndex].tagName());
+							//	result[rowIndex + i][realColIndex] = currentCell;//new Element(invalidTag, "");
+							//	currentCell.html("/");
 							result[rowIndex + i][realColIndex] = currentCell;//new Element(invalidTag, "");
 						}
 					}
@@ -118,6 +120,7 @@ public class TableConvert {
 			e.printStackTrace();
 			return null;
 		}
+
 
 		return result;
 	}
@@ -147,11 +150,11 @@ public class TableConvert {
 				Element element = table[rowIndex][colIndex];
 
 				TableCell cell = new TableCell();
-				cell.setColIndex(rowIndex);
-				cell.setRowIndex(colIndex);
+				cell.setColIndex(colIndex);
+				cell.setRowIndex(rowIndex);
 
 				if (element == null) {
-					cell.setText(null);
+					cell.setText("/");
 					System.out.print("  ");
 				} else {
 					cell.setText(element.text());
@@ -163,6 +166,22 @@ public class TableConvert {
 			System.out.println();
 		}
 		System.out.println("==================");
+		//去除同行相同值
+		Map<Integer, Set> map = new HashMap<>();
+		for (TableCell cell : cellList) {
+			Integer rowIndex = cell.getRowIndex();
+			if (map.containsKey(rowIndex)) {
+				if (!map.get(rowIndex).add(cell.getText())) {
+					cell.setText("/");
+				}
+			} else {
+				Set set = new HashSet();
+				set.add(cell.getText());
+				map.put(rowIndex, set);
+			}
+
+		}
+
 		System.out.println(JSON.toJSONString(cellList));
 
 		return cellList;
