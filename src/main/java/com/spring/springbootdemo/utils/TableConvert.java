@@ -2,7 +2,6 @@ package com.spring.springbootdemo.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.spring.springbootdemo.model.TableCell;
-import com.spring.springbootdemo.thread.CleanTask;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
@@ -10,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class TableConvert {
@@ -30,27 +30,31 @@ public class TableConvert {
         Elements tableRows = table.getElementsByTag("tr");
         int tableHeight = tableRows.size();
 
-		//找 展开的最大列数，存在问题：如果某一列 全部使用 colspan 且其值都 大于2，有可能出错
-		int tableWidth = 0;
-		for (int tr_idx = 0; tr_idx < tableHeight; tr_idx++) {
-			Elements tds = tableRows.get(tr_idx).select("td, th");
-			int colspanNum = 0;//合并列
-			for (Element td : tds) {
-				if (td.hasAttr("colspan")) {
-					colspanNum = Integer.valueOf(td.attr("colspan"));
-				}
-			}
+        //找 展开的最大列数，存在问题：如果某一列 全部使用 colspan 且其值都 大于2，有可能出错
+        int tableWidth = 0;
+        for (int tr_idx = 0; tr_idx < tableHeight; tr_idx++) {
+            Elements tds = tableRows.get(tr_idx).select("td, th");
+            int colspanNum = 0;//合并列
+            for (Element td : tds) {
+                if (td.hasAttr("colspan")) {
+                    colspanNum = Integer.valueOf(td.attr("colspan"));
+                }
+            }
 
-			int td_size = tds.size() + colspanNum - 1;
-			if (td_size > tableWidth)
-				tableWidth = td_size;
-		}
+            if (colspanNum > 0) {
+                colspanNum--;
+            }
+            int td_size = tds.size() + colspanNum;
+            if (td_size > tableWidth) {
+                tableWidth = td_size;
+            }
+        }
 
         logger.debug("tableHeight:" + tableHeight + ";tableWidth:" + tableWidth);
 
-		if (tableHeight < 2 || tableWidth < 2) {
-			return null;
-		}
+        if (tableHeight < 2 || tableWidth < 2) {
+            return null;
+        }
 
         //定义二维数组
         Element[][] result = new Element[tableHeight][tableWidth];
@@ -67,27 +71,29 @@ public class TableConvert {
         try {
             for (int rowIndex = 0; rowIndex < tableHeight; rowIndex++) {
                 Elements colCells = tableRows.get(rowIndex).select("td, th");
-
-				System.out.println("row" + rowIndex + ":\n" + colCells);
-				int pointIndex = 0;//列的索引real
-				int realColIndex = -1; //解决 rowspan td 列转换后位置有时对应有误
-				for (int colIndex = 0; colIndex < colCells.size(); colIndex++) {
-					Element currentCell = colCells.get(colIndex);
-					realColIndex++;
-					if (currentCell.hasAttr("colspan")) {
-						Integer colspanVal = Integer.valueOf(currentCell.attr("colspan"));
-						realColIndex = realColIndex + colspanVal - 1;
-					}
-					//放到二维数组
-					if (result[rowIndex][colIndex].tagName().equalsIgnoreCase("canreplace")) {
-						result[rowIndex][colIndex] = currentCell;
-						pointIndex = colIndex;
-					} else {
-						pointIndex = colIndex + 1;
-						//查找可放置 一直找到一个可替换
-						pointIndex = getPointIndex(tableWidth, result, rowIndex, pointIndex, currentCell);
-					}
-
+//                System.out.println("row" + rowIndex + ":\n" + colCells);
+                int pointIndex = 0;//列的索引real
+                int realColIndex = -1; //解决 rowspan td 列转换后位置有时对应有误
+                for (int colIndex = 0; colIndex < colCells.size(); colIndex++) {
+                    Element currentCell = colCells.get(colIndex);
+                    realColIndex++;
+                    if (currentCell.hasAttr("colspan")) {
+                        Integer colspanVal = Integer.valueOf(currentCell.attr("colspan"));
+                        realColIndex = realColIndex + colspanVal - 1;
+                    }
+                    //放到二维数组
+                    try {
+                        if (result[rowIndex][colIndex].tagName().equalsIgnoreCase("canreplace")) {
+                            result[rowIndex][colIndex] = currentCell;
+                            pointIndex = colIndex;
+                        } else {
+                            pointIndex = colIndex + 1;
+                            //查找可放置 一直找到一个可替换
+                            pointIndex = getPointIndex(tableWidth, result, rowIndex, pointIndex, currentCell);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     // 检查 colspan
                     int colspan = 1;
@@ -101,7 +107,8 @@ public class TableConvert {
                             pointIndex++;
                             pointIndex = getPointIndex(tableWidth, result, rowIndex, pointIndex, currentCell);
 
-                    }}
+                        }
+                    }
 
                     // 检查rowspan
                     int rowspan = 1;
@@ -117,8 +124,8 @@ public class TableConvert {
                             }
                             //    logger.debug("===rowIndex===" + rowIndex + "====tempColIndex===" + pointIndex + "===" + result[rowIndex][pointIndex].tagName());
                             //	result[rowIndex + i][realColIndex] = currentCell;//new Element(invalidTag, "");
-							//	currentCell.html("/");
-							result[rowIndex + i][realColIndex] = currentCell;//new Element(invalidTag, "");
+                            //	currentCell.html("/");
+                            result[rowIndex + i][realColIndex] = currentCell;//new Element(invalidTag, "");
                         }
                     }
                 }
@@ -163,9 +170,9 @@ public class TableConvert {
             for (int colIndex = 0; colIndex < table[rowIndex].length; colIndex++) {
                 Element element = table[rowIndex][colIndex];
 
-				TableCell cell = new TableCell();
-				cell.setColIndex(colIndex);
-				cell.setRowIndex(rowIndex);
+                TableCell cell = new TableCell();
+                cell.setColIndex(colIndex);
+                cell.setRowIndex(rowIndex);
 
                 if (element == null) {
                     cell.setText(null);
@@ -186,47 +193,20 @@ public class TableConvert {
         logger.debug(sb.toString());
         logger.debug(JSON.toJSONString(cellList));
         //    logger.debug("==================");
-				if (element == null) {
-					cell.setText("/");
-					System.out.print("  ");
-				} else {
-					cell.setText(element.text());
-					System.out.print(element.text());
-				}
-				cellList.add(cell);
-				System.out.print(" |");
-			}
-			System.out.println();
-		}
-		System.out.println("==================");
-		//去除同行相同值
-		Map<Integer, Set> map = new HashMap<>();
-		for (TableCell cell : cellList) {
-			Integer rowIndex = cell.getRowIndex();
-			if (map.containsKey(rowIndex)) {
-				if (!map.get(rowIndex).add(cell.getText())) {
-					cell.setText("/");
-				}
-			} else {
-				Set set = new HashSet();
-				set.add(cell.getText());
-				map.put(rowIndex, set);
-			}
-
-		}
-
-		System.out.println(JSON.toJSONString(cellList));
 
         return cellList;
     }
 
-
-	//public static List<TableCell> toCellList(Element table) {
     public static List<TableCell> toCellList(Element table) {
 
         Element[][] elements = toTable(table);
         return printTable(elements);
     }
+
+
+
+
+
 
 
 }

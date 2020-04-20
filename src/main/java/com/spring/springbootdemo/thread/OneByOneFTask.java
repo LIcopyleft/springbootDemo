@@ -4,11 +4,11 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.spring.springbootdemo.contant.Contant;
 import com.spring.springbootdemo.mapper.DataContentMapper;
-import com.spring.springbootdemo.model.*;
+import com.spring.springbootdemo.model.DataContentWithBLOBs;
+import com.spring.springbootdemo.model.GovData;
+import com.spring.springbootdemo.model.WinBisInfo;
 import com.spring.springbootdemo.utils.*;
-import javafx.scene.control.Tab;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,11 +23,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GOVDataCleanTask implements Runnable {
+public class OneByOneFTask implements Runnable {
 
     private static final String KEY_WORD = "区域坐标";
-  //  private static final String INSERT_TABLE_NAME = "spider_2_ggzy_content_clean_temp";
-    private static final String INSERT_TABLE_NAME = "spider_2_ggzy_content_clean_result_gzsx_0";
+    private static final String INSERT_TABLE_NAME = "spider_2_ggzy_content_clean_temp";
 
 
     private static final Set<String> FLAG = new HashSet<>();
@@ -43,10 +42,10 @@ public class GOVDataCleanTask implements Runnable {
     private CountDownLatch latch;
 
 
-    private static final Logger logger = LoggerFactory.getLogger(GOVDataCleanTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(OneByOneFTask.class);
 
 
-    public GOVDataCleanTask(int beginIndex, int querySize, String stageShow, CountDownLatch latch) {
+    public OneByOneFTask(int beginIndex, int querySize, String stageShow, CountDownLatch latch) {
         this.beginIndex = beginIndex;
         this.querySize = querySize;
         this.stageShow = stageShow;
@@ -55,32 +54,37 @@ public class GOVDataCleanTask implements Runnable {
 
     @Override
     public void run() {
+        //查询当前表格中某一个字段为null , 修改后重新插入
+        String tableName = "spider_2_ggzy_content_clean_result_zbgg_0";
+        //null 的字段 , 修补此字段
+        String filed = "proxy_org_name";
+     //   String filedVal = null;
+    // TODO  注意修改下方 get方法
+
         try {
             DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
             List<GovData> list = new LinkedList<>();
-            List<DataContentWithBLOBs> dataContent = mapper.selectAll(beginIndex, querySize, "spider_2_ggzy_content_clean_temp");
-            if (dataContent == null || dataContent.size() < 1) {
+         //   List<DataContentWithBLOBs> dataContent = mapper.selectAll(beginIndex, querySize, "spider_2_ggzy_content_clean_temp");
+            List<GovData> datas = mapper.selectThisFiledIsNull(tableName,filed,beginIndex,querySize);
+
+
+            if (datas == null || datas.size() < 1) {
                 logger.warn(Thread.currentThread().getName() + "end====query db is null====beginIndex=" + beginIndex);
                 return;
-            }
-            List<GovData> datas = new LinkedList<>();
-            for (DataContentWithBLOBs data : dataContent) {
-                GovData govData = DataConvert.toGovData(data);
-                datas.add(govData);
             }
 
 
             LinkedBlockingQueue<GovData> queues = new LinkedBlockingQueue();
             for (GovData data : datas) {
-                if (stageShow.equals(data.getStageShow()) && data.getLocation().equals("1")) {
-                    queues.add(data);
-                }
+               // if (stageShow.equals(data.getStageShow()) && data.getLocation().equals("0")) {
+                queues.add(data);
+                //}
             }
             if (queues.size() < 1) {
                 // logger.info(Thread.currentThread().getName() + "end====no " + stageShow + "=====beginIndex = " + beginIndex);
                 return;
             }
-            int row = 0;
+          //  int row = 0;
             while (queues.iterator().hasNext()) {
                 GovData data = queues.poll();
                 try {
@@ -88,21 +92,17 @@ public class GOVDataCleanTask implements Runnable {
                     if (StringUtils.isBlank(content)) {
                         continue;
                     }
-                    //    Document parse = Jsoup.parse(content);
-                    // DataContentWithBLOBs dcb = cleanMethod(data,parse);
-                /*    DataContentWithBLOBs dcb = cleanMethod_2(data);
-                    if (dcb == null) {
-                        continue;
-                    } */
-                    //  data = cleanMethod_3(data);
-                    //    onlyOneRowAndOneCol(data);
 
-                    //    data = clean_cggg(data);
-                    data = clean_zbgg(data);
+                    //针对一个字段
+                    data = seeWhyThisFiledIsNull(data);
                     if (data == null) {
                         continue;
                     }
-                //    data.setContent(null);
+                    if(data.getProxyOrgName() != null){
+
+                    mapper.updateFiledByUrlId(tableName,filed,data.getProxyOrgName(),data.getUrlId());
+                    }
+                    data.setContent(null);
                     list.add(data);
                 } catch (Exception e) {
                     logger.error("ParaseErr{urlId:" + data.getUrlId() + "====url:" + data.getUrl() + "}", e);
@@ -114,59 +114,19 @@ public class GOVDataCleanTask implements Runnable {
                     if (list.size() < 1) {
                         continue;
                     }
-                //    row += mapper.insertList_BJ(list, INSERT_TABLE_NAME);
+                 //   row += mapper.insertList_BJ(list, "spider_2_ggzy_content_clean_result_cght_0");
                     list.clear();
                     continue;
                 }
 
             }
-            logger.info(Thread.currentThread().getName() + "==url_id over" + dataContent.get(dataContent.size() - 1).getUrlId() + "=====insert\t" + row + "行");
+         //   logger.info(Thread.currentThread().getName() + "==url_id over" + dataContent.get(dataContent.size() - 1).getUrlId() + "=====insert\t" + row + "行");
         } finally {
             latch.countDown();
         }
     }
 
-    //
 
-    /**
-     * 获取只有一table 一row 一col ，按p标签处理
-     *
-     * @param data
-     * @return
-     */
-
-    public static DataContentWithBLOBs onlyOneRowAndOneCol(DataContentWithBLOBs data) {
-
-        //只有一个table标签
-        if (!data.getLocation().equals("1") || "采购合同".equals(data.getStageshow())) {
-            return null;
-        }
-        String content = data.getContent();
-        Document document = Jsoup.parse(content);
-
-        List<Element> tableList = HtmlUtils.getHtmlTableList(document);
-        Elements tables = document.getElementsByTag("table");
-        if (tableList.size() < 1) {
-            return null;
-        }
-        for (Element table : tables) {
-            Elements trs = table.getElementsByTag("tr");
-            int trSize = trs.size();
-            int tdSize = table.getElementsByTag("td").size();
-            Elements p = table.getElementsByTag("p");
-            int pSize = p.size();
-
-            if (trSize == tdSize && pSize == trSize) {
-                //logger.info(data.getUrl());
-                // HtmlUtils.
-                data.setCoordinate("1");
-            }
-
-
-        }
-
-        return data;
-    }
 
     /**
      * 资审/采购公告
@@ -238,28 +198,7 @@ public class GOVDataCleanTask implements Runnable {
                         sb.append(element.text() + ":" + (td1.size() > i ? td1.get(i).text() : ""));
                         sb.append("|");
                     }
-                    /*
-                    String s = sb.toString();
-                    String s_1 = s;
-                    StringBuilder str = new StringBuilder();
-                    for (int j = 0; j < trs.size(); j++) {
-                        Element element = trs.get(j);
-                        if (element.getElementsByTag("th").size() > 0) {
-                            continue;
-                        }
-                        Elements td = element.getElementsByTag("td");
-                        if (td.size() == ths.size()) {
-                            int u = 0;
-                            for (Element tdd : td) {
-                                s = s.replace("##" + u, tdd.text());
-                                u++;
-                            }
-                            str.append(s);
-                            str.append("|");
-                            s = s_1;
 
-                        }
-                    } */
                     String str = sb.toString();
                     if (str.equals("|")) {
                         return data;
@@ -367,14 +306,14 @@ public class GOVDataCleanTask implements Runnable {
     }
 
     /**
-     * 中标公告,处理和cggg 完全相同
+     * 只针对一个字段处理
      *
      * @param data
      * @return
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    private static GovData clean_zbgg(GovData data) throws InvocationTargetException, IllegalAccessException {
+    private static GovData seeWhyThisFiledIsNull(GovData data) throws InvocationTargetException, IllegalAccessException {
       /*  if (data.getUrlId() == 887) {
             data.getUrlId();
         }
@@ -417,17 +356,21 @@ public class GOVDataCleanTask implements Runnable {
         }
 
  */
-        logger.debug(data.getUrl());
-        logger.debug("tableSize: " + tableList.size());
         Map map1 = HtmlUtils.plistToMap(cellInfoList);
         map = HtmlUtils.prasePToMap(p);
         map.putAll(map1);
+        if(map.size() < 3){
+            return null;
+        }
+
+        logger.debug(data.getUrl());
+        logger.debug("tableSize: " + tableList.size());
         data = (GovData) ReflectionUtils.mapToField(map, data, Contant.filedBJValueSet());
 
         data.setOther(map.size() == 0 ? null : JSON.toJSONString(map));
         data.setClasses(memu.length() > 200 ? null : memu);
         data.setPubTime(pubTime);
-    //    data.setContent(null);
+        data.setContent(null);
         //    data.setClassifyShow(data.getStageShow());//政府采购  更正公告
         // System.out.println(JSON.toJSONString(map));
         // TODO 时间 金额 等字段在这里处理

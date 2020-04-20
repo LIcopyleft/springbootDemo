@@ -195,7 +195,7 @@ public class HtmlUtils {
     }
 
 
-    private static final String UNCLEAR_FILED = "地址|联系地址|详细地址|电话|联系方式|联系人|联系电话|电话";
+    private static final String UNCLEAR_FILED = "地址|联系地址|详细地址|电话|联系方式|联系人|联系电话|电话|单位名称";
 
     public static boolean keyIsUnclear(String key) {
         if (StringUtils.isBlank(key)) {
@@ -214,11 +214,6 @@ public class HtmlUtils {
 
 
     public static boolean keyIsContains(String key, String fieldStr) {
-   /*     if(key.contains("采购人") && fieldStr.contains("采购人")){
-            logger.info("");
-        }
-*/
-        //    key = reviseKey(key);
 
         if (StringUtils.isBlank(fieldStr) || fieldStr.split(":").length < 2) {
             return false;
@@ -245,7 +240,11 @@ public class HtmlUtils {
         key = m_script.replaceAll(""); // 过滤script标签
 
         //首个字符为中文 一 , 二等
-        key = key.replaceFirst("[\\u4e00 \\u4e8c \\u4e09 \\u56db \\u4e94 \\u516d \\u4e03 \\u516b \\u4e5d \\u5341]{1,2}", "");
+    /*    if(key.length()>0 && key.startsWith("[\\u4e00 \\u4e8c \\u4e09 \\u56db \\u4e94 \\u516d \\u4e03 \\u516b \\u4e5d \\u5341]{1,2}")){
+            key = key.substring(1,key.length());
+        }
+*/
+       key = key.replaceFirst("^[\\u4e00 \\u4e8c \\u4e09 \\u56db \\u4e94 \\u516d \\u4e03 \\u516b \\u4e5d \\u5341]{1,2}", "");
         //清楚中间空白
         key = StrUtil.cleanBlank(key);
         return key;
@@ -256,23 +255,26 @@ public class HtmlUtils {
         //    Elements newsCon = parse.getElementsByClass("newsCon");
         Element body = parse.body();
         List<String> tableList = new ArrayList<>();
+        Elements tabs = null;
         if (body != null) {
             //     Element element = newsCon.get(0);
-            Elements ts = body.getElementsByTag("table");
-            if (ts != null && ts.size() > 0) {
+            tabs = body.getElementsByTag("table");
+        /*    if (ts != null && ts.size() > 0) {
                 Pattern pt = Pattern.compile(REG_TABLE);
                 Matcher m = pt.matcher(body.html());
                 while (m.find()) {
                     tableList.add(m.group());
                 }
             }
+
+         */
         }
         List<Element> list = new ArrayList<>();
-        if (tableList.size() < 1){
+        if (tabs == null){
             return list;
         }
-        for (String tableStr : tableList) {
-            Document table = Jsoup.parse(tableStr);
+        for (Element table : tabs) {
+     //       Document table = Jsoup.parse(tableStr);
             Elements tables = table.select("table");
             Element firstTable = tables.first();
             if (tables.size() > 1) {
@@ -340,10 +342,46 @@ public class HtmlUtils {
     }
 
 
+    public static int countString(String str,String s) {
+        int count = 0;
+        while(str.indexOf(s) != -1){
+
+            str = str.substring(str.indexOf(s)+1,str.length());
+            count++;
+
+        }
+        return count;
+    }
+
     public static Map plistToMap(List<String> list) {
         Map map = new HashMap();
+        String flag = "";
         for (int i = 0; i < list.size(); i++) {
             String p = list.get(i);
+            if(p.startsWith("第一")||p.startsWith("第二")||p.startsWith("第三")||p.startsWith("第四")||p.startsWith("第五")||p.startsWith("第六")){
+                flag = p.substring(0,2);
+                String s = list.get(i+1);
+                String s2 = list.get(i+2);
+                if(s.contains("地址")|| s.contains("金额") ){
+                    list.remove(i+1);
+                    list.add(i+1,"ZW"+flag+s);
+                }
+                if(s2.contains("地址")|| s2.contains("金额")){
+                    list.remove(i+2);
+                    list.add(i+2,"ZW"+flag+s2);
+                }
+
+            }
+
+
+            if(countString(p,":")>1 && p.contains(String.valueOf((char)32))){
+                String[] strings = CellUtils.splitCellInfo(p);
+                if(strings != null){
+
+                list.addAll(Arrays.asList(strings));
+                }
+            };
+
             p = p.replaceFirst(":", "#");
             String[] split = p.split("#");
 
@@ -365,7 +403,16 @@ public class HtmlUtils {
                     list.set(i, key + ":" + split[1]);
                 }
                 //去除key非中文,以及首个字符为 一,二等
-                map.put(key, split[1]);
+             /*   if(StringUtils.isBlank(key) && split[1].contains(":")){
+                    String[] strings = split[1].split(":");
+                    map.put(strings[0] ,strings[1]);
+                    continue;
+                }*/
+
+                if(StringUtils.isNotBlank(key)){
+
+                  map.put(key, split[1]);
+                }
             }
         }
 

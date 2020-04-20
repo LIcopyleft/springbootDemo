@@ -250,7 +250,7 @@ public class PraseFieldTask implements Runnable {
         //resMap.put("table", tableMap);
         resMap.put("text", colMap);
 
-        getFild(dcb, resMap);
+      //  getFild(dcb, resMap);
 
         String mapStr = JSON.toJSONString(resMap);
         logger.info(mapStr);
@@ -330,72 +330,6 @@ public class PraseFieldTask implements Runnable {
         return tableMap;
     }
 
-
-    private static DataContentWithBLOBs getFild(DataContentWithBLOBs datas, Map<String, Map> map) throws IllegalAccessException, InvocationTargetException {
-
-        Set keySet = new LinkedHashSet();
-        Map<String, String> combineResultMap = new HashMap();
-        if (map.containsKey("table")) {
-            Map<String, String> table = map.get("table");
-            combineResultMap.putAll(table);
-
-        }
-
-        if (map.containsKey("text")) {
-            Map<String, String> text = map.get("text");
-            combineResultMap.putAll(text);
-        }
-        if(combineResultMap.size() < 1){
-            return datas;
-        }
-
-        // 合并
-        Set set = Contant.filedValueSet();
-        //遍历 Map中key
-        //proNo ： 项目标号，编号，
-        // 合并后打印出所有内容
-        for (Map.Entry<String, String> entry : combineResultMap.entrySet()) {
-            String key = entry.getKey();
-            //将所有key，保存set，最后写入文件
-            keySet.add(key);
-
-            Iterator<String> iterator = set.iterator();
-            while (iterator.hasNext()) {
-                String next = iterator.next();
-                //   if (next.contains(key) /*|| keyIsContains(key, next)*/) {
-                if (keyIsContains(key, next)) {
-                    //   DataContentWithBLOBs datas = new DataContentWithBLOBs();
-                    //   Field[] declaredFields = datas.getClass().getDeclaredFields();
-                    BeanInfo beanInfo;
-                    try {
-                        beanInfo = Introspector.getBeanInfo(datas.getClass());
-                    } catch (IntrospectionException e) {
-                        return datas;
-                    }
-                    List<PropertyDescriptor> descriptors = Arrays.stream(beanInfo.getPropertyDescriptors()).filter(p -> {
-                        String name = p.getName();
-                        //过滤掉不需要修改的属性
-                        return !"class".equals(name) && !"id".equals(name);
-                    }).collect(Collectors.toList());
-                    for (PropertyDescriptor descriptor : descriptors) {
-                        //descriptor.getWriteMethod()方法对应set方法
-                        if (descriptor.getName().equals(next.split(":")[0])) {
-                            /*   System.err.println(descriptor.getName()+"==="+next.split(":")[0]);
-                            if(next.split(":")[0].contains("buyingunit")){
-                                logger.info("");
-                            } */
-                            Method writeMethod = descriptor.getWriteMethod();
-                            writeMethod.invoke(datas, entry.getValue());
-                        }
-                    }
-                }
-            }
-        }
-        logger.info(JSON.toJSONString(map));
-
-        FileUtils.writeAppendFile("key.txt", keySet);
-        return datas;
-    }
 
 
     private static boolean keyIsContains(String key, String fieldStr) {

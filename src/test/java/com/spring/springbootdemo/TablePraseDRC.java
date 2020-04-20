@@ -54,7 +54,7 @@ private void test() {
 			cell.setHeader(true);
 			cell.setHeaderType(null);
 			cell.setHeaderClass( null);
-			cell.setHeaderTypeName(null);
+
 		}else {
 			cell.setHeader(false);
 			//遍历查找 非表头单元格的领属表头单元格

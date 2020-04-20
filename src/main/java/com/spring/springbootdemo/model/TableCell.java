@@ -37,12 +37,12 @@ public class TableCell {
 	//是否表头
 	private boolean isHeader;
 	//表头类别(小类) 例如: 中标人名称
-	private Integer headerType;
-	private String headerTypeName;
+	private String headerType;
+//	private String headerTypeName;
 
 
 	// 表头类别(大类) 例如:中标人信息
-	private Integer headerClass;
+	private String headerClass;
 	//单元格内容
 	private String text;
 

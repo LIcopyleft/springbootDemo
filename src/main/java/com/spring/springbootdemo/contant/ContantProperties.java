@@ -13,6 +13,13 @@ public class ContantProperties {
 	private static  String WIN_BID_NOTICE = "中标公告/1->文字分析占位:表格分析占位";
 
 	private static  String WIN_BID_ORG_INFO = "";
+	//第一层: 中标结果
+    //第二层:中标人信息表头
+
+    //第二层:项目信息表头
+    //第二层:非直接输出表头
+
+
 
 /*
 -招标公示
@@ -46,14 +53,6 @@ public class ContantProperties {
 */
 
 
-
     //   private static  String TENDER_WAY = "proname:";//
-
-
-    private static Set set = new HashSet();
-    private static String Field9;
-    private static String Field8;
-    // **********************政府采购北京配置信息************
-
 
 }

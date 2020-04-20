@@ -1,12 +1,12 @@
 package com.spring.springbootdemo.utils;
 
 import java.io.*;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 /**
  * 文件读写工具类
- *
  */
 
 public class FileUtils {
@@ -34,6 +34,24 @@ public class FileUtils {
         return null;
     }
 
+    public static List<String> readFileToList(String filePath) {
+      //  StringBuilder stringBuilder = new StringBuilder();
+        List<String> list = new LinkedList<>();
+        try (FileReader reader = new FileReader(filePath);
+             BufferedReader br = new BufferedReader(reader)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+               /* stringBuilder.append(line);
+                stringBuilder.append("|");*/
+                list.add(line);
+            }
+            return list;
+        } catch (IOException e) {
+
+        }
+        return null;
+    }
+
     /**
      * 创建新文件写入
      *
@@ -50,7 +68,7 @@ public class FileUtils {
             }
             return true;
         } catch (IOException e) {
-          //  log.error("writeNewFile：{}", e);
+            //  log.error("writeNewFile：{}", e);
         }
         return false;
     }
@@ -71,7 +89,21 @@ public class FileUtils {
             }
             return true;
         } catch (IOException e) {
-        //    log.error("writeAppendFile：{}", e);
+            //    log.error("writeAppendFile：{}", e);
+        }
+        return false;
+    }
+
+    public static boolean writeAppendFile(String filePath, String contents) {
+        try (FileWriter writer = new FileWriter(filePath, true);
+             BufferedWriter bw = new BufferedWriter(writer)) {
+
+            bw.append(contents);
+            bw.newLine();
+
+            return true;
+        } catch (IOException e) {
+            //    log.error("writeAppendFile：{}", e);
         }
         return false;
     }
