@@ -65,13 +65,34 @@ public class TableMarkHeader {
             if (!cell.isHeader()) {
                 Integer rowIndex = cell.getRowIndex();//行索引
                 Integer colIndex = cell.getColIndex();//列索引
+				// index 1 col and 1 row must is header !
+				if(colIndex == 0 && rowIndex == 0){
+					continue;
+				}
+
                 //如果第一列
                 if(colIndex == 0){
-                //第一列中第一行 (未匹配为表头,问题单元格,暂设置为无)
-                    if(rowIndex == 0){
-                       // cell.set
-                    }
+                	//第一列中第一行 (未匹配为表头,问题单元格,暂设置为无)
+
                     //第一列同一向上查找表头,向上一格或最顶格
+					if(rowIndex > 0){
+					//	TableCell upCell = CellUtils.getUpOneCellOnColIndex(cell, tableCells);
+					//	TableCell row0Cell = CellUtils.getFirstRowCellOnColIndex(cell, tableCells);
+						TableCell maybeHeaderCell = CellUtils.getMaybeHeaderCell(cell, tableCells);
+
+						if(maybeHeaderCell != null){
+							cell.setHeaderType(maybeHeaderCell.getHeaderType());
+							cell.setHeaderClass(maybeHeaderCell.getHeaderClass());
+
+						}else{
+							cell.setHeaderType("未识别到");
+							cell.setHeaderClass("未识别到");
+						}
+
+
+					}
+
+
 
                     //非表头单元格 领属表头判断优先级 1.左一格（左一格文本内容与当前内容相同，继续向前推）2.左边第一列 3.上一格，4.上方第一行
 

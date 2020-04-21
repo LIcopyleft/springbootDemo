@@ -30,10 +30,7 @@ public class Test {
 
     public static void main(String[] args) throws IOException {
         String strs = "采购公告公示发布日期/本项目首次公告时间/首次公告发布日期及媒介/竞争性磋商邀请公告发布日期/发布竞争性谈判公告时间/原公告中报名时间/公告媒介及";
-        Result parse = ToAnalysis.parse(strs);
-        Result parse1 = NlpAnalysis.parse(strs);
-        Result parse2 = IndexAnalysis.parse(strs);
-        System.err.println(parse);
+
         List<String> list = FileUtils.readFileToList("金额_过滤_成交金额.txt");
         List<String> keys = new LinkedList<>();
         for (String str : list) {

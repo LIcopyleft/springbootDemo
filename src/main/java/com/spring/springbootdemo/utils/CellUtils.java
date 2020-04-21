@@ -13,18 +13,95 @@ import java.util.List;
 public class CellUtils {
 
 
-    /**
+	public static TableCell getMaybeHeaderCell(TableCell cell, List<TableCell> list) {
+
+		TableCell cell2 = getUpCellIsHeaderOnSameRowIndex(cell, list);
+
+		if(cell2 == null){
+			return getUpCellIsHeaderOnSameColIndex(cell, list);
+		}
+		return cell2;
+	}
+
+	/**
+	 * 获取当前单元格，同一列，向上最近为表头的单元格， 如果上个紧邻单元格内容与当前单元格内容相同，继续向上寻找
+	 */
+	public static TableCell getUpCellIsHeaderOnSameColIndex(TableCell cell, List<TableCell> list) {
+		Integer colIndex = cell.getColIndex();
+		Integer rowIndex = cell.getRowIndex();
+		if (rowIndex < 1) {
+			return null;
+		}
+		String cellText = cell.getText();
+		if(cellText == null){
+			cellText = "";
+		}
+		while (rowIndex > 0){
+			rowIndex--;
+			TableCell tableCell = getCell(rowIndex, colIndex, list);
+			String text = tableCell.getText();
+			if(text == null){
+				text = cellText;
+			}
+
+			if(!tableCell.getText().equals(cell.getText()) && tableCell.isHeader()){
+				return tableCell;
+			}
+
+
+		}
+		// 默认返回当前列第一行
+		return null;
+	}
+
+	/**
+	 * 相同行 优先于相同列，即先判断同行前面最近一个单元格是否包含表头单元格
+	 * @param cell
+	 * @param list
+	 * @return
+	 */
+
+	public static TableCell getUpCellIsHeaderOnSameRowIndex(TableCell cell, List<TableCell> list) {
+		Integer colIndex = cell.getColIndex();
+		Integer rowIndex = cell.getRowIndex();
+		if (colIndex < 1) {
+			return null;
+		}
+		String cellText = cell.getText();
+		if(cellText == null){
+			cellText = "";
+		}
+		while (colIndex > 0){
+			colIndex--;
+			TableCell tableCell = getCell(rowIndex, colIndex, list);
+			String text = tableCell.getText();
+			if(text == null){
+				text = cellText;
+			}
+
+			if(!tableCell.getText().equals(cell.getText()) && tableCell.isHeader()){
+				return tableCell;
+			}
+
+		}
+
+	//	return getCell(rowIndex,0,list);
+		return null;
+	}
+
+
+	/**
      * 获取当前单元格，同一列，上一行单元格
      */
     public static TableCell getUpOneCellOnColIndex(TableCell cell, List<TableCell> list) {
         Integer colIndex = cell.getColIndex();
         Integer rowIndex = cell.getRowIndex();
         if (rowIndex < 1) {
-
+			return null;
         }
 
         for (TableCell tableCell : list) {
-
+			rowIndex--;
             //    getCell(tableCell.getRowIndex(),tableCell.getColIndex(),list)
             if (tableCell.getRowIndex().equals(rowIndex) && tableCell.getColIndex().equals(colIndex)) {
                 return tableCell;
@@ -34,6 +111,32 @@ public class CellUtils {
 
         return null;
     }
+
+
+
+	/**
+	 * 获取当前单元格，同一列，第一行单元格
+	 */
+	public static TableCell getFirstRowCellOnColIndex(TableCell cell, List<TableCell> list) {
+		Integer colIndex = cell.getColIndex();
+		Integer rowIndex = cell.getRowIndex();
+		if (rowIndex < 1) {
+			return null;
+		}
+
+		for (TableCell tableCell : list) {
+
+			//    getCell(tableCell.getRowIndex(),tableCell.getColIndex(),list)
+			if ("0".equals(tableCell.getRowIndex()) && tableCell.getColIndex().equals(colIndex)) {
+				return tableCell;
+			}
+
+		}
+
+		return null;
+	}
+
+
 
     /**
      * 对表格第一行特殊处理.
