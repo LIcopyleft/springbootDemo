@@ -156,6 +156,29 @@ public class TableConvert {
     }
 
 
+    public static List<String> toList(Element ele) {
+        List list = new ArrayList();
+        Element[][] table = toTable(ele);
+        for (int rowIndex = 1; rowIndex < table.length; rowIndex++) {
+            //logger.debug("|");
+            // sb.append("|");
+            //   int rowIndex =0;
+            for (int colIndex = 1; colIndex < table[rowIndex].length; colIndex++) {
+
+
+                Element head = table[0][colIndex];
+                Element element = table[rowIndex][colIndex];
+
+
+                list.add(head.text() + ":" + element.text());
+            }
+            //   }
+
+
+        }
+        return list;
+    }
+
     private static List<TableCell> printTable(Element[][] table) {
         if (table == null) {
             return null;
@@ -191,7 +214,7 @@ public class TableConvert {
         }
 
         logger.debug(sb.toString());
-        logger.debug(JSON.toJSONString(cellList));
+//        logger.debug(JSON.toJSONString(cellList));
         //    logger.debug("==================");
 
         return cellList;
@@ -202,11 +225,6 @@ public class TableConvert {
         Element[][] elements = toTable(table);
         return printTable(elements);
     }
-
-
-
-
-
 
 
 }

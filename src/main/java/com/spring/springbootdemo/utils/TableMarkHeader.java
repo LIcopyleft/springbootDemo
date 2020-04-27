@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class TableMarkHeader {
 
- //   private static Set set = new LinkedHashSet();
+    //   private static Set set = new LinkedHashSet();
 
     public static int[] markHeader(List<TableCell> tableCells) {
         int colMaxIndex = 0;
@@ -44,9 +44,40 @@ public class TableMarkHeader {
             //     Iterator iterator = set.iterator();
 
         }
+        //对表格列表二次校验，同行或者同列有 超过两个（或半数）为表头，且位于第一行或第一列 该行或改列视为表头
+        int rowHeaderNum = 0;
+        int colHeaderNum = 0;
+        for(TableCell cell : tableCells){
+            if(0 == cell.getRowIndex() && cell.isHeader()){
+                rowHeaderNum++;
+            }
+            if(0 ==cell.getColIndex() && cell.isHeader()){
+                colHeaderNum++;
+            }
+
+        }
+        if(rowHeaderNum > colHeaderNum && rowHeaderNum > 1){
+            for(TableCell cell : tableCells){
+                if(cell.getRowIndex() == 0 ){
+                    cell.setHeader(true);
+                }
+            }
+            System.out.println("判定为横向表头");
+        }else if(rowHeaderNum < colHeaderNum && colHeaderNum > 1){
+            for(TableCell cell : tableCells){
+                if(cell.getColIndex()== 0){
+                    cell.setHeader(true);
+                }
+            }
+            System.out.println("判定为纵向表头");
+        }else {
+            System.out.println("未自动判定");
+        }
+
+
         maxIndex[0] = rowMaxIndex;
         maxIndex[1] = colMaxIndex;
- //       FileUtils.writeAppendFile("feild.txt", set);
+        //       FileUtils.writeAppendFile("feild.txt", set);
 
         return maxIndex;
     }
@@ -65,54 +96,21 @@ public class TableMarkHeader {
             if (!cell.isHeader()) {
                 Integer rowIndex = cell.getRowIndex();//行索引
                 Integer colIndex = cell.getColIndex();//列索引
-				// index 1 col and 1 row must is header !
-				if(colIndex == 0 && rowIndex == 0){
-					continue;
-				}
-
-                //如果第一列
-                if(colIndex == 0){
-                	//第一列中第一行 (未匹配为表头,问题单元格,暂设置为无)
-
-                    //第一列同一向上查找表头,向上一格或最顶格
-					if(rowIndex > 0){
-					//	TableCell upCell = CellUtils.getUpOneCellOnColIndex(cell, tableCells);
-					//	TableCell row0Cell = CellUtils.getFirstRowCellOnColIndex(cell, tableCells);
-						TableCell maybeHeaderCell = CellUtils.getMaybeHeaderCell(cell, tableCells);
-
-						if(maybeHeaderCell != null){
-							cell.setHeaderType(maybeHeaderCell.getHeaderType());
-							cell.setHeaderClass(maybeHeaderCell.getHeaderClass());
-
-						}else{
-							cell.setHeaderType("未识别到");
-							cell.setHeaderClass("未识别到");
-						}
-
-
-					}
-
-
-
-                    //非表头单元格 领属表头判断优先级 1.左一格（左一格文本内容与当前内容相同，继续向前推）2.左边第一列 3.上一格，4.上方第一行
-
-                    TableCell headerCell = CellUtils.getHeaderCell(cell, tableCells);
-
-
+                // index 1 col and 1 row must is header !
+                if (colIndex == 0 && rowIndex == 0) {
+                    continue;
                 }
 
-                //colindex > 1 第二列为例,获取colIndex - 1 rowIndex 元素 cell,如果为表头单元格,优先判定为领属表头单元格.不是,则向上判断同列距离最近单元格表头为当前单元格的领属表头单元格
+                TableCell maybeHeaderCell = CellUtils.getMaybeHeaderCell(cell, tableCells);
 
+                if (maybeHeaderCell != null) {
+                    cell.setHeaderType(maybeHeaderCell.getHeaderType());
+                    cell.setHeaderClass(maybeHeaderCell.getHeaderClass());
 
-                // 第一行 最后一行: 一般第一行为表头,
-
-
-                //如果第一列,
-                if (rowIndex == 0) {
-
+                } else {
+                    cell.setHeaderType("未识别到");
+                    cell.setHeaderClass("未识别到");
                 }
-
-                //第一列 最后一列
 
 
             }

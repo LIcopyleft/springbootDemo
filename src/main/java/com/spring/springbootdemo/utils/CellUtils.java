@@ -279,6 +279,8 @@ public class CellUtils {
             sb.append(string);
             if (string.contains(":")) {
                 sb.append("#@#");
+            }else if(string.equals("地")){
+                continue;
             }else{
                 int start = sb.lastIndexOf("#@#");
                 try {

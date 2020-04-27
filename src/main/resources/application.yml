@@ -36,5 +36,11 @@ logging:
 
 # regular:"项目名称"/"项目名":"proName"|"项目编号"/"编号":"proNo"
 
+insert:
+  db_name: spider_2_ggzy_content_clean_result_zbgg_1
 
+clean:
+  data_flag : 采购公告
 
+open:
+  thread_num : 1

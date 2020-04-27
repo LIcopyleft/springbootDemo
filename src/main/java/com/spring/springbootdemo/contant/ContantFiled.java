@@ -44,13 +44,14 @@ public class ContantFiled {
      * 金额类信息
      */
 
-    public static final String TENDER_TOTAL_AMOUNT = "winBidTotalAmount:中标金额/中标结果/总成交金额/总中标成交金额/中标总金额/总金额/成交金额/中标(成交)金额";//中标金额
+    public static final String TENDER_TOTAL_AMOUNT = Contant.TENDER_TOTAL_AMOUNT;//"winBidTotalAmount:中标金额/中标结果/总成交金额/总中标成交金额/中标总金额/总金额/成交金额/中标(成交)金额";//中标金额
     /**
      * 中标机构信息
      */
 
-    public static final String WIN_BID_BIS_NAME = "winBidBisName:中标成交供应商名称/投标人名称/供应商名称/中标供应商名称/成交供应商名称";
-    public static final String WIN_BID_BIS_NO = "winBidBisNo:中标序号/序号/名次";
+    public static final String WIN_BID_BIS_NAME = Contant.WIN_BID_BIS_NAME;//"winBidBisName:中标成交供应商名称/投标人名称/供应商名称/中标供应商名称/成交供应商名称";
+    public static final String WIN_ORG_ADDR = Contant.WIN_ORG_ADDR;//"winBidBisNo:中标序号/序号/名次/包号";
+    public static final String WIN_BID_BIS_NO = "winBidBisNo:中标序号/序号/名次/包号";
 
     /**
      * 其他 邮箱，邮编，名单等

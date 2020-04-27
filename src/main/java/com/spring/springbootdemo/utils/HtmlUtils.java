@@ -39,7 +39,7 @@ public class HtmlUtils {
         //      StringBuffer colSpanStr = new StringBuffer();
         for (Element tab : tables) {
             StringBuffer sb = new StringBuffer();
-         //   Document tab = Jsoup.parse(table);
+            //   Document tab = Jsoup.parse(table);
             Elements trs = tab.getElementsByTag("tr");
             Elements first = trs.first().children();
             for (int i = 1; i < trs.size(); i++) {
@@ -228,6 +228,33 @@ public class HtmlUtils {
 
             if (key.equals(str)) {
                 return true;
+            } else if (str.equals("中标价")) {
+                if (key.contains("成交价")
+                        || key.contains("中标价")
+                        || key.contains("中标金额")
+                        || key.contains("成交金额")
+
+                ) {
+                    return true;
+                }
+
+
+            }else if (str.equals("供应商地址")){
+                if (key.contains("供应商")
+                        || key.contains("中标人")
+                        || key.contains("中标机构")
+
+                ) {
+                    return key.contains("地址");
+                }
+            }else if (str.equals("供应商名称")){
+                if ((key.contains("供应商")
+                        || key.contains("中标人")
+                        || key.contains("中标机构")) && (!key.contains("地址")&&!key.contains("金额"))
+
+                ) {
+                    return true;
+                }
             }
         }
         return false;
@@ -244,7 +271,7 @@ public class HtmlUtils {
             key = key.substring(1,key.length());
         }
 */
-       key = key.replaceFirst("^[\\u4e00 \\u4e8c \\u4e09 \\u56db \\u4e94 \\u516d \\u4e03 \\u516b \\u4e5d \\u5341]{1,2}", "");
+        key = key.replaceFirst("^[\\u4e00 \\u4e8c \\u4e09 \\u56db \\u4e94 \\u516d \\u4e03 \\u516b \\u4e5d \\u5341]{1,2}", "");
         //清楚中间空白
         key = StrUtil.cleanBlank(key);
         return key;
@@ -270,11 +297,11 @@ public class HtmlUtils {
          */
         }
         List<Element> list = new ArrayList<>();
-        if (tabs == null){
+        if (tabs == null) {
             return list;
         }
         for (Element table : tabs) {
-     //       Document table = Jsoup.parse(tableStr);
+            //       Document table = Jsoup.parse(tableStr);
             Elements tables = table.select("table");
             Element firstTable = tables.first();
             if (tables.size() > 1) {
@@ -342,11 +369,11 @@ public class HtmlUtils {
     }
 
 
-    public static int countString(String str,String s) {
+    public static int countString(String str, String s) {
         int count = 0;
-        while(str.indexOf(s) != -1){
+        while (str.indexOf(s) != -1) {
 
-            str = str.substring(str.indexOf(s)+1,str.length());
+            str = str.substring(str.indexOf(s) + 1, str.length());
             count++;
 
         }
@@ -358,29 +385,31 @@ public class HtmlUtils {
         String flag = "";
         for (int i = 0; i < list.size(); i++) {
             String p = list.get(i);
-            if(p.startsWith("第一")||p.startsWith("第二")||p.startsWith("第三")||p.startsWith("第四")||p.startsWith("第五")||p.startsWith("第六")){
-                flag = p.substring(0,2);
-                String s = list.get(i+1);
-                String s2 = list.get(i+2);
-                if(s.contains("地址")|| s.contains("金额") ){
-                    list.remove(i+1);
-                    list.add(i+1,"ZW"+flag+s);
+            if (p.startsWith("第一") || p.startsWith("第二") || p.startsWith("第三") || p.startsWith("第四") || p.startsWith("第五") || p.startsWith("第六")) {
+                flag = p.substring(0, 2);
+                String s = list.get(i + 1);
+                String s2 = list.get(i + 2);
+                if (s.contains("地址") || s.contains("金额")) {
+                    list.remove(i + 1);
+                    list.add(i + 1, "ZW" + flag + s);
                 }
-                if(s2.contains("地址")|| s2.contains("金额")){
-                    list.remove(i+2);
-                    list.add(i+2,"ZW"+flag+s2);
+                if (s2.contains("地址") || s2.contains("金额")) {
+                    list.remove(i + 2);
+                    list.add(i + 2, "ZW" + flag + s2);
                 }
 
             }
 
 
-            if(countString(p,":")>1 && p.contains(String.valueOf((char)32))){
+            if (countString(p, ":") > 1 && (p.contains(String.valueOf((char) 32))|| p.contains(String.valueOf((char) 160)) )){
                 String[] strings = CellUtils.splitCellInfo(p);
-                if(strings != null){
+                if (strings != null) {
 
-                list.addAll(Arrays.asList(strings));
+                    list.addAll(Arrays.asList(strings));
+                    continue;
                 }
-            };
+            }
+            ;
 
             p = p.replaceFirst(":", "#");
             String[] split = p.split("#");
@@ -388,6 +417,9 @@ public class HtmlUtils {
             if (split.length == 2 && split[0].length() > 1) {
                 //如果key 是联系人 . 地址 联系电话等有歧义信息,index向上 最多2 关联
                 String key = split[0];
+                if(key.equals("址")){
+                    key = "地址";
+                }
                 key = HtmlUtils.reviseKey(key);
                 if (HtmlUtils.keyIsUnclear(key)) {
                     if (i >= 1) {
@@ -409,9 +441,12 @@ public class HtmlUtils {
                     continue;
                 }*/
 
-                if(StringUtils.isNotBlank(key)){
-
-                  map.put(key, split[1]);
+                if (StringUtils.isNotBlank(key)) {
+                    //重复key 第一个为准
+if(map.containsKey(key)){
+    continue;
+}
+                    map.put(key, split[1]);
                 }
             }
         }

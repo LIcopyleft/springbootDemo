@@ -1,6 +1,7 @@
 package com.spring.springbootdemo.enums;
 
 import com.spring.springbootdemo.contant.ContantFiled;
+import com.spring.springbootdemo.utils.HtmlUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -12,6 +13,7 @@ public enum WinBidNoticeEnum {
     WIN_BID_BIS_NO("中标人信息", "中标序号", "提取正则表达式", ContantFiled.WIN_BID_BIS_NO),
     WIN_BID_BIS_NAME("中标人信息", "中标人", "提取正则表达式", ContantFiled.WIN_BID_BIS_NAME),
     TENDER_TOTAL_AMOUNT("中标人信息", "中标价", "提取正则表达式", ContantFiled.TENDER_TOTAL_AMOUNT),
+	WIN_ORG_ADDR("中标人信息", "中标人地址", "提取正则表达式", ContantFiled.WIN_ORG_ADDR),
     //WIN_BID_NO1("中标人信息","中标内容", "提取正则表达式",ContantFiled),
 
     PRO_NAME("项目信息", "项目名称", "提取正则表达式", ContantFiled.PRO_NAME),
