@@ -30,11 +30,15 @@ public class TableMarkHeader {
                 rowMaxIndex = cell.getRowIndex();
             }
 
-            if (StringUtils.isNotBlank(cell.getText())) {
-                //   if (cell.getText().contains("名称") || cell.getText().contains("金额") || cell.getText().contains("单价") || cell.getText().contains("总价")) {
+            String text = cell.getText();
+            if (StringUtils.isNotBlank(text)) {
+                //重要特殊字段
+                if (cell.getText().contains("中标金额") || cell.getText().contains("成交金额") || cell.getText().contains("成交总价")) {
+                    System.err.println(text);
+                    cell.setText("中标金额");
 
+                }
             }
-
             WinBidNoticeEnum type = WinBidNoticeEnum.getFiledType(cell.getText());
             if (type != null) {
                 cell.setHeader(true);
@@ -47,30 +51,30 @@ public class TableMarkHeader {
         //对表格列表二次校验，同行或者同列有 超过两个（或半数）为表头，且位于第一行或第一列 该行或改列视为表头
         int rowHeaderNum = 0;
         int colHeaderNum = 0;
-        for(TableCell cell : tableCells){
-            if(0 == cell.getRowIndex() && cell.isHeader()){
+        for (TableCell cell : tableCells) {
+            if (0 == cell.getRowIndex() && cell.isHeader()) {
                 rowHeaderNum++;
             }
-            if(0 ==cell.getColIndex() && cell.isHeader()){
+            if (0 == cell.getColIndex() && cell.isHeader()) {
                 colHeaderNum++;
             }
 
         }
-        if(rowHeaderNum > colHeaderNum && rowHeaderNum > 1){
-            for(TableCell cell : tableCells){
-                if(cell.getRowIndex() == 0 ){
+        if (rowHeaderNum > colHeaderNum && rowHeaderNum > 1) {
+            for (TableCell cell : tableCells) {
+                if (cell.getRowIndex() == 0) {
                     cell.setHeader(true);
                 }
             }
             System.out.println("判定为横向表头");
-        }else if(rowHeaderNum < colHeaderNum && colHeaderNum > 1){
-            for(TableCell cell : tableCells){
-                if(cell.getColIndex()== 0){
+        } else if (rowHeaderNum < colHeaderNum && colHeaderNum > 1) {
+            for (TableCell cell : tableCells) {
+                if (cell.getColIndex() == 0) {
                     cell.setHeader(true);
                 }
             }
             System.out.println("判定为纵向表头");
-        }else {
+        } else {
             System.out.println("未自动判定");
         }
 
@@ -78,9 +82,9 @@ public class TableMarkHeader {
         maxIndex[0] = rowMaxIndex;
         maxIndex[1] = colMaxIndex;
         //       FileUtils.writeAppendFile("feild.txt", set);
-
         return maxIndex;
     }
+
 
     /**
      * 领属关系分析模块
@@ -119,5 +123,5 @@ public class TableMarkHeader {
 
     }
 
-
 }
+

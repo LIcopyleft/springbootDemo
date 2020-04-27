@@ -1,12 +1,10 @@
 package com.spring.springbootdemo.utils;
 
-import com.alibaba.fastjson.JSON;
-import com.spring.springbootdemo.contant.Contant;
-import com.spring.springbootdemo.model.GovData;
+import com.spring.springbootdemo.model.DataContentWithBLOBs;
 import com.spring.springbootdemo.model.TableCell;
-import com.spring.springbootdemo.model.WinBisInfo;
-import com.spring.springbootdemo.thread.GOVDataCleanTask;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
@@ -14,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,7 +44,7 @@ public class TableDeal {
                 logger.debug("2.表格类型判定为只有只有两列***********");
                 cellInfoList = only2td(tableCells);
                 logger.debug("3.表格内容抽取为字符串列表结束******************");
-                return cellInfoList;
+                continue;
             }
 
             //2.包含thead 和 th
@@ -55,11 +52,9 @@ public class TableDeal {
             if (list != null) {
                 logger.debug("2.表格类型判定为  表头 thread th  型***********");
                 logger.debug("3.表格内容抽取为字符串列表结束******************");
-                return list;
-
+                cellInfoList.addAll(list);
+                continue;
             }
-
-
             logger.debug("2.非特殊类型表格  分析表头 开始***********");
 
             //分析单元格是否为表头(表头分析)
@@ -69,10 +64,10 @@ public class TableDeal {
             TableMarkHeader.relationshipAnalysis(maxIndex, tableCells);
             logger.debug("2.2 分析表头和单元格领属关系解饿书***********");
             //抽取模块
-            //           System.err.println(JSON.toJSONString(tableCells));
+            // System.err.println(JSON.toJSONString(tableCells));
             for (TableCell cell : tableCells) {
                 String text = cell.getText();
-                if(listIsContains(cellInfoList,text)){
+                if (listIsContains(cellInfoList, text)) {
                     continue;
                 }
                 if (cell.isHeader() && text != null && text.contains(":")) {
@@ -99,11 +94,41 @@ public class TableDeal {
 
     private static List<String> only2td(List<TableCell> tableCells) {
         List<String> cellInfoList = new ArrayList<>();
+
+        String str = "";
+        int i = 0;
         for (TableCell cell : tableCells) {
             String text = cell.getText();
             if (text == null || StringUtils.isBlank(text)) {
                 continue;
             }
+
+            if (i % 2 == 0) {
+                if (HtmlUtils.countString(text, ":") == 1 && StringUtils.endsWithIgnoreCase(text, ":")) {
+                    str = text;
+                } else {
+                    str = text + ":";
+                }
+                i++;
+                continue;
+            }
+            if (i % 2 == 1) {
+                if (!text.contains(":")) {
+                    cellInfoList.add(str + text);
+                } else if (HtmlUtils.countString(text, ":") == 1) {
+                    cellInfoList.add(text);
+                } else if (HtmlUtils.countString(text, ":") > 1) {
+                    String[] strings = CellUtils.splitCellInfo(text);
+                    if (strings != null) {
+                        for (String s : strings) {
+                            cellInfoList.add(s);
+                        }
+                    }
+                }
+                i++;
+                str = "";
+            }
+/*
             if (HtmlUtils.countString(text, ":") == 1) {
                 if (text.split(":").length < 2 || StringUtils.isBlank(text.split(":")[1])) {
                     continue;
@@ -115,10 +140,11 @@ public class TableDeal {
                         cellInfoList.add(str);
                     }
                 }
-            }
+            }*/
         }
         return cellInfoList;
     }
+
 
 
     public static List<String> haveThead(Element table) {
@@ -210,6 +236,43 @@ public class TableDeal {
         return null;
     }
 
+    /**
+     * 获取只有一table 一row 一col ，按p标签处理
+     *
+     * @param data
+     * @return
+     */
+
+    public static DataContentWithBLOBs onlyOneRowAndOneCol(DataContentWithBLOBs data) {
+
+        //只有一个table标签
+        if (!data.getLocation().equals("1") || "采购合同".equals(data.getStageshow())) {
+            return null;
+        }
+        String content = data.getContent();
+        Document document = Jsoup.parse(content);
+
+        List<Element> tableList = HtmlUtils.getHtmlTableList(document);
+        Elements tables = document.getElementsByTag("table");
+        if (tableList.size() < 1) {
+            return null;
+        }
+        for (Element table : tables) {
+            Elements trs = table.getElementsByTag("tr");
+            int trSize = trs.size();
+            int tdSize = table.getElementsByTag("td").size();
+            Elements p = table.getElementsByTag("p");
+            int pSize = p.size();
+
+            if (trSize == tdSize && pSize == trSize) {
+                //logger.info(data.getUrl());
+                // HtmlUtils.
+                data.setCoordinate("1");
+            }
+        }
+
+        return data;
+    }
 
     public static boolean listIsContains(List<String> list, String str) {
         if (str == null) {

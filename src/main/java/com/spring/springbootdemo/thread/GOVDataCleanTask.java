@@ -4,9 +4,9 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.spring.springbootdemo.contant.Contant;
 import com.spring.springbootdemo.mapper.DataContentMapper;
+import com.spring.springbootdemo.model.ConfigParam;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
 import com.spring.springbootdemo.model.GovData;
-import com.spring.springbootdemo.model.WinBisInfo;
 import com.spring.springbootdemo.utils.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -15,40 +15,22 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class GOVDataCleanTask implements Runnable {
 
-    private static final String KEY_WORD = "区域坐标";
-    //  private static final String INSERT_TABLE_NAME = "spider_2_ggzy_content_clean_temp";
-    private static final String INSERT_TABLE_NAME = "spider_2_ggzy_content_clean_result_cght_1";
-    private static final String CLEAN_TABLE_NAME = "spider_2_ggzy_content_clean_temp";
-    private static final int INSERT_MAX = 1000;
-
-
-//	private static final int KEY_NUM = 6;
-
     private int beginIndex;
-    private int querySize;
-    private String stageShow;
-    private CountDownLatch latch;
-
+    private ConfigParam config;
 
     private static final Logger logger = LoggerFactory.getLogger(GOVDataCleanTask.class);
 
 
-    public GOVDataCleanTask(int beginIndex, int querySize, String stageShow, CountDownLatch latch) {
+    public GOVDataCleanTask(int beginIndex, ConfigParam config) {
         this.beginIndex = beginIndex;
-        this.querySize = querySize;
-        this.stageShow = stageShow;
-        this.latch = latch;
+        this.config = config;
     }
 
     @Override
@@ -56,7 +38,7 @@ public class GOVDataCleanTask implements Runnable {
         try {
             DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
             List<GovData> list = new LinkedList<>();
-            List<DataContentWithBLOBs> dataContent = mapper.selectAll(beginIndex, querySize,CLEAN_TABLE_NAME );
+            List<DataContentWithBLOBs> dataContent = mapper.selectAll(beginIndex, config.getQuerySize(), config.getCleanTableName());
             if (dataContent == null || dataContent.size() < 1) {
                 logger.warn(Thread.currentThread().getName() + "end====query db is null====beginIndex=" + beginIndex);
                 return;
@@ -68,7 +50,7 @@ public class GOVDataCleanTask implements Runnable {
             }
             LinkedBlockingQueue<GovData> queues = new LinkedBlockingQueue();
             for (GovData data : datas) {
-                if (stageShow.equals(data.getStageShow()) && data.getLocation().equals("1")) {
+                if (config.getStage().equals(data.getStageShow()) && config.getTableSize() == Integer.valueOf(data.getLocation() == null ? "0" : data.getLocation())) {
                     queues.add(data);
                 }
             }
@@ -97,19 +79,18 @@ public class GOVDataCleanTask implements Runnable {
                     if (data == null) {
                         continue;
                     }
-                    //    data.setContent(null);
+                    // data.setContent(null);
                     list.add(data);
                 } catch (Exception e) {
                     logger.error("ParaseErr{urlId:" + data.getUrlId() + "====url:" + data.getUrl() + "}", e);
                     continue;
                 }
 
-                if (list.size() == INSERT_MAX || queues.size() == 0) {
-                    //   System.err.println(Thread.currentThread().getName());
+                if (list.size() == config.getInsertMax() || queues.size() == 0) {
                     if (list.size() < 1) {
                         continue;
                     }
-                    row += mapper.insertList_BJ(list, INSERT_TABLE_NAME);
+                    row += mapper.insertList_BJ(list, config.getInsertTableName());
                     list.clear();
                     continue;
                 }
@@ -117,51 +98,11 @@ public class GOVDataCleanTask implements Runnable {
             }
             logger.info(Thread.currentThread().getName() + "==url_id over" + dataContent.get(dataContent.size() - 1).getUrlId() + "=====insert\t" + row + "行");
         } finally {
-            latch.countDown();
+            config.getLatch().countDown();
         }
     }
 
     //
-
-    /**
-     * 获取只有一table 一row 一col ，按p标签处理
-     *
-     * @param data
-     * @return
-     */
-
-    public static DataContentWithBLOBs onlyOneRowAndOneCol(DataContentWithBLOBs data) {
-
-        //只有一个table标签
-        if (!data.getLocation().equals("1") || "采购合同".equals(data.getStageshow())) {
-            return null;
-        }
-        String content = data.getContent();
-        Document document = Jsoup.parse(content);
-
-        List<Element> tableList = HtmlUtils.getHtmlTableList(document);
-        Elements tables = document.getElementsByTag("table");
-        if (tableList.size() < 1) {
-            return null;
-        }
-        for (Element table : tables) {
-            Elements trs = table.getElementsByTag("tr");
-            int trSize = trs.size();
-            int tdSize = table.getElementsByTag("td").size();
-            Elements p = table.getElementsByTag("p");
-            int pSize = p.size();
-
-            if (trSize == tdSize && pSize == trSize) {
-                //logger.info(data.getUrl());
-                // HtmlUtils.
-                data.setCoordinate("1");
-            }
-
-
-        }
-
-        return data;
-    }
 
 
     /**
@@ -172,11 +113,10 @@ public class GOVDataCleanTask implements Runnable {
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    private static GovData clean_zbgg(GovData data) throws InvocationTargetException, IllegalAccessException {
+    public static GovData clean_zbgg(GovData data) throws InvocationTargetException, IllegalAccessException {
         if (data.getUrlId() == 19865 || data.getUrlId() == 197) {
             data.getUrlId();
         }
-
 
         String content = data.getContent();
         Map map = new HashMap();
@@ -202,7 +142,7 @@ public class GOVDataCleanTask implements Runnable {
         List<Element> tableList = HtmlUtils.getHtmlTableList(parse);
         List<String> cellInfoList = new LinkedList<>();
 
-        if(p.size() < 4){
+        if (p.size() < 4) {
             System.err.println("p标签数量少");
         }
 
@@ -222,11 +162,10 @@ public class GOVDataCleanTask implements Runnable {
         if (Integer.valueOf(data.getLocation()) > 0) {
             logger.debug("表格内容解析开始*******************************");//表格解析开始
             cellInfoList = TableDeal.tableSizeOverOne(tableList);
-           logger.debug("打印解析内容\n"+Arrays.toString(cellInfoList.toArray()));
+            logger.debug("打印解析内容\n" + Arrays.toString(cellInfoList.toArray()));
             logger.debug("表格内容解析结束");
 
         }
-
 
         logger.debug(data.getUrl());
         logger.debug("tableSize: " + tableList.size());

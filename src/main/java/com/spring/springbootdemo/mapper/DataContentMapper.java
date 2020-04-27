@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper
 public interface DataContentMapper {
 
-    int insert(DataContentWithBLOBs record);
+   // int insert(DataContentWithBLOBs record);
 
     int insertSelective(DataContentWithBLOBs record);
 
@@ -24,6 +24,8 @@ public interface DataContentMapper {
 
     @Select("select * from ${table} where url_id>=(select url_id from ${table} order by url_id limit ${from},1) limit ${to}")
     List<DataContentWithBLOBs> selectAll(@Param("from") long from , @Param("to") long to,@Param("table") String table);
+    @Select("select * from ${table} where url_id = ${urlId}")
+    List<DataContentWithBLOBs> selectByUrlId(@Param("table") String table , @Param("urlId") long urlId);
 
     @Select("select * from spider_2_ggzy_beijing_content where url_id>=(select url_id from spider_2_ggzy_beijing_content order by url_id limit #{from},1) limit #{to}")
     List<GovData> selectAllBJ(@Param("from") int from , @Param("to") int to);
