@@ -47,6 +47,15 @@ public class TableDeal {
                 continue;
             }
 
+            if (colMaxIndex == 3) {
+                //判断 单个单元格内是否有多条信息
+                //遍历单元格,单元格内包含多个: 并且冒号后
+                logger.debug("2.表格类型判定为只有只有两列***********");
+                cellInfoList = only4td(tableCells);
+                logger.debug("3.表格内容抽取为字符串列表结束******************");
+                continue;
+            }
+
             //2.包含thead 和 th
             List<String> list = haveThead(table);
             if (list != null) {
@@ -145,6 +154,64 @@ public class TableDeal {
         return cellInfoList;
     }
 
+
+    /**
+     * 偶数列 , 奇数为表头
+     * @param tableCells
+     * @return
+     */
+    private static List<String> only4td(List<TableCell> tableCells) {
+        List<String> cellInfoList = new ArrayList<>();
+
+        String str = "";
+        int i = 0;
+        for (TableCell cell : tableCells) {
+            String text = cell.getText();
+            if (text == null || StringUtils.isBlank(text)) {
+                continue;
+            }
+
+            if (i % 2 == 0) {
+                if (HtmlUtils.countString(text, ":") == 1 && StringUtils.endsWithIgnoreCase(text, ":")) {
+                    str = text;
+                } else {
+                    str = text + ":";
+                }
+                i++;
+                continue;
+            }
+            if (i % 2 == 1) {
+                if (!text.contains(":")) {
+                    cellInfoList.add(str + text);
+                } else if (HtmlUtils.countString(text, ":") == 1) {
+                    cellInfoList.add(text);
+                } else if (HtmlUtils.countString(text, ":") > 1) {
+                    String[] strings = CellUtils.splitCellInfo(text);
+                    if (strings != null) {
+                        for (String s : strings) {
+                            cellInfoList.add(s);
+                        }
+                    }
+                }
+                i++;
+                str = "";
+            }
+/*
+            if (HtmlUtils.countString(text, ":") == 1) {
+                if (text.split(":").length < 2 || StringUtils.isBlank(text.split(":")[1])) {
+                    continue;
+                }
+            } else if (HtmlUtils.countString(text, ":") > 1) {
+                String[] strings = CellUtils.splitCellInfo(text);
+                if (strings != null) {
+                    for (String str : strings) {
+                        cellInfoList.add(str);
+                    }
+                }
+            }*/
+        }
+        return cellInfoList;
+    }
 
 
     public static List<String> haveThead(Element table) {

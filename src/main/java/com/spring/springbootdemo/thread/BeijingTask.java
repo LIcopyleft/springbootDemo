@@ -20,15 +20,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class GOVDataCleanTask implements Runnable {
+public class BeijingTask implements Runnable {
 
     private int beginIndex;
     private ConfigParam config;
     static DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-    private static final Logger logger = LoggerFactory.getLogger(GOVDataCleanTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(BeijingTask.class);
 
 
-    public GOVDataCleanTask(int beginIndex, ConfigParam config) {
+    public BeijingTask(int beginIndex, ConfigParam config) {
         this.beginIndex = beginIndex;
         this.config = config;
     }
@@ -37,7 +37,7 @@ public class GOVDataCleanTask implements Runnable {
     public void run() {
         try {
 
-            List<GovData> list = new LinkedList<>();
+            List<GovData> list = new Vector<>();
             List<DataContentWithBLOBs> dataContent = mapper.selectAll(beginIndex, config.getQuerySize(), config.getCleanTableName());
             if (dataContent == null || dataContent.size() < 1) {
                 logger.warn(Thread.currentThread().getName() + "end====query db is null====beginIndex=" + beginIndex);
@@ -56,8 +56,9 @@ public class GOVDataCleanTask implements Runnable {
                         continue;
                     }
                 }
-                //              data.setStageShow(data.getCategory());
-                if (config.getStage().equals(data.getStageShow())) {
+                data.setStageShow(data.getCategory());
+             //   if (config.getStage().equals(data.getStageShow()) ) {
+                if (data.getStageShow().contains(config.getStage())) {
                     data.setLocation(data.getLocation() == null ? "2" : data.getLocation());
                     queues.add(data);
                 }
@@ -122,14 +123,16 @@ public class GOVDataCleanTask implements Runnable {
      * @throws IllegalAccessException
      */
     public static GovData clean_zbgg(GovData data) throws InvocationTargetException, IllegalAccessException {
-       /* if (data.getUrlId() == 19865 || data.getUrlId() == 197) {
+        /*if (data.getUrlId() == 19865 || data.getUrlId() == 197) {
             data.getUrlId();
         }*/
-
         String content = data.getContent();
         Map map = new HashMap();
         content = HtmlUtils.removeCNStr(content);
         Document parse = Jsoup.parse(content);
+        Elements remove = parse.select("div.footer").remove();
+
+
         String allText = parse.text();
         Elements po = parse.select(".p_o");
         Element span = po.select("span").first();
@@ -137,6 +140,13 @@ public class GOVDataCleanTask implements Runnable {
 
         if (po != null && po.size() > 0 && span != null && StringUtils.isNotBlank(span.text()) && span.text().length() > 5) {
             pubTime = span.text().substring(5);
+        }
+
+        //  RegExpUtil.regCheck()
+        if (pubTime == null) {
+            String par = "发布时间:([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8])))";
+
+            pubTime = RegExpUtil.regGet(allText, par).replaceAll("发布时间:","");
         }
 
         Elements sitemap = parse.getElementsByClass("location");
@@ -150,24 +160,29 @@ public class GOVDataCleanTask implements Runnable {
         Elements p = parse.getElementsByTag("p");
         List<Element> tableList = HtmlUtils.getHtmlTableList(parse);
         List<String> cellInfoList = new LinkedList<>();
-
+        List<String> cellInfoList2 = new LinkedList<>();
         if (p.size() < 4) {
             System.err.println("p标签数量少");
+            //获取包含: 的 字符串
+
+            String p1 = " :";
+            String p2 = ": ";
+            allText = allText.replace((char) 160, (char) 32).replaceAll(p1, ":").replaceAll(p2, ":");
+
+
+            String[] split = allText.split(" ");
+            for (String s : split) {
+                if (HtmlUtils.countString(s, ":") == 1) {
+                    cellInfoList2.add(s);
+                }
+            }
+
+            //  String[] s1 = str.split(" ");
+
+
         }
 
-/*
-        if(tableList.size() != 0){
-            return null;
-        }
-        if(tableList.size() == 0){
-            tableList.size();
-        }
-        if (tableList.size() > 1) {
-         //   TableDeal.tableSizeOverOne(data, tableList, cellInfoList);
-            return null;
-        }
 
- */
         if (Integer.valueOf(data.getLocation()) > 0) {
             logger.debug("表格内容解析开始*******************************");//表格解析开始
             cellInfoList = TableDeal.tableSizeOverOne(tableList);
@@ -178,37 +193,46 @@ public class GOVDataCleanTask implements Runnable {
 
         logger.debug(data.getUrl());
         logger.debug("tableSize: " + tableList.size());
+   //     cellInfoList.addAll(cellInfoList2);
         Map map1 = HtmlUtils.plistToMap(cellInfoList);
         map = HtmlUtils.prasePToMap(p);
         map.putAll(map1);
         data = (GovData) ReflectionUtils.mapToField(map, data, Contant.filedBJValueSet());
-        String t = (String) map.get("签署时间");
-        data.setWinBidTime(t);
 
         if (data.getWinBidTotalAmount() == null || data.getWinBidBisAddr() == null || data.getWinBidBisName() == null) {
             //		FileUtils.writeAppendFile("中标相关信息.txt",map1.keySet().toString());
         }
-
+        data.setClasses(data.getCategory());
         data.setPubTime(pubTime);
- /*   //    DataContentWithBLOBs datadb = mapper.selectById("spider_4_ggzy_hebei_url", data.getUrlId());
-   //     data.setPubTime(data.getPubTime());
-    //    data.setStageShow(datadb.getStageshow());
-        data.setTitle(datadb.getContent());
-        data.setRegion(datadb.getRegion());*/
+ //       DataContentWithBLOBs datadb = mapper.selectById("spider_4_ggzy_hebei_url", data.getUrlId());
+    //    data.setPubTime(datadb.getPubTime());
+
+        String stageShow = data.getStageShow();
+        /*if(StringUtils.isNotBlank(stageShow)){
+            if (stageShow.contains("采购公告")){
+                stageShow = "采购公告";
+            }
+            if (stageShow.contains("采购公告")){
+                stageShow = "采购公告";
+            }
+        }
+*/
+
+        data.setStageShow(data.getStageShow().replaceAll("政府采购>",""));
+ //       data.setClassifyShow(datadb.getCategory());
+
+        data.setTitle(data.getTitle());
+    //    data.setRegion(datadb.getRegion());
         if (data.getProName() == null || data.getProName().length() > 30) {
             data.setProName(data.getTitle());
         }
 
         data.setOther(map.size() == 0 ? null : JSON.toJSONString(map));
-        data.setClasses(memu.length() > 200 ? null : memu);
+
         //    data.setContent(null);
         //    data.setClassifyShow(data.getStageShow());//政府采购  更正公告
         // System.out.println(JSON.toJSONString(map));
         // TODO 时间 金额 等字段在这里处理
-        String proName = data.getProName();
-        if (StringUtils.isNotBlank(proName) && proName.length() > 200) {
-            data.setProName(proName.substring(0, 200));
-        }
         return data;
     }
 

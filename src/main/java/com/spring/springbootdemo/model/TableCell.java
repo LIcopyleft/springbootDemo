@@ -38,6 +38,7 @@ public class TableCell {
 	private boolean isHeader;
 	//表头类别(小类) 例如: 中标人名称
 	private String headerType;
+	private String regexStr;
 //	private String headerTypeName;
 
 

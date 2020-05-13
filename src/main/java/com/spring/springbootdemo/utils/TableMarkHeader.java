@@ -43,6 +43,7 @@ public class TableMarkHeader {
             if (type != null) {
                 cell.setHeader(true);
                 cell.setHeaderType(type.getHeaderType());
+                cell.setRegexStr(type.getRegex().equals("提取正则表达式") ? null : type.getRegex());
                 cell.setHeaderClass(type.getHeaderClass());
             }
             //     Iterator iterator = set.iterator();

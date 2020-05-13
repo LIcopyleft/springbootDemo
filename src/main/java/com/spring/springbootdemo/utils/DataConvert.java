@@ -27,6 +27,7 @@ public class DataConvert {
         gov.setDistrictShow(data.getDistrictshow());
         gov.setPlatformName(data.getPlatformname());
         gov.setLocation(data.getLocation());
+        gov.setCategory(data.getCategory());
         return gov;
     }
 }

@@ -20,9 +20,10 @@ public class ConfigParam {
     private CountDownLatch latch;
     private String insertTableName;
     private String cleanTableName;
-    private int insertMax = 1000;
-    private int querySize = 1000;
-    private int tableSize = 0;
+    private int insertMax;
+    private int querySize;
+    private int tableNum = 0;
+    private boolean isOpen = true;
 
 
 

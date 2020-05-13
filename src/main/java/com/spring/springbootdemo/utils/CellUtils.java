@@ -15,11 +15,11 @@ public class CellUtils {
 
 	public static TableCell getMaybeHeaderCell(TableCell cell, List<TableCell> list) {
 
-		TableCell cell2 = getUpCellIsHeaderOnSameRowIndex(cell, list);
+		TableCell cell2 = getUpCellIsHeaderOnSameColIndex(cell, list);
 
-		if(cell2 == null){
-			return getUpCellIsHeaderOnSameColIndex(cell, list);
-		}
+	/*	if(cell2 == null){
+			return getUpCellIsHeaderOnSameRowIndex(cell, list);
+		}*/
 		return cell2;
 	}
 
@@ -43,8 +43,13 @@ public class CellUtils {
 			if(text == null){
 				text = cellText;
 			}
+            String regexStr = tableCell.getRegexStr();
+			boolean flag = true;
+			if(regexStr != null){
+			    flag = RegExpUtil.regCheck(cell.getText(),regexStr);
+            }
 
-			if(!tableCell.getText().equals(cell.getText()) && tableCell.isHeader()){
+            if(!tableCell.getText().equals(cell.getText()) && tableCell.isHeader() && flag){
 				return tableCell;
 			}
 
@@ -79,7 +84,9 @@ public class CellUtils {
 				text = cellText;
 			}
 
-			if(!tableCell.getText().equals(cell.getText()) && tableCell.isHeader()){
+            String regexStr = tableCell.getRegexStr();
+          //  if(!tableCell.getText().equals(cell.getText()) && tableCell.isHeader() && tableCell.getRegexStr() == null ? true : RegExpUtil.regCheck(text,tableCell.getRegexStr())){
+            if(!tableCell.getText().equals(cell.getText()) && tableCell.isHeader()){
 				return tableCell;
 			}
 

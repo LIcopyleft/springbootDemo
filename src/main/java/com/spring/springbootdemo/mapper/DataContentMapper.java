@@ -23,7 +23,17 @@ public interface DataContentMapper {
 
 
     @Select("select * from ${table} where url_id>=(select url_id from ${table} order by url_id limit ${from},1) limit ${to}")
+ //   @Select("select * from ${table} where id >=(select id from ${table} order by id limit ${from},1) limit ${to}")
     List<DataContentWithBLOBs> selectAll(@Param("from") long from , @Param("to") long to,@Param("table") String table);
+
+
+    @Select("select * from ${table} where url_id>=(select url_id from ${table} order by url_id limit ${from},1) limit ${to}")
+        //   @Select("select * from ${table} where id >=(select id from ${table} order by id limit ${from},1) limit ${to}")
+    List<GovData> selectAll2(@Param("from") long from , @Param("to") long to,@Param("table") String table);
+
+
+    @Select("select * from ${table} where url_id>=(select url_id from ${table} where stageShow = #{type} order by url_id limit ${from},1) limit ${to}")
+    List<DataContentWithBLOBs> selectByType(@Param("from") long from , @Param("to") long to,@Param("table") String table,@Param("type") String type);
     @Select("select * from ${table} where url_id = ${urlId}")
     List<DataContentWithBLOBs> selectByUrlId(@Param("table") String table , @Param("urlId") long urlId);
 
@@ -54,4 +64,6 @@ public interface DataContentMapper {
     @Transactional(propagation= Propagation.SUPPORTS)
     DataContentWithBLOBs updateFiledByUrlId(String table,String field, String fieldVal ,Integer urlId);
 
+    @Select("SELECT  * from spider_2_ggzy_beijing_content_clean where classify_show = '政府采购'")
+    List<GovData> selectTable();
 }

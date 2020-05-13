@@ -250,7 +250,7 @@ public class HtmlUtils {
             }else if (str.equals("供应商名称")){
                 if ((key.contains("供应商")
                         || key.contains("中标人")
-                        || key.contains("中标机构")) && (!key.contains("地址")&&!key.contains("金额"))
+                        || key.contains("中标机构")) && (!key.contains("地址")&&!key.contains("金额")&&!key.contains("是否")&&!key.contains("代码"))
 
                 ) {
                     return true;

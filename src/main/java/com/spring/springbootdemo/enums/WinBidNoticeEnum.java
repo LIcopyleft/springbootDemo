@@ -12,7 +12,7 @@ public enum WinBidNoticeEnum {
 
     WIN_BID_BIS_NO("中标人信息", "中标序号", "提取正则表达式", ContantFiled.WIN_BID_BIS_NO),
     WIN_BID_BIS_NAME("中标人信息", "中标人", "提取正则表达式", ContantFiled.WIN_BID_BIS_NAME),
-    TENDER_TOTAL_AMOUNT("中标人信息", "中标价", "提取正则表达式", ContantFiled.TENDER_TOTAL_AMOUNT),
+    TENDER_TOTAL_AMOUNT("中标人信息", "中标价", "([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,2})?|元", ContantFiled.TENDER_TOTAL_AMOUNT),
 	WIN_ORG_ADDR("中标人信息", "中标人地址", "提取正则表达式", ContantFiled.WIN_ORG_ADDR),
     //WIN_BID_NO1("中标人信息","中标内容", "提取正则表达式",ContantFiled),
 
