@@ -8,9 +8,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class TableConvert {
     private static final Logger logger = LoggerFactory.getLogger(TableConvert.class);
@@ -224,6 +222,67 @@ public class TableConvert {
 
         Element[][] elements = toTable(table);
         return printTable(elements);
+    }
+
+
+    /**
+     * 表格 按照第一行为表头,拼接字符串
+     *
+     * @param tab
+     */
+    public static List tableToListStr(Element tab) {
+        List<String> list = new ArrayList<>();
+        StringBuffer sb = new StringBuffer();
+        //   Document tab = Jsoup.parse(table);
+        Elements trs = tab.getElementsByTag("tr");
+        Elements first = trs.first().children();
+        for (int i = 1; i < trs.size(); i++) {
+            Elements element = trs.get(i).getElementsByTag("td");
+            Map<Integer, String> m = null;
+            int size;
+            if (element.size() == first.size()) {
+                size = element.size();
+
+            } else {
+                size = element.size() > first.size() ? first.size() : element.size();
+            }
+            for (int j = 0; j < size; j++) {
+                String name = first.get(j).text() + ":" + element.get(j).text();
+             /*   if (element.get(j).hasAttr("colspan")) {
+                    colSpanStr.append(element.get(j).text() + "|");
+                    continue;
+                    //  logger.info("has colspan = " + element.get(j).attr("colspan") + element.get(j).text());
+                } */
+                if (element.get(j).hasAttr("rowspan")) {
+                    String num = (element.get(j)).attr("rowspan");
+                    m = new HashMap();
+                    //直接使用# 号可能会有问题
+                    m.put(j, name + "#!$" + num);
+                    //下次循环到该index 直接拼接本次str
+                }
+                if (m != null && m.containsKey(j)) {
+                    String[] split = m.get(j).split("\\#\\!\\$");
+                    if (Integer.valueOf(split[1]) < 1) {
+                        m.remove(j);
+                    } else {
+                        name = first.get(j).text() + ":" + split[0];
+                        m.put(j, name + "#!$" + (Integer.valueOf(split[1]) - 1));
+                    }
+                }
+                sb.append(name);
+                sb.append("|");
+            }
+        }
+        String string = sb.toString();
+        String[] split = string.split("\\|");
+        for (String str : split) {
+            if (str.contains(":")) {
+                list.add(str);
+            }
+
+        }
+        //   list.add(sb.toString());
+        return list;
     }
 
 

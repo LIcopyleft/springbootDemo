@@ -34,11 +34,11 @@ public class DebugTest {
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(MAX_THREAD_NUM);
     private static final String STAGE = "中标公告";
     private static final String INSERT_TABLE_NAME = "spider_2_ggzy_content_clean_result_zbgg_2";
-    private static final String CLEAN_TABLE_NAME = "clean_hebei_zfcg_zbgg";
+    private static final String CLEAN_TABLE_NAME = "spider_2_ggzy_content_clean_temp";
     private static final int INSERT_MAX = 1000;
     private static final int QUERY_SIZE = 2000;
     private static final int TABLE_SIZE = 2;
-    private static final int URL_ID = 2055;
+    private static final int URL_ID = 63457;
 
     @Test
     public void doClean_cggg() throws InterruptedException {

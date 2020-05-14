@@ -1,5 +1,6 @@
 package com.spring.springbootdemo.utils;
 
+import com.mysql.cj.xdevapi.Table;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
 import com.spring.springbootdemo.model.TableCell;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +65,7 @@ public class TableDeal {
                 cellInfoList.addAll(list);
                 continue;
             }
+
             logger.debug("2.非特殊类型表格  分析表头 开始***********");
 
             //分析单元格是否为表头(表头分析)
@@ -71,7 +73,7 @@ public class TableDeal {
             logger.debug("2.1 分析表头 表头单元格判定结束***********");
             //领属关系分析模块
             TableMarkHeader.relationshipAnalysis(maxIndex, tableCells);
-            logger.debug("2.2 分析表头和单元格领属关系解饿书***********");
+            logger.debug("2.2 分析表头和单元格领属关系结束***********");
             //抽取模块
             // System.err.println(JSON.toJSONString(tableCells));
             for (TableCell cell : tableCells) {
@@ -96,7 +98,16 @@ public class TableDeal {
                     cellInfoList.add(cell.getHeaderType() + ":" + text);
                 }
             }
+
+            //如果最大为4行,重复拼接一次, 修复部分重要表格识别不到文字
+            if ( maxIndex[0] < 4 && maxIndex[0] > 0) {
+                List list1 = TableConvert.tableToListStr(table);
+                cellInfoList.addAll(list1);
+            }
+
         }
+
+
         logger.debug("3.表格内容抽取为字符串列表结束******************");
         return cellInfoList;
     }
@@ -157,6 +168,7 @@ public class TableDeal {
 
     /**
      * 偶数列 , 奇数为表头
+     *
      * @param tableCells
      * @return
      */

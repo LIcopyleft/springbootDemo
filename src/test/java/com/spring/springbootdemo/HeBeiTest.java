@@ -50,7 +50,7 @@ public class HeBeiTest {
 
 
     @Test
-    public void HeBeiClean() throws InterruptedException {
+    public void clean() throws InterruptedException {
         long start = System.currentTimeMillis();
         int beginIndex = 0;
        // int totalSize = 329318;//mapper.getTotal();

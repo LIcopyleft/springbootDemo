@@ -1,13 +1,19 @@
 package com.spring.springbootdemo;
 
+import com.spring.springbootdemo.mapper.DataContentMapper;
 import com.spring.springbootdemo.model.ConfigParam;
-import com.spring.springbootdemo.thread.ShangHaiTask;
+import com.spring.springbootdemo.model.DataContentWithBLOBs;
+import com.spring.springbootdemo.thread.HeiBeiTask;
+import com.spring.springbootdemo.thread.JiangSuTask;
+import com.spring.springbootdemo.utils.FileUtils;
+import com.spring.springbootdemo.utils.SpringContextHolder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,16 +28,20 @@ import java.util.concurrent.Executors;
 @RunWith(SpringJUnit4ClassRunner.class)
 //@Property(value = "application.yml")
 //@PropertySource({"classpath:application.yml"})
-public class ShangHaiTest {
+public class JiangSuTest {
+//    private static final Logger logger = LoggerFactory.getLogger(GOVDataCleanTest.class// private static final String STAGE_SHOW = "招标/资审文件澄清";
+  //  private static final String STAGE_SHOW = "采购/资审公告";
+ //   private static final String STAGE_SHOW = "更正事项";
 
-    private static Integer MAX_THREAD_NUM = 10;
+    private static Integer MAX_THREAD_NUM = 5;
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(MAX_THREAD_NUM);
-   private static final String STAGE = "政府采购>采购公告";
- //   private static final String STAGE = "政府采购>合同公告";
-
-    private static final String INSERT_TABLE_NAME = "clean_shanghai_zfcg_cgzsgg_copy1";
+    private static final String STAGE = "交易信息>政府采购>成交公告|交易信息>政府采购>更正公告|交易信息>政府采购>采购预告";
+   // private static final String STAGE = "交易大厅>交易公告>政府采购>中标、成交结果公告|交易大厅>交易公告>政府采购>中标候选人公示";
+ //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购/资审公告";
+ //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购合同公示";
+    private static final String INSERT_TABLE_NAME = "clean_jiangsu_zfcg";
  //   private static final String CLEAN_TABLE_NAME = "spider_2_ggzy_content_clean_temp";
-    private static final String CLEAN_TABLE_NAME = "spider_7_ggzyshanghai_content";
+    private static final String CLEAN_TABLE_NAME = "spider_8_ggzy_jiangshu_content";
     private static final int INSERT_MAX = 1000;
     private static final int QUERY_SIZE = 1000;
     private static final int TABLE_SIZE = 1;
@@ -43,7 +53,9 @@ public class ShangHaiTest {
     public void clean() throws InterruptedException {
         long start = System.currentTimeMillis();
         int beginIndex = 0;
-        int totalSize = 41315;//mapper.getTotal();
+       // int totalSize = 329318;//mapper.getTotal();
+        int totalSize = 224163;//mapper.getTotal();
+
         int times= totalSize / QUERY_SIZE;
         if(totalSize % QUERY_SIZE !=0) {
             times=times+1;
@@ -62,7 +74,7 @@ public class ShangHaiTest {
         config.setTableNum(TABLE_SIZE);// 0,清洗不含表格 1,表格数量为1 ,2 全部
 
         for(int i = 0; i <times ; i++){
-            Runnable task = new ShangHaiTask(beginIndex,config);
+            Runnable task = new JiangSuTask(beginIndex,config);
             beginIndex += QUERY_SIZE;
             EXECUTOR.execute(task);
         }
@@ -73,5 +85,26 @@ public class ShangHaiTest {
     }
 
 
+
+    @Test
+    public  void test(){
+        DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
+        List<String> list = FileUtils.readFileToList("C:\\Users\\DRC\\Desktop\\url_id.txt");
+
+        for (String urlId : list){
+
+             urlId = urlId.replace("\"", "");
+            DataContentWithBLOBs temp = mapper.selectById("temp", Integer.valueOf(urlId));
+            if(temp == null){
+            //    Integer urlId1 = temp.getUrlId();
+
+                System.err.println(urlId);
+            }
+
+        }
+
+
+
+    }
 
 }

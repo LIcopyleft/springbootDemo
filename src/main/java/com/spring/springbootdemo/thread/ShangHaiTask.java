@@ -17,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -43,6 +45,7 @@ public class ShangHaiTask implements Runnable {
                 logger.warn(Thread.currentThread().getName() + "end====query db is null====beginIndex=" + beginIndex);
                 return;
             }
+
             List<GovData> datas = new LinkedList<>();
             for (DataContentWithBLOBs data : dataContent) {
                 GovData govData = DataConvert.toGovData(data);
@@ -55,6 +58,8 @@ public class ShangHaiTask implements Runnable {
                         continue;
                     }
                 }
+
+                //@See 这里需要注意,不同省分数据,数据的分类字段可能需要修改
                 data.setStageShow(data.getCategory());
                 if (config.getStage().contains(data.getStageShow())) {
                     data.setLocation(data.getLocation() == null ? "2" : data.getLocation());
@@ -74,7 +79,7 @@ public class ShangHaiTask implements Runnable {
                         continue;
                     }
 
-                    data = clean_zbgg(data);
+                    data = clean_cggg(data);
                     if (data == null) {
                         continue;
                     }
@@ -105,8 +110,6 @@ public class ShangHaiTask implements Runnable {
 
 
     /**
-     * 中标公告,处理和cggg 完全相同
-     *
      * @param data
      * @return
      * @throws InvocationTargetException
@@ -119,7 +122,38 @@ public class ShangHaiTask implements Runnable {
         String content = data.getContent();
         Map map = new HashMap();
         content = HtmlUtils.removeCNStr(content);
-        Document parse = Jsoup.parse(content);
+
+        Map map2 = JSON.parseObject(content, Map.class);
+        //    String status = (String) map2.get("status");
+
+        Map result = (Map) map2.get("result");
+        Map gpBulletin = (Map) result.get("GPBulletin");
+        Map gpSection = (Map) result.get("GpSection");
+        //   List list = (List) result.get("GPSectionList");
+        Map gpPurchaseProject = (Map) result.get("GPPurchaseProject");
+        String budgetPrice = (String) gpSection.get("budgetPrice");
+        String tenderWay = (String) gpSection.get("purchaseModeName");
+        String htmlContent = (String) gpBulletin.get("bulletinContent");
+        String proxyAddr = (String) gpBulletin.get("bidDocReferAddress");
+        String title = (String) gpBulletin.get("bulletinTitle");
+        String plantName = (String) gpBulletin.get("bulletinMedia");
+        String noticeTime = (String) gpBulletin.get("bulletinStartTime");
+        /*    String 招标结束时间 = (String) gpBulletin.get("bulletinEndTime");*/
+        String openTerding = (String) gpBulletin.get("bidClosingTime");
+        String proxyConect = (String) gpBulletin.get("bulletinExaminer");
+        String proName = (String) gpPurchaseProject.get("purchaseProjectName");
+        String proNo = (String) gpPurchaseProject.get("purchaseProjectCode");
+        String buyAddr = (String) gpPurchaseProject.get("purchaseProjectAddress");
+        String buyingName = (String) gpPurchaseProject.get("purchaserName");
+        String buyingConnct = (String) gpPurchaseProject.get("purchaserConnector");
+        String buyingPhone = (String) gpPurchaseProject.get("purchaserContactInformation");
+        String addr = (String) gpPurchaseProject.get("purchaseProjectArea");
+        String proxyName = (String) gpPurchaseProject.get("purchaserAgencyName");
+        String proxyPhone = (String) gpPurchaseProject.get("purchaserAgencyConnectInformation");
+        String realBuyAddr = "上海市" + addr + buyAddr;
+
+
+        Document parse = Jsoup.parse(htmlContent);
         String allText = parse.text();
         Elements po = parse.select(".p_o");
         Element span = po.select("span").first();
@@ -130,11 +164,11 @@ public class ShangHaiTask implements Runnable {
         }
 
         //  RegExpUtil.regCheck()
-        if (pubTime == null) {
+      /*  if (pubTime == null) {
             String par = "发布时间:([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8])))";
 
-            pubTime = RegExpUtil.regGet(allText, par).replaceAll("发布时间:","");
-        }
+            pubTime = RegExpUtil.regGet(allText, par).replaceAll("发布时间:", "");
+        }*/
 
         Elements sitemap = parse.getElementsByClass("location");
         //获取导航目录信息
@@ -191,13 +225,38 @@ public class ShangHaiTask implements Runnable {
         }
         data.setClasses(data.getCategory());
         data.setPubTime(pubTime);
-        DataContentWithBLOBs datadb = mapper.selectById("spider_4_ggzy_hebei_url", data.getUrlId());
-    //    data.setPubTime(datadb.getPubTime());
-        data.setStageShow(datadb.getStageshow());
-        data.setClassifyShow(datadb.getCategory());
 
-        data.setTitle(datadb.getTitle());
-        data.setRegion(datadb.getRegion());
+        //    data.setPubTime(datadb.getPubTime());
+        data.setStageShow(data.getCategory().replaceAll("政府采购>", ""));
+        data.setClassifyShow(data.getCategory());
+
+        data.setTitle(title);
+        data.setProName(proName);
+        data.setProNo(proNo);
+
+        data.setRegion(addr);
+        data.setDistrictShow(addr);
+        data.setContent(htmlContent);
+        data.setProName(proName);
+        data.setPubTime(openTerding);
+        data.setPlatformName(plantName);
+        data.setBuyingOrg(buyingName);
+        data.setBuyingAddr(realBuyAddr);
+        data.setProContact(buyingConnct);
+        data.setProPhone(buyingPhone);
+
+        data.setBudgetAmount(budgetPrice);
+        data.setOpentendertime(openTerding);
+        data.setNoticeTime(noticeTime);
+        data.setProxyOrgAddr(proxyAddr);
+        data.setProxyOrgContact(proxyConect);
+        data.setProxyOrgName(proxyName);
+        data.setProxyOrgPhone(proxyPhone);
+
+        data.setTenderWay(tenderWay);
+        data.setOpenTenderAddr(proxyAddr);
+
+
         if (data.getProName() == null || data.getProName().length() > 30) {
             data.setProName(data.getTitle());
         }
@@ -212,19 +271,56 @@ public class ShangHaiTask implements Runnable {
     }
 
 
-
-
-    public static GovData clean(GovData data) throws InvocationTargetException, IllegalAccessException {
+    public static GovData clean_cggg(GovData data) throws InvocationTargetException, IllegalAccessException {
         /*if (data.getUrlId() == 19865 || data.getUrlId() == 197) {
             data.getUrlId();
         }*/
         String content = data.getContent();
-
-        Map parse1 = JSON.parseObject(content,Map.class);
-
         Map map = new HashMap();
         content = HtmlUtils.removeCNStr(content);
-        Document parse = Jsoup.parse(content);
+
+        Map map2 = JSON.parseObject(content, Map.class);
+        //    String status = (String) map2.get("status");
+
+        Map result = (Map) map2.get("result");
+        Map gpBulletin = (Map) result.get("GPBulletin");
+        Map gpSection = (Map) result.get("GpSection");
+        //   List list = (List) result.get("GPSectionList");
+        Map gpPurchaseProject = (Map) result.get("GPPurchaseProject");
+        String budgetPrice = (String) gpSection.get("budgetPrice");
+
+        if(budgetPrice != null && StringUtils.isNotBlank(budgetPrice)){
+            Double aDouble = Double.valueOf(budgetPrice);
+            budgetPrice = String.format("%.2f", aDouble);
+            //System.err.println(format);
+           // BigDecimal.
+        }
+
+
+
+
+        String tenderWay = (String) gpSection.get("purchaseModeName");
+        String htmlContent = (String) gpBulletin.get("bulletinContent");
+        String proxyAddr = (String) gpBulletin.get("bidDocReferAddress");
+        String title = (String) gpBulletin.get("bulletinTitle");
+        String plantName = (String) gpBulletin.get("bulletinMedia");
+        String noticeTime = (String) gpBulletin.get("bulletinStartTime");
+        /*    String 招标结束时间 = (String) gpBulletin.get("bulletinEndTime");*/
+        String openTerding = (String) gpBulletin.get("bidClosingTime");
+        String proxyConect = (String) gpBulletin.get("bulletinExaminer");
+        String proName = (String) gpPurchaseProject.get("purchaseProjectName");
+        String proNo = (String) gpPurchaseProject.get("purchaseProjectCode");
+        String buyAddr = (String) gpPurchaseProject.get("purchaseProjectAddress");
+        String buyingName = (String) gpPurchaseProject.get("purchaserName");
+        String buyingConnct = (String) gpPurchaseProject.get("purchaserConnector");
+        String buyingPhone = (String) gpPurchaseProject.get("purchaserContactInformation");
+        String addr = (String) gpPurchaseProject.get("purchaseProjectArea");
+        String proxyName = (String) gpPurchaseProject.get("purchaserAgencyName");
+        String proxyPhone = (String) gpPurchaseProject.get("purchaserAgencyConnectInformation");
+        String realBuyAddr = "上海市" + addr + buyAddr;
+
+
+        Document parse = Jsoup.parse(htmlContent);
         String allText = parse.text();
         Elements po = parse.select(".p_o");
         Element span = po.select("span").first();
@@ -235,11 +331,11 @@ public class ShangHaiTask implements Runnable {
         }
 
         //  RegExpUtil.regCheck()
-        if (pubTime == null) {
+      /*  if (pubTime == null) {
             String par = "发布时间:([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8])))";
 
-            pubTime = RegExpUtil.regGet(allText, par).replaceAll("发布时间:","");
-        }
+            pubTime = RegExpUtil.regGet(allText, par).replaceAll("发布时间:", "");
+        }*/
 
         Elements sitemap = parse.getElementsByClass("location");
         //获取导航目录信息
@@ -296,13 +392,38 @@ public class ShangHaiTask implements Runnable {
         }
         data.setClasses(data.getCategory());
         data.setPubTime(pubTime);
-        DataContentWithBLOBs datadb = mapper.selectById("spider_4_ggzy_hebei_url", data.getUrlId());
-        //    data.setPubTime(datadb.getPubTime());
-        data.setStageShow(datadb.getStageshow());
-        data.setClassifyShow(datadb.getCategory());
 
-        data.setTitle(datadb.getTitle());
-        data.setRegion(datadb.getRegion());
+        //    data.setPubTime(datadb.getPubTime());
+        data.setStageShow(data.getCategory().replaceAll("政府采购>", ""));
+        data.setClassifyShow(data.getCategory());
+
+        data.setTitle(title);
+        data.setProName(proName);
+        data.setProNo(proNo);
+
+        data.setRegion(addr);
+        data.setDistrictShow(addr);
+        data.setContent(htmlContent);
+        data.setProName(proName);
+        data.setPubTime(openTerding);
+        data.setPlatformName(plantName);
+        data.setBuyingOrg(buyingName);
+        data.setBuyingAddr(realBuyAddr);
+        data.setProContact(buyingConnct);
+        data.setProPhone(buyingPhone);
+
+        data.setBudgetAmount(budgetPrice);
+        data.setOpentendertime(openTerding);
+        data.setNoticeTime(noticeTime);
+        data.setProxyOrgAddr(proxyAddr);
+        data.setProxyOrgContact(proxyConect);
+        data.setProxyOrgName(proxyName);
+        data.setProxyOrgPhone(proxyPhone);
+
+        data.setTenderWay(tenderWay);
+        data.setOpenTenderAddr(proxyAddr);
+
+
         if (data.getProName() == null || data.getProName().length() > 30) {
             data.setProName(data.getTitle());
         }
@@ -315,5 +436,6 @@ public class ShangHaiTask implements Runnable {
         // TODO 时间 金额 等字段在这里处理
         return data;
     }
+
 
 }

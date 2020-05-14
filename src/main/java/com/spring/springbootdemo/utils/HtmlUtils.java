@@ -38,51 +38,9 @@ public class HtmlUtils {
         //   Map<String, String> map = new HashMap();
         //      StringBuffer colSpanStr = new StringBuffer();
         for (Element tab : tables) {
-            StringBuffer sb = new StringBuffer();
-            //   Document tab = Jsoup.parse(table);
-            Elements trs = tab.getElementsByTag("tr");
-            Elements first = trs.first().children();
-            for (int i = 1; i < trs.size(); i++) {
-                Elements element = trs.get(i).getElementsByTag("td");
-                Map<Integer, String> m = null;
-                int size;
-                if (element.size() == first.size()) {
-                    size = element.size();
-
-                } else {
-                    size = element.size() > first.size() ? first.size() : element.size();
-                }
-                for (int j = 0; j < size; j++) {
-                    String name = first.get(j).text() + ":" + element.get(j).text();
-                 /*   if (element.get(j).hasAttr("colspan")) {
-                        colSpanStr.append(element.get(j).text() + "|");
-                        continue;
-                        //  logger.info("has colspan = " + element.get(j).attr("colspan") + element.get(j).text());
-                    } */
-                    if (element.get(j).hasAttr("rowspan")) {
-                        String num = (element.get(j)).attr("rowspan");
-                        m = new HashMap();
-                        //直接使用# 号可能会有问题
-                        m.put(j, name + "#!$" + num);
-                        //下次循环到该index 直接拼接本次str
-                    }
-                    if (m != null && m.containsKey(j)) {
-                        String[] split = m.get(j).split("\\#\\!\\$");
-                        if (Integer.valueOf(split[1]) < 1) {
-                            m.remove(j);
-                        } else {
-                            name = first.get(j).text() + ":" + split[0];
-                            m.put(j, name + "#!$" + (Integer.valueOf(split[1]) - 1));
-                        }
-                    }
-                    sb.append(name);
-                    sb.append("|");
-                }
-            }
-            list.add(sb);
+            tableToListStr(list, tab);
             //  System.err.println(sb.toString());
         }
-
         //  int count = (st.length()-st.replace(M, "").length())/M.length();
         List<String> listObj = new LinkedList();
         LinkedList<Map> queue = new LinkedList();
@@ -192,6 +150,51 @@ public class HtmlUtils {
         //   return null;
         return resList;
         //    return map;
+    }
+
+    private static void tableToListStr(List<StringBuffer> list, Element tab) {
+        StringBuffer sb = new StringBuffer();
+        //   Document tab = Jsoup.parse(table);
+        Elements trs = tab.getElementsByTag("tr");
+        Elements first = trs.first().children();
+        for (int i = 1; i < trs.size(); i++) {
+            Elements element = trs.get(i).getElementsByTag("td");
+            Map<Integer, String> m = null;
+            int size;
+            if (element.size() == first.size()) {
+                size = element.size();
+
+            } else {
+                size = element.size() > first.size() ? first.size() : element.size();
+            }
+            for (int j = 0; j < size; j++) {
+                String name = first.get(j).text() + ":" + element.get(j).text();
+             /*   if (element.get(j).hasAttr("colspan")) {
+                    colSpanStr.append(element.get(j).text() + "|");
+                    continue;
+                    //  logger.info("has colspan = " + element.get(j).attr("colspan") + element.get(j).text());
+                } */
+                if (element.get(j).hasAttr("rowspan")) {
+                    String num = (element.get(j)).attr("rowspan");
+                    m = new HashMap();
+                    //直接使用# 号可能会有问题
+                    m.put(j, name + "#!$" + num);
+                    //下次循环到该index 直接拼接本次str
+                }
+                if (m != null && m.containsKey(j)) {
+                    String[] split = m.get(j).split("\\#\\!\\$");
+                    if (Integer.valueOf(split[1]) < 1) {
+                        m.remove(j);
+                    } else {
+                        name = first.get(j).text() + ":" + split[0];
+                        m.put(j, name + "#!$" + (Integer.valueOf(split[1]) - 1));
+                    }
+                }
+                sb.append(name);
+                sb.append("|");
+            }
+        }
+        list.add(sb);
     }
 
 
