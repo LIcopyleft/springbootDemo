@@ -5,6 +5,8 @@ package com.spring.springbootdemo.utils;
  * @description
  * @date 2020/5/6
  */
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,12 +50,22 @@ public class RegExpUtil {
         Matcher m = r.matcher(str);
         boolean b = m.find();
         if(b){
-            System.err.println(m.group());
+        //    System.err.println(m.group());
            return m.group();
         }
         return null;
     }
 
 
+
+    public static List<String> getMatchers(String s,String regex) {
+        List<String> strs = new ArrayList<String>();
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(s);
+        while (m.find()) {
+            strs.add(m.group());
+        }
+        return strs;
+    }
 
 }

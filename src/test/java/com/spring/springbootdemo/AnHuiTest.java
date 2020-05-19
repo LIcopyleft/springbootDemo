@@ -3,7 +3,6 @@ package com.spring.springbootdemo;
 import com.spring.springbootdemo.mapper.DataContentMapper;
 import com.spring.springbootdemo.model.ConfigParam;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
-import com.spring.springbootdemo.thread.HeiBeiTask;
 import com.spring.springbootdemo.thread.JiangSuTask;
 import com.spring.springbootdemo.utils.FileUtils;
 import com.spring.springbootdemo.utils.SpringContextHolder;
@@ -28,7 +27,7 @@ import java.util.concurrent.Executors;
 @RunWith(SpringJUnit4ClassRunner.class)
 //@Property(value = "application.yml")
 //@PropertySource({"classpath:application.yml"})
-public class JiangSuTest {
+public class AnHuiTest {
 //    private static final Logger logger = LoggerFactory.getLogger(GOVDataCleanTest.class// private static final String STAGE_SHOW = "招标/资审文件澄清";
   //  private static final String STAGE_SHOW = "采购/资审公告";
  //   private static final String STAGE_SHOW = "更正事项";

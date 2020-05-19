@@ -39,11 +39,19 @@ public class TableDeal {
             logger.debug("1.开始判断表格类型********************");
             //1.如果只有两列,特殊处理,按 P 型处理
             colMaxIndex = CellUtils.getMaxIndexRowOrCol("col", tableCells);
+            rowMaxIndex = CellUtils.getMaxIndexRowOrCol("row", tableCells);
             if (colMaxIndex == 1) {
                 //判断 单个单元格内是否有多条信息
                 //遍历单元格,单元格内包含多个: 并且冒号后
                 logger.debug("2.表格类型判定为只有只有两列***********");
                 cellInfoList = only2td(tableCells);
+                logger.debug("3.表格内容抽取为字符串列表结束******************");
+                continue;
+            }
+
+            if (rowMaxIndex == 1) {
+                logger.debug("2.表格类型判定为只有两行***********");
+                cellInfoList = TableConvert.tableToListStr(table);
                 logger.debug("3.表格内容抽取为字符串列表结束******************");
                 continue;
             }
@@ -100,7 +108,7 @@ public class TableDeal {
             }
 
             //如果最大为4行,重复拼接一次, 修复部分重要表格识别不到文字
-            if ( maxIndex[0] < 4 && maxIndex[0] > 0) {
+            if (maxIndex[0] < 4 && maxIndex[0] > 0) {
                 List list1 = TableConvert.tableToListStr(table);
                 cellInfoList.addAll(list1);
             }

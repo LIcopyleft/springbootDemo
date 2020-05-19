@@ -10,7 +10,7 @@ import java.text.NumberFormat;
  * @description
  * @date 2020/5/13
  */
-public class Amount {
+
 
     /**
      * 中文数字格式化，将数字转换成中文大写形式，以及将中文大写形式转换成数字
@@ -19,8 +19,7 @@ public class Amount {
      * @title CNNumberFormat.java
      * @date 2013-4-16
      */
-    public static class CNNumberFormat {
-
+    public class CNNumberFormat {
         /**
          * 中文数字正写
          */
@@ -29,7 +28,6 @@ public class Amount {
 
         private static final char[] stdNumbers = {'0', '1', '2', '3', '4', '5',
                 '6', '7', '8', '9'};
-
         /**
          * 货币单位
          */
@@ -148,10 +146,13 @@ public class Amount {
             System.out.println(cnFmt.format(1234567));
             System.out.println(cnFmt.format(12345678));
             System.out.println(cnFmt.format(123456789));
-            System.out.println(cnFmt.parse("壹亿贰仟叁佰肆拾伍万陆仟柒佰捌拾玖元壹角贰分叁厘"));
+            Number parse = cnFmt.parse("壹亿贰仟叁佰肆拾伍万陆仟柒佰捌拾玖元壹角贰分叁厘");
+            double v = parse.doubleValue();
+            System.out.println(parse);
+            System.out.println(v);
             System.out.println(cnFmt.parse("壹佰壹拾伍万零玖佰玖拾壹元陆角"));
             System.out.println(cnFmt.parse("人民币"));
         }
 
     }
-}
+

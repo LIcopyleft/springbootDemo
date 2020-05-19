@@ -205,10 +205,22 @@ public class JiangSuTask implements Runnable {
 
         data.setOther(map.size() == 0 ? null : JSON.toJSONString(map));
 
+        FieldUtils.formatDateAndTime(data);
+        FieldUtils.formatContact(data);
+
+
+
         //    data.setContent(null);
         //    data.setClassifyShow(data.getStageShow());//政府采购  更正公告
         // System.out.println(JSON.toJSONString(map));
-        // TODO 时间 金额 等字段在这里处理
+       /* String pubTime1 = data.getPubTime();
+        String winBidTime = data.getWinBidTime();
+        String entitledCheckTime = data.getEntitledCheckTime();
+        String firstNoticeTime = data.getFirstNoticeTime();
+        String obtainFileTime = data.getObtainFileTime();
+        String resFileSubTime = data.getResFileSubTime();
+        String resFileOpenTime = data.getResFileOpenTime();*/
+
         return data;
     }
 
