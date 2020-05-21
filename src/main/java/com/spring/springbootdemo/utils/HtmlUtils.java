@@ -258,6 +258,14 @@ public class HtmlUtils {
                 ) {
                     return true;
                 }
+            }else if(str.equals("项目预算")){
+                if ((key.contains("项目预算")
+                        || key.contains("预算金额")
+                        || key.contains("预算费用"))
+
+                ) {
+                    return true;
+                }
             }
         }
         return false;

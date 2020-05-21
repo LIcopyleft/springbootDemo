@@ -3,9 +3,8 @@ package com.spring.springbootdemo;
 import com.spring.springbootdemo.mapper.DataContentMapper;
 import com.spring.springbootdemo.model.ConfigParam;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
-import com.spring.springbootdemo.model.GovData;
-import com.spring.springbootdemo.thread.BeijingTask;
-import com.spring.springbootdemo.thread.HeiBeiTask;
+import com.spring.springbootdemo.thread.AnHuiTask;
+import com.spring.springbootdemo.thread.HaiNanTask;
 import com.spring.springbootdemo.utils.FileUtils;
 import com.spring.springbootdemo.utils.SpringContextHolder;
 import org.junit.Test;
@@ -29,20 +28,20 @@ import java.util.concurrent.Executors;
 @RunWith(SpringJUnit4ClassRunner.class)
 //@Property(value = "application.yml")
 //@PropertySource({"classpath:application.yml"})
-public class BeijingTest {
+public class HaiNanTest {
 //    private static final Logger logger = LoggerFactory.getLogger(GOVDataCleanTest.class// private static final String STAGE_SHOW = "招标/资审文件澄清";
-    //  private static final String STAGE_SHOW = "采购/资审公告";
-    //   private static final String STAGE_SHOW = "更正事项";
+  //  private static final String STAGE_SHOW = "采购/资审公告";
+ //   private static final String STAGE_SHOW = "更正事项";
 
     private static Integer MAX_THREAD_NUM = 5;
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(MAX_THREAD_NUM);
-    private static final String STAGE = "政府采购>";
-    // private static final String STAGE = "交易大厅>交易公告>政府采购>中标、成交结果公告|交易大厅>交易公告>政府采购>中标候选人公示";
-    //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购/资审公告";
-    //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购合同公示";
-    private static final String INSERT_TABLE_NAME = "clean_beijing_zfcg_zbgg";
-    //   private static final String CLEAN_TABLE_NAME = "spider_2_ggzy_content_clean_temp";
-    private static final String CLEAN_TABLE_NAME = "spider_2_ggzy_beijing_content";
+    private static final String STAGE = "交易信息>政府采购>";
+   // private static final String STAGE = "交易大厅>交易公告>政府采购>中标、成交结果公告|交易大厅>交易公告>政府采购>中标候选人公示";
+ //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购/资审公告";
+ //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购合同公示";
+    private static final String INSERT_TABLE_NAME = "temp";
+ //   private static final String CLEAN_TABLE_NAME = "spider_2_ggzy_content_clean_temp";
+    private static final String CLEAN_TABLE_NAME = "spider_19_ggzy_hainan_url";
     private static final int INSERT_MAX = 1000;
     private static final int QUERY_SIZE = 1000;
     private static final int TABLE_SIZE = 1;
@@ -54,12 +53,12 @@ public class BeijingTest {
     public void clean() throws InterruptedException {
         long start = System.currentTimeMillis();
         int beginIndex = 0;
-        // int totalSize = 329318;//mapper.getTotal();
-        int totalSize = 609151;//mapper.getTotal();
+       // int totalSize = 329318;//mapper.getTotal();
+        int totalSize = 65211;//mapper.getTotal();
 
-        int times = totalSize / QUERY_SIZE;
-        if (totalSize % QUERY_SIZE != 0) {
-            times = times + 1;
+        int times= totalSize / QUERY_SIZE;
+        if(totalSize % QUERY_SIZE !=0) {
+            times=times+1;
         }
         CountDownLatch latch = new CountDownLatch(Integer.valueOf(String.valueOf(times)));
 
@@ -74,52 +73,32 @@ public class BeijingTest {
         config.setOpen(FLAG);
         config.setTableNum(TABLE_SIZE);// 0,清洗不含表格 1,表格数量为1 ,2 全部
 
-        for (int i = 0; i < times; i++) {
-            Runnable task = new BeijingTask(beginIndex, config);
+        for(int i = 0; i <times ; i++){
+            Runnable task = new HaiNanTask(beginIndex,config);
             beginIndex += QUERY_SIZE;
             EXECUTOR.execute(task);
         }
         latch.await();
         EXECUTOR.shutdown();
         long end = System.currentTimeMillis();
-        System.out.println("用时" + (end - start) / 1000 + "秒");
+        System.out.println("用时"+(end-start)/1000+"秒");
     }
 
 
+
     @Test
-    public void test() {
+    public  void debug(){
         DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-        //    List<String> list = FileUtils.readFileToList("C:\\Users\\DRC\\Desktop\\url_id.txt");
-      //  List<GovData> govData = mapper.selectTable();
+        List<String> list = FileUtils.readFileToList("C:\\Users\\DRC\\Desktop\\url_id.txt");
 
-      /*  for(GovData data : govData){
-            GovData d = new GovData();
-
-
-
-
-
-        }
-*/
-
-
-      //  int zbgg = mapper.insertList_BJ(govData, "clean_beijing_zfcg_zbgg");
-
-     //   System.err.println(zbgg);
-
-
-      /*  for (String urlId : list){
-
-            urlId = urlId.replace("\"", "");
+        for (String urlId : list){
+             urlId = urlId.replace("\"", "");
             DataContentWithBLOBs temp = mapper.selectById("temp", Integer.valueOf(urlId));
             if(temp == null){
-                //    Integer urlId1 = temp.getUrlId();
-
+            //    Integer urlId1 = temp.getUrlId();
                 System.err.println(urlId);
             }
-
-        }*/
-
+        }
 
     }
 

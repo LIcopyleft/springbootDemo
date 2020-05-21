@@ -20,7 +20,7 @@ public class FieldUtils {
     private static final String p_amount_d = "[零圆元角分壹贰叁肆伍陆柒捌玖拾佰仟万亿整]+";
     //需要去掉 逗号(,)匹配
     private static final String p_amount_x = "-?([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,})?";
-    private static final String p_date = "\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}|\\d{4}(年)\\d{1,2}月\\d{1,2}日{0,}";
+    public static final String p_date = "\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}|\\d{4}(年)\\d{1,2}月\\d{1,2}日{0,}";
     private static final String p_phone = "\\d{0,4}(—|-){0,1}\\d{8}|\\d{11}";
     private static final String p_remove_lxdh = "[\\u4e00-\\u9fa5]{0,}:";
     private static final String p_name = "[\\u4e00-\\u9fa5]{2,3}|[\\u4e00-\\u9fa5]{1}(  | )[\\u4e00-\\u9fa5]{1,2}";

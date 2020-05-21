@@ -60,10 +60,24 @@ public interface DataContentMapper {
     @Select("select * from ${table} where url_id = ${urlId}")
     DataContentWithBLOBs selectById(String table, Integer urlId);
 
+   /* @Select("select url_id from ${table}")
+    List<Integer> selectUrlIds(String table);*/
+
     @Select("update ${table} SET ${field} = #{fieldVal}  where url_id = #{urlId}")
     @Transactional(propagation= Propagation.SUPPORTS)
     DataContentWithBLOBs updateFiledByUrlId(String table,String field, String fieldVal ,Integer urlId);
 
-    @Select("SELECT  * from spider_2_ggzy_beijing_content_clean where classify_show = '政府采购'")
-    List<GovData> selectTable();
+   /* @Select("SELECT  * from spider_2_ggzy_beijing_content_clean where classify_show = '政府采购'")
+    List<GovData> selectTable();*/
+ //  @Select("SELECT * from spider_10_ggzy_anhui_url a join spider_10_ggzy_anhui_content b ON a.url_id = b.url_id where FIND_IN_SET(a.url_id,${urlIds})")
+
+   @Select({"<script>",
+           "SELECT a.url_id ,a.category ,a.title , a.pubTime, a.url , a.address as region , b.content  from spider_10_ggzy_anhui_url a join spider_10_ggzy_anhui_content b ON a.url_id = b.url_id where a.url_id in ",
+           "<foreach collection=\"urlIds\" item=\"urlId\" index=\"index\" open=\"(\" separator=\",\" close=\")\">",
+           "#{urlId}",
+           "</foreach>",
+           "</script>"})
+   List<DataContentWithBLOBs> anHui(@Param("urlIds") List urlIds);
+    @Select("select url_id from ${table} limit ${beginIndex},${querySize}")
+    List<Integer> selectUrlIds(String table, int beginIndex, int querySize);
 }

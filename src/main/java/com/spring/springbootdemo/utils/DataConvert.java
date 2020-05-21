@@ -22,12 +22,14 @@ public class DataConvert {
         gov.setUrl(data.getUrl());
         gov.setUrlId(data.getUrlId());
         gov.setClassify(data.getClassify());
-        gov.setPubTime(data.getTimeshow());
+   //     gov.setPubTime(data.getPubTime() == null ? data.getTimeshow() : data.getPubTime());
+        gov.setPubTime(data.getPubTime() != null ? data.getPubTime() : data.getTimeshow());
         gov.setTradeShow(data.getTradeshow());
         gov.setDistrictShow(data.getDistrictshow());
         gov.setPlatformName(data.getPlatformname());
         gov.setLocation(data.getLocation());
         gov.setCategory(data.getCategory());
+        gov.setRegion(data.getRegion());
         return gov;
     }
 }

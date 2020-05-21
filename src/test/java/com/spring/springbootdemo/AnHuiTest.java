@@ -3,6 +3,7 @@ package com.spring.springbootdemo;
 import com.spring.springbootdemo.mapper.DataContentMapper;
 import com.spring.springbootdemo.model.ConfigParam;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
+import com.spring.springbootdemo.thread.AnHuiTask;
 import com.spring.springbootdemo.thread.JiangSuTask;
 import com.spring.springbootdemo.utils.FileUtils;
 import com.spring.springbootdemo.utils.SpringContextHolder;
@@ -34,13 +35,13 @@ public class AnHuiTest {
 
     private static Integer MAX_THREAD_NUM = 5;
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(MAX_THREAD_NUM);
-    private static final String STAGE = "交易信息>政府采购>成交公告|交易信息>政府采购>更正公告|交易信息>政府采购>采购预告";
+    private static final String STAGE = "政府采购>交易公告|政府采购>结果公告";
    // private static final String STAGE = "交易大厅>交易公告>政府采购>中标、成交结果公告|交易大厅>交易公告>政府采购>中标候选人公示";
  //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购/资审公告";
  //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购合同公示";
     private static final String INSERT_TABLE_NAME = "temp";
  //   private static final String CLEAN_TABLE_NAME = "spider_2_ggzy_content_clean_temp";
-    private static final String CLEAN_TABLE_NAME = "spider_8_ggzy_jiangshu_content";
+    private static final String CLEAN_TABLE_NAME = "spider_10_ggzy_anhui_url";
     private static final int INSERT_MAX = 1000;
     private static final int QUERY_SIZE = 1000;
     private static final int TABLE_SIZE = 1;
@@ -53,7 +54,7 @@ public class AnHuiTest {
         long start = System.currentTimeMillis();
         int beginIndex = 0;
        // int totalSize = 329318;//mapper.getTotal();
-        int totalSize = 224163;//mapper.getTotal();
+        int totalSize = 144520;//mapper.getTotal();
 
         int times= totalSize / QUERY_SIZE;
         if(totalSize % QUERY_SIZE !=0) {
@@ -73,7 +74,7 @@ public class AnHuiTest {
         config.setTableNum(TABLE_SIZE);// 0,清洗不含表格 1,表格数量为1 ,2 全部
 
         for(int i = 0; i <times ; i++){
-            Runnable task = new JiangSuTask(beginIndex,config);
+            Runnable task = new AnHuiTask(beginIndex,config);
             beginIndex += QUERY_SIZE;
             EXECUTOR.execute(task);
         }
@@ -96,13 +97,9 @@ public class AnHuiTest {
             DataContentWithBLOBs temp = mapper.selectById("temp", Integer.valueOf(urlId));
             if(temp == null){
             //    Integer urlId1 = temp.getUrlId();
-
                 System.err.println(urlId);
             }
-
         }
-
-
 
     }
 
