@@ -35,7 +35,7 @@ public class HaiNanTest {
 
     private static Integer MAX_THREAD_NUM = 5;
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(MAX_THREAD_NUM);
-    private static final String STAGE = "交易信息>政府采购>";
+    private static final String STAGE = "政府采购";
    // private static final String STAGE = "交易大厅>交易公告>政府采购>中标、成交结果公告|交易大厅>交易公告>政府采购>中标候选人公示";
  //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购/资审公告";
  //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购合同公示";
@@ -43,7 +43,7 @@ public class HaiNanTest {
  //   private static final String CLEAN_TABLE_NAME = "spider_2_ggzy_content_clean_temp";
     private static final String CLEAN_TABLE_NAME = "spider_19_ggzy_hainan_url";
     private static final int INSERT_MAX = 1000;
-    private static final int QUERY_SIZE = 1000;
+    private static final int QUERY_SIZE = 100;
     private static final int TABLE_SIZE = 1;
     //是否开启单独清洗 表格数为特定值得记录
     private static final boolean FLAG = false;
@@ -61,7 +61,6 @@ public class HaiNanTest {
             times=times+1;
         }
         CountDownLatch latch = new CountDownLatch(Integer.valueOf(String.valueOf(times)));
-
 
         ConfigParam config = new ConfigParam();
         config.setCleanTableName(CLEAN_TABLE_NAME);

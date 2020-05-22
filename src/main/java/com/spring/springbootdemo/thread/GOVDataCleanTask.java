@@ -125,7 +125,10 @@ public class GOVDataCleanTask implements Runnable {
        /* if (data.getUrlId() == 19865 || data.getUrlId() == 197) {
             data.getUrlId();
         }*/
-
+logger.info("info");
+logger.error("error");
+logger.debug("debug");
+logger.warn("warn");
         String content = data.getContent();
         Map map = new HashMap();
         content = HtmlUtils.removeCNStr(content);

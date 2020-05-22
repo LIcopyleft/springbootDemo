@@ -63,6 +63,9 @@ public class DebugTest {
 
         DataContentWithBLOBs data = mapper.selectById(config.getCleanTableName(),URL_ID);
         GovData govData = DataConvert.toGovData(data);
+
+
+
         try {
             GovData cleanZbgg = GOVDataCleanTask.clean_zbgg(govData);
         } catch (InvocationTargetException e) {

@@ -71,7 +71,8 @@ public class HaiNanTask implements Runnable {
                     }
                 }
                 data.setStageShow(data.getCategory());
-                if (config.getStage().contains(data.getStageShow())) {
+             //   if (config.getStage().contains(data.getStageShow())) {
+                if (data.getStageShow().contains(config.getStage())) {
                     data.setLocation(data.getLocation() == null ? "2" : data.getLocation());
                     queues.add(data);
                 }
