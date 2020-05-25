@@ -236,13 +236,19 @@ public class HtmlUtils {
                         || key.contains("中标价")
                         || key.contains("中标金额")
                         || key.contains("成交金额")
+                        || key.contains("总成交金额")
+                        || key.contains("总成交额")
+                        || key.contains("总成交")
+                        || key.contains("总金额")
+                        || key.contains("总中标额")
+                        || key.contains("总报价")
 
                 ) {
                     return true;
                 }
 
 
-            }else if (str.equals("供应商地址")){
+            } else if (str.equals("供应商地址")) {
                 if (key.contains("供应商")
                         || key.contains("中标人")
                         || key.contains("中标机构")
@@ -250,20 +256,38 @@ public class HtmlUtils {
                 ) {
                     return key.contains("地址");
                 }
-            }else if (str.equals("供应商名称")){
+            } else if (str.equals("供应商名称")) {
                 if ((key.contains("供应商")
                         || key.contains("中标人")
-                        || key.contains("中标机构")) && (!key.contains("地址")&&!key.contains("金额")&&!key.contains("是否")&&!key.contains("代码"))
+                        || key.contains("中标机构")) && (!key.contains("地址") && !key.contains("金额") && !key.contains("是否") && !key.contains("代码"))
 
                 ) {
                     return true;
                 }
-            }else if(str.equals("项目预算")){
+            } else if (str.equals("项目预算")) {
                 if ((key.contains("项目预算")
                         || key.contains("预算金额")
                         || key.contains("预算费用"))
 
                 ) {
+                    return true;
+                }
+            } else if (str.equals("招标公告日期")) {
+                if ((key.contains("公告日期")
+                        || key.contains("公告时间")
+                        || key.contains("公告日期")
+                        || key.contains("发布时间")
+                        || key.contains("公布时间"))
+
+                ) {
+                    return true;
+                }   // 此处说明 : 优先考虑是否为代理联系方式, 若不是,默认为项目联系方式
+            } else if (str.equals("代理联系方式")) {
+                if ((key.contains("代理") && (key.contains("电话") || key.contains("联系方式")))) {
+                    return true;
+                }
+            } else if (str.equals("采购单位联系方式")) {
+                if ((key.contains("电话") || key.contains("联系方式"))) {
                     return true;
                 }
             }
@@ -412,7 +436,7 @@ public class HtmlUtils {
             }
 
 
-            if (countString(p, ":") > 1 && (p.contains(String.valueOf((char) 32))|| p.contains(String.valueOf((char) 160)) )){
+            if (countString(p, ":") > 1 && (p.contains(String.valueOf((char) 32)) || p.contains(String.valueOf((char) 160)))) {
                 String[] strings = CellUtils.splitCellInfo(p);
                 if (strings != null) {
 
@@ -428,7 +452,7 @@ public class HtmlUtils {
             if (split.length == 2 && split[0].length() > 1) {
                 //如果key 是联系人 . 地址 联系电话等有歧义信息,index向上 最多2 关联
                 String key = split[0];
-                if(key.equals("址")){
+                if (key.equals("址")) {
                     key = "地址";
                 }
                 key = HtmlUtils.reviseKey(key);
@@ -454,9 +478,9 @@ public class HtmlUtils {
 
                 if (StringUtils.isNotBlank(key)) {
                     //重复key 第一个为准
-if(map.containsKey(key)){
-    continue;
-}
+                    if (map.containsKey(key)) {
+                        continue;
+                    }
                     map.put(key, split[1]);
                 }
             }
