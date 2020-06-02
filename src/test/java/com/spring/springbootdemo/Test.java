@@ -17,6 +17,7 @@ import javax.print.DocFlavor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +31,15 @@ public class Test {
 
     public static void main(String[] args) throws IOException {
 
+        String s4 = FieldUtils.formatAmount("100.09");
+        String filePrice = "http://www.hebpr.cn/）首页“信息动态”中“招标代理机构及供应商进行注册登记的通知”的要求办理相关市场主体注册手续，并办理数字证书（CA），办理CA秘钥在保定市公共资源交易中心大厅CA窗口，咨询电话17736285662。完成注册并办理CA后供应商凭CA秘钥登录电子交易系统自行下载所参加项目的采购文件和时间场地信息文件，采购文件格式（.bdzf）。";
+      System.out.println(filePrice.length());
+        if (StringUtils.isNotBlank(filePrice)) {
+            BigDecimal bigDecimal = BigDecimal.valueOf(Integer.valueOf(filePrice));
+            if (bigDecimal.compareTo(BigDecimal.valueOf(10000)) > 0) {
+                filePrice = bigDecimal.divide(BigDecimal.valueOf(10000)).toString();
+            }
+        }
         List<String> list1 = FileUtils.readFileToList("C:\\Users\\DRC\\Desktop\\政府采购\\Test.txt");
 
         for (String str : list1){

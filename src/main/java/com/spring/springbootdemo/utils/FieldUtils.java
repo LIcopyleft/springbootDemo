@@ -40,7 +40,7 @@ public class FieldUtils {
         if (amt == null || StringUtils.isBlank(amt)) {
             return null;
         }
-        amt = amt.replaceAll(",", "");
+        amt = amt.replaceAll("，", "").replaceAll(",", "");
 
         logger.debug("待格式化金额 : " + amt);
 //        logger.debug(winBidAmount);
@@ -48,7 +48,6 @@ public class FieldUtils {
         String xAmount = RegExpUtil.regGet(amt, p_amount_x);
 
         //      int unit = 0;
-
         if (dAmountList.size() > 0) {
             for (String amount : dAmountList) {
                 if ("元".equals(amount)) {
@@ -87,6 +86,14 @@ public class FieldUtils {
             return null;
         }
         BigDecimal bigDecimal = BigDecimal.valueOf(Double.valueOf(formatAmount)).setScale(2, BigDecimal.ROUND_HALF_UP);
+
+        //判断金额  金额一般不会低于1000 , 修正未获取到单位而导致的金额不对 . 低于1000 则金额乘以 10000
+        if (bigDecimal.compareTo(new BigDecimal(1000)) < 0) {
+            logger.debug("自动修正金额");
+            BigDecimal amount = bigDecimal.multiply(new BigDecimal(10000));
+            bigDecimal = amount;
+        }
+
         logger.debug("格式化后 : " + bigDecimal.toString());
         return bigDecimal.toString();
 
@@ -168,7 +175,7 @@ public class FieldUtils {
         data.setProName(data.getProName() == null ? null : data.getProName().trim());
         data.setProNo(data.getProNo() == null ? null : data.getProNo().trim());
         data.setZipcode(data.getZipcode() == null ? null : RegExpUtil.regGet(data.getZipcode(), p_zipcode));
-
+        data.setWinBidBisName(data.getWinBidBisName() == null ? null : data.getWinBidBisName().length() > 100 ? null : data.getWinBidBisName());
         String expertName = data.getExpertName();
         List<String> names = getName(expertName);
 
@@ -219,10 +226,19 @@ public class FieldUtils {
 
         String budgetAmount = FieldUtils.formatAmount(data.getBudgetAmount());
         String winBidAmount = FieldUtils.formatAmount(data.getWinBidTotalAmount());
+        String filePrice = FieldUtils.formatAmount(data.getTenderingFilePrice());
 
         data.setBudgetAmount(budgetAmount);
         // data.setWinBidBisAmount(winBidAmount);
         data.setWinBidTotalAmount(winBidAmount);
+        //修正价格判断时, 小于1000 乘以 万操作
+        if (StringUtils.isNotBlank(filePrice)) {
+            BigDecimal bigDecimal = BigDecimal.valueOf(Double.valueOf(filePrice));
+            if (bigDecimal.compareTo(BigDecimal.valueOf(10000)) > 0) {
+                filePrice = bigDecimal.divide(BigDecimal.valueOf(10000)).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            }
+        }
+        data.setTenderingFilePrice(filePrice);
 
         String noticeTime = FieldUtils.formatDate(data.getNoticeTime());
         String pubtime = FieldUtils.formatDate(data.getPubTime());

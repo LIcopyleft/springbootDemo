@@ -198,7 +198,7 @@ public class HtmlUtils {
     }
 
 
-    private static final String UNCLEAR_FILED = "地址|联系地址|详细地址|电话|联系方式|联系人|联系电话|电话|单位名称";
+    private static final String UNCLEAR_FILED = Contant.UNCLEAR_FILED;
 
     public static boolean keyIsUnclear(String key) {
         if (StringUtils.isBlank(key)) {
@@ -267,6 +267,7 @@ public class HtmlUtils {
             } else if (str.equals("项目预算")) {
                 if ((key.contains("项目预算")
                         || key.contains("预算金额")
+                        || key.contains("预算万")
                         || key.contains("预算费用"))
 
                 ) {
@@ -416,6 +417,7 @@ public class HtmlUtils {
     }
 
     public static Map plistToMap(List<String> list) {
+        List<String> resultList = new Vector<>();
         Map map = new HashMap();
         String flag = "";
         for (int i = 0; i < list.size(); i++) {
@@ -434,21 +436,25 @@ public class HtmlUtils {
                 }
 
             }
-
-
+            resultList.add(p);
             if (countString(p, ":") > 1 && (p.contains(String.valueOf((char) 32)) || p.contains(String.valueOf((char) 160)))) {
                 String[] strings = CellUtils.splitCellInfo(p);
                 if (strings != null) {
-
-                    list.addAll(Arrays.asList(strings));
+                //    list.addAll(Arrays.asList(strings));
+                    resultList.remove(resultList.size()-1);
+                    resultList.addAll(Arrays.asList(strings));
                     continue;
                 }
             }
-            ;
 
+        }
+
+        //再次遍历修正
+        for (int i = 0; i < resultList.size(); i++) {
+
+            String p = resultList.get(i);
             p = p.replaceFirst(":", "#");
             String[] split = p.split("#");
-
             if (split.length == 2 && split[0].length() > 1) {
                 //如果key 是联系人 . 地址 联系电话等有歧义信息,index向上 最多2 关联
                 String key = split[0];
@@ -458,8 +464,8 @@ public class HtmlUtils {
                 key = HtmlUtils.reviseKey(key);
                 if (HtmlUtils.keyIsUnclear(key)) {
                     if (i >= 1) {
-                        String key_up1 = list.get(i - 1);
-                        //	String key_up2 = list.get(i - 2);
+                        String key_up1 = resultList.get(i - 1);
+                        //	String key_up2 = resultList.get(i - 2);
                         //优先认定index相隔为1的
                         if (key_up1.contains("代理")) {
                             key = "代理" + key;
@@ -467,14 +473,8 @@ public class HtmlUtils {
                             key = "采购单位" + key;
                         }
                     }
-                    list.set(i, key + ":" + split[1]);
+                    resultList.set(i, key + ":" + split[1]);
                 }
-                //去除key非中文,以及首个字符为 一,二等
-             /*   if(StringUtils.isBlank(key) && split[1].contains(":")){
-                    String[] strings = split[1].split(":");
-                    map.put(strings[0] ,strings[1]);
-                    continue;
-                }*/
 
                 if (StringUtils.isNotBlank(key)) {
                     //重复key 第一个为准
@@ -485,6 +485,7 @@ public class HtmlUtils {
                 }
             }
         }
+
 
         return map;
     }

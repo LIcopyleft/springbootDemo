@@ -20,15 +20,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class HeiBeiTask implements Runnable {
+public class LiaoNingTask implements Runnable {
 
     private int beginIndex;
     private ConfigParam config;
     static DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-    private static final Logger logger = LoggerFactory.getLogger(HeiBeiTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(LiaoNingTask.class);
 
 
-    public HeiBeiTask(int beginIndex, ConfigParam config) {
+    public LiaoNingTask(int beginIndex, ConfigParam config) {
         this.beginIndex = beginIndex;
         this.config = config;
     }
@@ -39,6 +39,7 @@ public class HeiBeiTask implements Runnable {
 
             List<GovData> list = new Vector<>();
             List<DataContentWithBLOBs> dataContent = mapper.selectAll(beginIndex, config.getQuerySize(), config.getCleanTableName());
+
             if (dataContent == null || dataContent.size() < 1) {
                 logger.warn(Thread.currentThread().getName() + "end====query db is null====beginIndex=" + beginIndex);
                 return;
@@ -57,7 +58,7 @@ public class HeiBeiTask implements Runnable {
                     }
                 }
                 data.setStageShow(data.getCategory());
-            //    if (config.getStage().contains(data.getStageShow())) {
+                //   if (config.getStage().contains(data.getStageShow())) {
                 if (data.getStageShow().contains(config.getStage())) {
                     data.setLocation(data.getLocation() == null ? "2" : data.getLocation());
                     queues.add(data);
@@ -75,15 +76,7 @@ public class HeiBeiTask implements Runnable {
                     if (StringUtils.isBlank(content)) {
                         continue;
                     }
-                    //    Document parse = Jsoup.parse(content);
-                    // DataContentWithBLOBs dcb = cleanMethod(data,parse);
-                /*    DataContentWithBLOBs dcb = cleanMethod_2(data);
-                    if (dcb == null) {
-                        continue;
-                    } */
-                    //  data = cleanMethod_3(data);
-                    //    onlyOneRowAndOneCol(data);
-                    //    data = clean_cggg(data);
+
                     data = clean_zbgg(data);
                     if (data == null) {
                         continue;
@@ -126,6 +119,8 @@ public class HeiBeiTask implements Runnable {
         /*if (data.getUrlId() == 19865 || data.getUrlId() == 197) {
             data.getUrlId();
         }*/
+        //    final String p_date = "\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}|\\d{4}(年)\\d{1,2}月\\d{1,2}日{0,}";
+
         String content = data.getContent();
         Map map = new HashMap();
         content = HtmlUtils.removeCNStr(content);
@@ -133,6 +128,7 @@ public class HeiBeiTask implements Runnable {
         String allText = parse.text();
         Elements po = parse.select(".p_o");
         Element span = po.select("span").first();
+
         String pubTime = null;
 
         if (po != null && po.size() > 0 && span != null && StringUtils.isNotBlank(span.text()) && span.text().length() > 5) {
@@ -140,17 +136,17 @@ public class HeiBeiTask implements Runnable {
         }
 
         //  RegExpUtil.regCheck()
-        if (pubTime == null) {
-            String par = "发布时间:([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8])))";
+       /* if (pubTime == null) {
+            String par = "信息发布时间:([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8])))";
 
-            pubTime = RegExpUtil.regGet(allText, par).replaceAll("发布时间:","");
-        }
+            pubTime = RegExpUtil.regGet(allText, par).replaceAll("信息发布时间:", "");
+        }*/
 
         Elements sitemap = parse.getElementsByClass("location");
         //获取导航目录信息
         String memu = "";
         if (sitemap != null && sitemap.size() > 0) {
-            memu = StrUtil.cleanBlank(sitemap.get(0).text().replace("您的当前位置:", ""));
+            memu = StrUtil.cleanBlank(sitemap.get(0).text().replace("您的当前位置:>", ""));
 
         }
 
@@ -200,31 +196,16 @@ public class HeiBeiTask implements Runnable {
             //		FileUtils.writeAppendFile("中标相关信息.txt",map1.keySet().toString());
         }
 
-
-
-
-
-        data.setPubTime(pubTime);
-        DataContentWithBLOBs datadb = mapper.selectById("spider_4_ggzy_hebei_url", data.getUrlId());
-    //    data.setPubTime(datadb.getPubTime());
-        data.setStageShow(datadb.getStageshow());
-        data.setClassifyShow(datadb.getCategory());
-
-        data.setTitle(datadb.getTitle());
-        data.setRegion(datadb.getRegion());
-        if (data.getProName() == null || data.getProName().length() > 30) {
-            data.setProName(data.getTitle());
-        }
-
         //TODO 每次新增加省份, 下面需要微调
 
         //  data.setClasses(data.getCategory());
         data.setClasses(data.getCategory());
-        //   data.setCategory(mem);
+     //   data.setCategory(mem);
         //   data.setPubTime(pubTime);
         //    DataContentWithBLOBs datadb = mapper.selectById("spider_8_ggzy_jiangshu_url", data.getUrlId());
         //    data.setPubTime(datadb.getPubTime());
         //信息类型
+        data.setStageShow(data.getCategory().replaceAll("政府采购&", ""));
         // 业务类型
         data.setClassifyShow("政府采购");
         //    data.setTitle(datadb.getTitle());
@@ -243,10 +224,29 @@ public class HeiBeiTask implements Runnable {
             List<String> dates = RegExpUtil.getMatchers(allText, FieldUtils.p_date);
             if (dates != null && dates.size() > 1) {
                 data.setNoticeTime(FieldUtils.formatDate(dates.get(1)));
+               /* for (String date : dates) {
+                    String mayDate = FieldUtils.formatDate(date);
+                    if (mayDate != null && data.getPubTime() != null && DateUtils.compareDate(mayDate, data.getPubTime())) {
+                        data.setNoticeTime(mayDate);
+                    }
+                }*/
             }
 
 
         }
+
+
+        //    data.setContent(null);
+        //    data.setClassifyShow(data.getStageShow());//政府采购  更正公告
+        // System.out.println(JSON.toJSONString(map));
+       /* String pubTime1 = data.getPubTime();
+        String winBidTime = data.getWinBidTime();
+        String entitledCheckTime = data.getEntitledCheckTime();
+        String firstNoticeTime = data.getFirstNoticeTime();
+        String obtainFileTime = data.getObtainFileTime();
+        String resFileSubTime = data.getResFileSubTime();
+        String resFileOpenTime = data.getResFileOpenTime();*/
+
         return data;
     }
 

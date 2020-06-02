@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -188,6 +189,7 @@ public class TableDeal {
         for (TableCell cell : tableCells) {
             String text = cell.getText();
             if (text == null || StringUtils.isBlank(text)) {
+                i++;
                 continue;
             }
 
@@ -202,8 +204,13 @@ public class TableDeal {
             }
             if (i % 2 == 1) {
                 if (!text.contains(":")) {
+                    /*if(str.equals(text+":")){
+                        String s = tableCells.get(index + 1).getText();
+                        cellInfoList.add(str + s);
+                        continue;
+                    }*/
                     cellInfoList.add(str + text);
-                } else if (HtmlUtils.countString(text, ":") == 1) {
+                } else if (HtmlUtils.countString(text, ":") == 1 && StringUtils.endsWithIgnoreCase(text, ":")) {
                     cellInfoList.add(text);
                 } else if (HtmlUtils.countString(text, ":") > 1) {
                     String[] strings = CellUtils.splitCellInfo(text);
@@ -230,7 +237,49 @@ public class TableDeal {
                 }
             }*/
         }
-        return cellInfoList;
+
+        List<String> list = new LinkedList<>();
+        for (int j = 0; j < tableCells.size(); j = j + 4) {
+
+            TableCell c1 = tableCells.get(j);
+            TableCell c2 = tableCells.get(j + 1);
+            TableCell c3 = tableCells.get(j + 2);
+            TableCell c4 = tableCells.get(j + 3);
+
+            if (c1.getText().equals(c2.getText()) && c3.getText().equals(c4.getText())) {
+                if (HtmlUtils.countString(c3.getText(), ":") > 1) {
+                    continue;
+                  /*  String[] strings = CellUtils.splitCellInfo(c3.getText());
+                    if (strings != null) {
+                        for (String s : strings) {
+                            cellInfoList.add(s);
+                        }
+                    }*/
+                }
+
+                list.add(c1.getText() + ":" + c3.getText());
+            }
+
+
+        }
+        List<String> result = new LinkedList<>();
+
+
+        cellInfoList.stream().forEach(item -> {
+            if (item != null && item.contains(":")) {
+                String[] split = item.split(":");
+                if (split.length > 1 && !split[0].equals(split[1])) {
+                    // cellInfoList.remove(item);
+                    result.add(item);
+                }
+
+            }
+
+        });
+
+
+        result.addAll(list);
+        return result;
     }
 
 
