@@ -17,18 +17,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class LiaoNingTask implements Runnable {
+public class TianJinTask implements Runnable {
 
     private int beginIndex;
     private ConfigParam config;
     static DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-    private static final Logger logger = LoggerFactory.getLogger(LiaoNingTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(TianJinTask.class);
 
 
-    public LiaoNingTask(int beginIndex, ConfigParam config) {
+    public TianJinTask(int beginIndex, ConfigParam config) {
         this.beginIndex = beginIndex;
         this.config = config;
     }
@@ -58,14 +59,26 @@ public class LiaoNingTask implements Runnable {
                     }
                 }
                 data.setCategory(StrUtil.cleanBlank(data.getCategory()));
-        //        data.setStageShow(data.getCategory());
+                //        data.setStageShow(data.getCategory());
                 //   if (config.getStage().contains(data.getStageShow())) {
                 if (data.getCategory().contains(config.getStage())) {
                     data.setLocation(data.getLocation() == null ? "2" : data.getLocation());
-                    DataContentWithBLOBs dataDB = mapper.selectById("spider_31_ggzy_liaoning_content", data.getUrlId());
 
-                    if (dataDB != null) {
-                        data.setContent(dataDB.getContent());
+                    if (config.isUseUnionTable()) {
+                        DataContentWithBLOBs dataDB = mapper.selectById(config.getUnionTableName(), data.getUrlId());
+                        if (dataDB != null) {
+                            //   data.setContent(dataDB.getContent());
+                            if (data.getPubTime() == null) {
+                                data.setPubTime(dataDB.getPubTime());
+                            }
+                            if (data.getRegion() == null) {
+                                data.setRegion(dataDB.getRegion());
+                            }
+                            if (data.getCategory() == null) {
+                                data.setCategory(dataDB.getCategory());
+                            }
+
+                        }
                     }
                     queues.add(data);
                 }
@@ -84,6 +97,7 @@ public class LiaoNingTask implements Runnable {
                     }
 
                     data = clean_zbgg(data);
+                    logger.debug("\r\n" + "[" + data.getStageShow() + "]对象关键信息:" + data.toString());
                     if (data == null) {
                         continue;
                     }
@@ -122,9 +136,9 @@ public class LiaoNingTask implements Runnable {
      * @throws IllegalAccessException
      */
     public static GovData clean_zbgg(GovData data) throws InvocationTargetException, IllegalAccessException {
-        /*if (data.getUrlId() == 19865 || data.getUrlId() == 197) {
+        if (data.getUrlId() == 37408 ) {
             data.getUrlId();
-        }*/
+        }
         //    final String p_date = "\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}|\\d{4}(年)\\d{1,2}月\\d{1,2}日{0,}";
 
         String content = data.getContent();
@@ -211,17 +225,49 @@ public class LiaoNingTask implements Runnable {
         //    DataContentWithBLOBs datadb = mapper.selectById("spider_8_ggzy_jiangshu_url", data.getUrlId());
         //    data.setPubTime(datadb.getPubTime());
         //信息类型
-  //      data.setStageShow(data.getCategory().replaceAll("政府采购&", ""));
-        data.setStageShow(StrUtil.cleanBlank(data.getStageShow()));
+        data.setStageShow(data.getCategory().replaceAll("交易信息>政府采购>", ""));
+        if ("采购公告".equals(data.getStageShow())) {
+            String s = "项目预算[\\s\\S]{0,}第{0,}[\\s\\S]{0,}元[\\s\\S]{0,3}";
+            String p_amount_x = "-?([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,})?[万元|万|元]?";
+            String p_amount = "-?([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,})?";
+            String p_amount_y = "[预算: |包:]-?([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,})?[万元|万|元]{0,1}";
+            List<String> matchers = RegExpUtil.getMatchers(allText, s);
+            System.out.println(matchers);
+            String string = matchers.toString();
+            RegExpUtil.getMatchers(string, p_amount_x);
+        //   String s1 = FieldUtils.formatAmount(string);
+            List<String> matchers1 = RegExpUtil.getMatchers(string, p_amount_y);
+            System.out.println(matchers1);
+            if (matchers != null && matchers.size() > 0) {
+                BigDecimal zero = new BigDecimal(Double.valueOf(0));
+                for (String str : matchers1) {
+                    String s3 = RegExpUtil.regGet(str, p_amount_x);
+                    if (s3.contains("万")) {
+
+                        String num = RegExpUtil.regGet(s3, p_amount);
+                        BigDecimal b = new BigDecimal(num);
+                        BigDecimal multiply = b.multiply(BigDecimal.valueOf(10000)).setScale(2, BigDecimal.ROUND_HALF_UP);
+                        //   data.setBudgetAmount(multiply.toString());
+                        s3 = multiply.toString();
+
+                    }
+
+                    String s2 = FieldUtils.formatAmount(s3);
+                    BigDecimal bigDecimal = BigDecimal.valueOf(Double.valueOf(s2));
+                    zero = zero.add(bigDecimal);
+
+                }
+                data.setBudgetAmount(zero.toString());
+             //   System.out.println(zero);
+            }
+        }
+
+        //      data.setStageShow(StrUtil.cleanBlank(data.getStageShow()));
         // 业务类型
         data.setClassifyShow("政府采购");
         //    data.setTitle(datadb.getTitle());
         //   data.setRegion(datadb.getRegion());
-        String title = data.getTitle();
-        if (title.contains("\">")) {
-            title = title.replaceAll("\">", "##").split("\\#\\#")[0];
-        }
-        data.setTitle(title);
+
         data.setDistrictShow(data.getRegion());
         if (data.getProName() == null || data.getProName().length() > 30) {
             data.setProName(data.getTitle());
@@ -229,7 +275,6 @@ public class LiaoNingTask implements Runnable {
 
 
         data.setOther(map.size() == 0 ? null : JSON.toJSONString(map));
-
         FieldUtils.formatDateAndTime(data);
         FieldUtils.formatContact(data);
 

@@ -20,15 +20,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class LiaoNingTask implements Runnable {
+public class WenZhouTask implements Runnable {
 
     private int beginIndex;
     private ConfigParam config;
     static DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-    private static final Logger logger = LoggerFactory.getLogger(LiaoNingTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(WenZhouTask.class);
 
 
-    public LiaoNingTask(int beginIndex, ConfigParam config) {
+    public WenZhouTask(int beginIndex, ConfigParam config) {
         this.beginIndex = beginIndex;
         this.config = config;
     }
@@ -58,11 +58,11 @@ public class LiaoNingTask implements Runnable {
                     }
                 }
                 data.setCategory(StrUtil.cleanBlank(data.getCategory()));
-        //        data.setStageShow(data.getCategory());
+             //   data.setStageShow(data.getCategory());
                 //   if (config.getStage().contains(data.getStageShow())) {
                 if (data.getCategory().contains(config.getStage())) {
                     data.setLocation(data.getLocation() == null ? "2" : data.getLocation());
-                    DataContentWithBLOBs dataDB = mapper.selectById("spider_31_ggzy_liaoning_content", data.getUrlId());
+                    DataContentWithBLOBs dataDB = mapper.selectById("spider_39_ggzy_wenzhou_content", data.getUrlId());
 
                     if (dataDB != null) {
                         data.setContent(dataDB.getContent());
@@ -217,11 +217,11 @@ public class LiaoNingTask implements Runnable {
         data.setClassifyShow("政府采购");
         //    data.setTitle(datadb.getTitle());
         //   data.setRegion(datadb.getRegion());
-        String title = data.getTitle();
+        /*String title = data.getTitle();
         if (title.contains("\">")) {
             title = title.replaceAll("\">", "##").split("\\#\\#")[0];
         }
-        data.setTitle(title);
+        data.setTitle(title);*/
         data.setDistrictShow(data.getRegion());
         if (data.getProName() == null || data.getProName().length() > 30) {
             data.setProName(data.getTitle());

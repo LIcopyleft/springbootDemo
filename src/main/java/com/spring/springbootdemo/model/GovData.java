@@ -74,5 +74,31 @@ public class GovData extends GovDataKey {
     private String winBisInfoStr; //中标公告中中标
     private List<WinBisInfo> bisList;
 
+    @Override
+    public String toString() {
+        return "GovData{" +
+                "urlId='" + super.getUrlId() + '\'' +
+                ", stageShow='" + stageShow + '\'' +
+                ", budgetAmount='" + budgetAmount + '\'' +
+                ", winBidTotalAmount='" + winBidTotalAmount + '\'' +
+                ", winBidBisName='" + winBidBisName + '\'' +
+                ", winBidBisAddr='" + winBidBisAddr + '\'' +
+                ",category='" + category + '\'' +
+                ", email='" + email + '\'' +
+                ", expertName='" + expertName + '\'' +
+                ", classifyShow='" + classifyShow + '\'' +
+                ", districtShow='" + districtShow + '\'' +
+                ", proContact='" + proContact + '\'' +
+                ", buyingOrg='" + buyingOrg + '\'' +
+                ", buyingAddr='" + buyingAddr + '\'' +
+                ", proxyOrgAddr='" + proxyOrgAddr + '\'' +
+                ", proxyOrgName='" + proxyOrgName + '\'' +
+                ", proxyOrgContact='" + proxyOrgContact + '\'' +
+                ", proName='" + proName + '\'' +
+                ", noticeTime='" + noticeTime + '\'' +
+                ", region='" + region + '\'' +
+                ", proNo='" + proNo + '\'' +
 
+                "} ";
+    }
 }

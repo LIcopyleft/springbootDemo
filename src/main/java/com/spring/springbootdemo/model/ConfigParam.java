@@ -24,6 +24,8 @@ public class ConfigParam {
     private int querySize;
     private int tableNum = 0;
     private boolean isOpen = true;
+    private boolean isUseUnionTable = false;
+    private String unionTableName;
 
 
 

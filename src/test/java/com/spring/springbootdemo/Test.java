@@ -31,6 +31,19 @@ public class Test {
 
     public static void main(String[] args) throws IOException {
 
+
+        String regex = "项目预算: 1920000元。 四、项目";
+        String p_amount_y = "[预算: |预算：|包:]-?([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,})?[万元|万|元]{0,1}";
+
+        List<String> matchers1 = RegExpUtil.getMatchers(regex, p_amount_y);
+
+        String replacement = "a$bc$d";
+
+        replacement = java.util.regex.Matcher.quoteReplacement(replacement);
+        String strq = "test str replace.";
+        String str1 = strq.replaceAll(regex, replacement);
+        System.out.println(str1);
+        String s23 = "                    ";
         String s4 = FieldUtils.formatAmount("100.09");
         String filePrice = "http://www.hebpr.cn/）首页“信息动态”中“招标代理机构及供应商进行注册登记的通知”的要求办理相关市场主体注册手续，并办理数字证书（CA），办理CA秘钥在保定市公共资源交易中心大厅CA窗口，咨询电话17736285662。完成注册并办理CA后供应商凭CA秘钥登录电子交易系统自行下载所参加项目的采购文件和时间场地信息文件，采购文件格式（.bdzf）。";
       System.out.println(filePrice.length());

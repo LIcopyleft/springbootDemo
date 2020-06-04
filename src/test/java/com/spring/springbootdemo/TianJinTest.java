@@ -4,7 +4,7 @@ import com.spring.springbootdemo.mapper.DataContentMapper;
 import com.spring.springbootdemo.model.ConfigParam;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
 import com.spring.springbootdemo.thread.LiaoNingTask;
-import com.spring.springbootdemo.thread.QingHaiTask;
+import com.spring.springbootdemo.thread.TianJinTask;
 import com.spring.springbootdemo.utils.FileUtils;
 import com.spring.springbootdemo.utils.SpringContextHolder;
 import org.junit.Test;
@@ -28,25 +28,28 @@ import java.util.concurrent.Executors;
 @RunWith(SpringJUnit4ClassRunner.class)
 //@Property(value = "application.yml")
 //@PropertySource({"classpath:application.yml"})
-public class LiaoNingTest {
+public class TianJinTest {
 //    private static final Logger logger = LoggerFactory.getLogger(GOVDataCleanTest.class// private static final String STAGE_SHOW = "招标/资审文件澄清";
     //  private static final String STAGE_SHOW = "采购/资审公告";
     //   private static final String STAGE_SHOW = "更正事项";
 
-    private static Integer MAX_THREAD_NUM = 1;
+    private static Integer MAX_THREAD_NUM = 5;
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(MAX_THREAD_NUM);
     private static final String STAGE = "政府采购";
     // private static final String STAGE = "交易大厅>交易公告>政府采购>中标、成交结果公告|交易大厅>交易公告>政府采购>中标候选人公示";
     //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购/资审公告";
     //   private static final String STAGE = "交易大厅>交易公告>政府采购>采购合同公示";
-    private static final String INSERT_TABLE_NAME = "temp1";
+    private static final String INSERT_TABLE_NAME = "temp";
     //   private static final String CLEAN_TABLE_NAME = "spider_2_ggzy_content_clean_temp";
-    private static final String CLEAN_TABLE_NAME = "spider_31_ggzy_liaoning_url";
+    private static final String CLEAN_TABLE_NAME = "spider_3_ggzy_tianjing_content";
+    private static final String UNION_TABLE_NAME = "spider_3_ggzy_tianjing_url";
     private static final int INSERT_MAX = 1000;
     private static final int QUERY_SIZE = 1000;
     private static final int TABLE_SIZE = 1;
     //是否开启单独清洗 表格数为特定值得记录
     private static final boolean FLAG = false;
+    //是否开启使用查询 辅助表 完善字段
+    private static final boolean IS_QUERY_UNION = true;
 
     @Test
     public void clean() throws InterruptedException {
@@ -56,7 +59,7 @@ public class LiaoNingTest {
         // int totalSize = 329318;//mapper.getTotal();
         //    int totalSize = 165517;//mapper.getTotal();
         int totalSize = mapper.countNum(CLEAN_TABLE_NAME);
-
+        System.out.println("数据总量为"+ totalSize);
         List<String> category = mapper.getCategory(CLEAN_TABLE_NAME);
         category.stream().forEach(item -> {
             System.out.println(item);
@@ -77,9 +80,10 @@ public class LiaoNingTest {
         config.setStage(STAGE);
         config.setOpen(FLAG);
         config.setTableNum(TABLE_SIZE);// 0,清洗不含表格 1,表格数量为1 ,2 全部
-
+        config.setUnionTableName(UNION_TABLE_NAME);
+        config.setUseUnionTable(IS_QUERY_UNION);
         for (int i = 0; i < times; i++) {
-            Runnable task = new LiaoNingTask(beginIndex, config);
+            Runnable task = new TianJinTask(beginIndex, config);
             beginIndex += QUERY_SIZE;
             EXECUTOR.execute(task);
         }
