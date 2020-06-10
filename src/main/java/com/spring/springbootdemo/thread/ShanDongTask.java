@@ -17,18 +17,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ChongQingTask implements Runnable {
+public class ShanDongTask implements Runnable {
 
     private int beginIndex;
     private ConfigParam config;
     static DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-    private static final Logger logger = LoggerFactory.getLogger(ChongQingTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(ShanDongTask.class);
 
 
-    public ChongQingTask(int beginIndex, ConfigParam config) {
+    public ShanDongTask(int beginIndex, ConfigParam config) {
         this.beginIndex = beginIndex;
         this.config = config;
     }
@@ -65,7 +66,6 @@ public class ChongQingTask implements Runnable {
 
                     if (config.isUseUnionTable()) {
                         DataContentWithBLOBs dataDB = mapper.selectById(config.getUnionTableName(), data.getUrlId());
-                        data.setCategory(dataDB.getCategory());
                         if (dataDB != null) {
                             //   data.setContent(dataDB.getContent());
                             if (data.getPubTime() == null) {
@@ -77,11 +77,8 @@ public class ChongQingTask implements Runnable {
                             if (data.getCategory() == null) {
                                 data.setCategory(dataDB.getCategory());
                             }
-                            if (data.getContent() == null) {
+                            if(data.getContent() == null){
                                 data.setContent(dataDB.getContent());
-                            }
-                            if (data.getUrl() == null) {
-                                data.setUrl(dataDB.getUrl());
                             }
 
                         }
@@ -231,8 +228,7 @@ public class ChongQingTask implements Runnable {
         //    DataContentWithBLOBs datadb = mapper.selectById("spider_8_ggzy_jiangshu_url", data.getUrlId());
         //    data.setPubTime(datadb.getPubTime());
         //信息类型
-        data.setStageShow(data.getCategory().replaceAll("交易信息>政府采购>", "").replaceAll("我要报名","").replaceAll("您当前的位置：>首页>",""));
-/*
+     //   data.setStageShow(data.getCategory().replaceAll("交易信息>政府采购>", ""));
         if ("采购公告".equals(data.getStageShow())) {
             String s = "项目预算[\\s\\S]{0,}第{0,}[\\s\\S]{0,}元[\\s\\S]{0,3}";
             String p_amount_x = "-?([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,})?[万元|万|元]?";
@@ -268,7 +264,6 @@ public class ChongQingTask implements Runnable {
              //   System.out.println(zero);
             }
         }
-*/
 
         //      data.setStageShow(StrUtil.cleanBlank(data.getStageShow()));
         // 业务类型

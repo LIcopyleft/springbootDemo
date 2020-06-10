@@ -17,18 +17,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ChongQingTask implements Runnable {
+public class HeNanTask implements Runnable {
 
     private int beginIndex;
     private ConfigParam config;
     static DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-    private static final Logger logger = LoggerFactory.getLogger(ChongQingTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(HeNanTask.class);
 
 
-    public ChongQingTask(int beginIndex, ConfigParam config) {
+    public HeNanTask(int beginIndex, ConfigParam config) {
         this.beginIndex = beginIndex;
         this.config = config;
     }
@@ -47,6 +48,15 @@ public class ChongQingTask implements Runnable {
             List<GovData> datas = new LinkedList<>();
             for (DataContentWithBLOBs data : dataContent) {
                 GovData govData = DataConvert.toGovData(data);
+
+                if("002002001".equals(data.getCategory())){
+                    govData.setCategory("首页>交易信息>政府采购>采购公告");
+                }else if("002002002".equals(data.getCategory())){
+                    govData.setCategory("首页>交易信息>政府采购>变更公告");
+                }else if("002002003".equals(data.getCategory())){
+                    govData.setCategory("首页>交易信息>政府采购>结果公示");
+                }
+
                 datas.add(govData);
             }
             LinkedBlockingQueue<GovData> queues = new LinkedBlockingQueue();
@@ -65,7 +75,6 @@ public class ChongQingTask implements Runnable {
 
                     if (config.isUseUnionTable()) {
                         DataContentWithBLOBs dataDB = mapper.selectById(config.getUnionTableName(), data.getUrlId());
-                        data.setCategory(dataDB.getCategory());
                         if (dataDB != null) {
                             //   data.setContent(dataDB.getContent());
                             if (data.getPubTime() == null) {
@@ -231,7 +240,7 @@ public class ChongQingTask implements Runnable {
         //    DataContentWithBLOBs datadb = mapper.selectById("spider_8_ggzy_jiangshu_url", data.getUrlId());
         //    data.setPubTime(datadb.getPubTime());
         //信息类型
-        data.setStageShow(data.getCategory().replaceAll("交易信息>政府采购>", "").replaceAll("我要报名","").replaceAll("您当前的位置：>首页>",""));
+        data.setStageShow(data.getCategory().replaceAll("首页>交易信息>政府采购>", ""));
 /*
         if ("采购公告".equals(data.getStageShow())) {
             String s = "项目预算[\\s\\S]{0,}第{0,}[\\s\\S]{0,}元[\\s\\S]{0,3}";

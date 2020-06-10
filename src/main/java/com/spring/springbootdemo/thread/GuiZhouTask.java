@@ -20,15 +20,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ChongQingTask implements Runnable {
+public class GuiZhouTask implements Runnable {
 
     private int beginIndex;
     private ConfigParam config;
     static DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-    private static final Logger logger = LoggerFactory.getLogger(ChongQingTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(GuiZhouTask.class);
 
 
-    public ChongQingTask(int beginIndex, ConfigParam config) {
+    public GuiZhouTask(int beginIndex, ConfigParam config) {
         this.beginIndex = beginIndex;
         this.config = config;
     }
@@ -82,6 +82,9 @@ public class ChongQingTask implements Runnable {
                             }
                             if (data.getUrl() == null) {
                                 data.setUrl(dataDB.getUrl());
+                            }
+                            if (data.getPlatformName() == null) {
+                                data.setPlatformName(dataDB.getPlatformname());
                             }
 
                         }
@@ -142,7 +145,7 @@ public class ChongQingTask implements Runnable {
      * @throws IllegalAccessException
      */
     public static GovData clean_zbgg(GovData data) throws InvocationTargetException, IllegalAccessException {
-        if (data.getUrlId() == 37408 ) {
+        if (data.getUrlId() == 37408) {
             data.getUrlId();
         }
         //    final String p_date = "\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}|\\d{4}(年)\\d{1,2}月\\d{1,2}日{0,}";
@@ -151,6 +154,8 @@ public class ChongQingTask implements Runnable {
         Map map = new HashMap();
         content = HtmlUtils.removeCNStr(content);
         Document parse = Jsoup.parse(content);
+        Elements remove = parse.select("div.footer").remove();
+
         String allText = parse.text();
         Elements po = parse.select(".p_o");
         Element span = po.select("span").first();
@@ -168,15 +173,16 @@ public class ChongQingTask implements Runnable {
             pubTime = RegExpUtil.regGet(allText, par).replaceAll("信息发布时间:", "");
         }*/
 
-        Elements sitemap = parse.getElementsByClass("location");
+        Elements sitemap = parse.getElementsByClass("Main_tit");
         //获取导航目录信息
         String memu = "";
         if (sitemap != null && sitemap.size() > 0) {
-            memu = StrUtil.cleanBlank(sitemap.get(0).text().replace("您的当前位置:>", ""));
+            memu = StrUtil.cleanBlank(sitemap.get(0).text().replace("首页>", ""));
 
         }
-
+        data.setCategory(memu);
         Elements p = parse.getElementsByTag("p");
+        Elements li = parse.getElementsByTag("li");
         List<Element> tableList = HtmlUtils.getHtmlTableList(parse);
         List<String> cellInfoList = new LinkedList<>();
         List<String> cellInfoList2 = new LinkedList<>();
@@ -215,7 +221,9 @@ public class ChongQingTask implements Runnable {
         cellInfoList.addAll(cellInfoList2);
         Map map1 = HtmlUtils.plistToMap(cellInfoList);
         map = HtmlUtils.prasePToMap(p);
+        Map map2 = HtmlUtils.prasePToMap(li);
         map.putAll(map1);
+        map.putAll(map2);
         data = (GovData) ReflectionUtils.mapToField(map, data, Contant.filedBJValueSet());
 
         if (data.getWinBidTotalAmount() == null || data.getWinBidBisAddr() == null || data.getWinBidBisName() == null) {
@@ -231,7 +239,7 @@ public class ChongQingTask implements Runnable {
         //    DataContentWithBLOBs datadb = mapper.selectById("spider_8_ggzy_jiangshu_url", data.getUrlId());
         //    data.setPubTime(datadb.getPubTime());
         //信息类型
-        data.setStageShow(data.getCategory().replaceAll("交易信息>政府采购>", "").replaceAll("我要报名","").replaceAll("您当前的位置：>首页>",""));
+        data.setStageShow(data.getCategory().replaceAll("首页>交易信息>采购项目（含政府采购）>", ""));
 /*
         if ("采购公告".equals(data.getStageShow())) {
             String s = "项目预算[\\s\\S]{0,}第{0,}[\\s\\S]{0,}元[\\s\\S]{0,3}";

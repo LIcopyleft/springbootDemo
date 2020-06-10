@@ -90,6 +90,8 @@ public class TianJinTest {
         latch.await();
         EXECUTOR.shutdown();
         long end = System.currentTimeMillis();
+        int num = mapper.countNum(INSERT_TABLE_NAME);
+        System.out.println("共清洗政府采购数据" + num + "条");
         System.out.println("用时" + (end - start) / 1000 + "秒");
     }
 
