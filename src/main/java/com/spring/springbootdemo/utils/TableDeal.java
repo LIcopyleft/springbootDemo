@@ -25,6 +25,7 @@ public class TableDeal {
     private static final Logger logger = LoggerFactory.getLogger(TableDeal.class);
 
     public static List<String> tableSizeOverOne(List<Element> tableList) {
+        List<String> resultList = new ArrayList<>();
         List<String> cellInfoList = new ArrayList<>();
         for (Element table : tableList) {
             int colMaxIndex = 0;
@@ -47,6 +48,9 @@ public class TableDeal {
                 logger.debug("2.表格类型判定为只有只有两列***********");
                 cellInfoList = only2td(tableCells);
                 logger.debug("3.表格内容抽取为字符串列表结束******************");
+                if (cellInfoList.size() > 0) {
+                    resultList.addAll(cellInfoList);
+                }
                 continue;
             }
 
@@ -54,6 +58,9 @@ public class TableDeal {
                 logger.debug("2.表格类型判定为只有两行***********");
                 cellInfoList = TableConvert.tableToListStr(table);
                 logger.debug("3.表格内容抽取为字符串列表结束******************");
+                if (cellInfoList.size() > 0) {
+                    resultList.addAll(cellInfoList);
+                }
                 continue;
             }
 
@@ -63,6 +70,9 @@ public class TableDeal {
                 logger.debug("2.表格类型判定为只有只有两列***********");
                 cellInfoList = only4td(tableCells);
                 logger.debug("3.表格内容抽取为字符串列表结束******************");
+                if (cellInfoList.size() > 0) {
+                    resultList.addAll(cellInfoList);
+                }
                 continue;
             }
 
@@ -71,7 +81,7 @@ public class TableDeal {
             if (list != null) {
                 logger.debug("2.表格类型判定为  表头 thread th  型***********");
                 logger.debug("3.表格内容抽取为字符串列表结束******************");
-                cellInfoList.addAll(list);
+                resultList.addAll(list);
                 continue;
             }
 
@@ -87,7 +97,7 @@ public class TableDeal {
             // System.err.println(JSON.toJSONString(tableCells));
             for (TableCell cell : tableCells) {
                 String text = cell.getText();
-                if (listIsContains(cellInfoList, text)) {
+                if (listIsContains(resultList, text)) {
                     continue;
                 }
                 if (cell.isHeader() && text != null && text.contains(":")) {
@@ -97,28 +107,28 @@ public class TableDeal {
                     if (!text.contains(":")) {
                         continue;
                     }
-                    cellInfoList.add(text);
+                    resultList.add(text);
                 } else if (!cell.isHeader() && text != null && text.contains(":") && !text.contains("20")) {
                     //   text.replace()
-                    cellInfoList.add(text);
+                    resultList.add(text);
                 } else if (text.contains(":")) {
-                    cellInfoList.add(text);
+                    resultList.add(text);
                 } else if (!cell.isHeader() && cell.getHeaderType() != null) {
-                    cellInfoList.add(cell.getHeaderType() + ":" + text);
+                    resultList.add(cell.getHeaderType() + ":" + text);
                 }
             }
 
             //如果最大为4行,重复拼接一次, 修复部分重要表格识别不到文字
             if (maxIndex[0] < 4 && maxIndex[0] > 0) {
                 List list1 = TableConvert.tableToListStr(table);
-                cellInfoList.addAll(list1);
+                resultList.addAll(list1);
             }
 
         }
 
 
         logger.debug("3.表格内容抽取为字符串列表结束******************");
-        return cellInfoList;
+        return resultList;
     }
 
     private static List<String> only2td(List<TableCell> tableCells) {

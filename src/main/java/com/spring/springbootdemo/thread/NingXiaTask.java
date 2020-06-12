@@ -20,15 +20,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class GuiZhouTask implements Runnable {
+public class NingXiaTask implements Runnable {
 
     private int beginIndex;
     private ConfigParam config;
     static DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-    private static final Logger logger = LoggerFactory.getLogger(GuiZhouTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(NingXiaTask.class);
 
 
-    public GuiZhouTask(int beginIndex, ConfigParam config) {
+    public NingXiaTask(int beginIndex, ConfigParam config) {
         this.beginIndex = beginIndex;
         this.config = config;
     }
@@ -65,7 +65,6 @@ public class GuiZhouTask implements Runnable {
 
                     if (config.isUseUnionTable()) {
                         DataContentWithBLOBs dataDB = mapper.selectById(config.getUnionTableName(), data.getUrlId());
-                        data.setCategory(dataDB.getCategory());
                         if (dataDB != null) {
                             //   data.setContent(dataDB.getContent());
                             if (data.getPubTime() == null) {
@@ -83,8 +82,11 @@ public class GuiZhouTask implements Runnable {
                             if (data.getUrl() == null) {
                                 data.setUrl(dataDB.getUrl());
                             }
-                            if (data.getPlatformName() == null) {
-                                data.setPlatformName(dataDB.getPlatformname());
+                            if (data.getProNo() == null) {
+                                data.setProNo(dataDB.getProno());
+                            }
+                            if (data.getTitle() == null) {
+                                data.setTitle(dataDB.getTitle());
                             }
 
                         }
@@ -154,8 +156,6 @@ public class GuiZhouTask implements Runnable {
         Map map = new HashMap();
         content = HtmlUtils.removeCNStr(content);
         Document parse = Jsoup.parse(content);
-        Elements remove = parse.select("div.footer").remove();
-
         String allText = parse.text();
         Elements po = parse.select(".p_o");
         Element span = po.select("span").first();
@@ -173,16 +173,15 @@ public class GuiZhouTask implements Runnable {
             pubTime = RegExpUtil.regGet(allText, par).replaceAll("信息发布时间:", "");
         }*/
 
-        Elements sitemap = parse.getElementsByClass("Main_tit");
+        Elements sitemap = parse.getElementsByClass("location");
         //获取导航目录信息
         String memu = "";
         if (sitemap != null && sitemap.size() > 0) {
-            memu = StrUtil.cleanBlank(sitemap.get(0).text().replace("首页>", ""));
+            memu = StrUtil.cleanBlank(sitemap.get(0).text().replace("您的当前位置:>", ""));
 
         }
-        data.setCategory(memu);
+
         Elements p = parse.getElementsByTag("p");
-        Elements li = parse.getElementsByTag("li");
         List<Element> tableList = HtmlUtils.getHtmlTableList(parse);
         List<String> cellInfoList = new LinkedList<>();
         List<String> cellInfoList2 = new LinkedList<>();
@@ -221,20 +220,13 @@ public class GuiZhouTask implements Runnable {
         cellInfoList.addAll(cellInfoList2);
         Map map1 = HtmlUtils.plistToMap(cellInfoList);
         map = HtmlUtils.prasePToMap(p);
-        Map map2 = HtmlUtils.prasePToMap(li);
         map.putAll(map1);
-        map.putAll(map2);
         data = (GovData) ReflectionUtils.mapToField(map, data, Contant.filedBJValueSet());
 
         if (data.getWinBidTotalAmount() == null || data.getWinBidBisAddr() == null || data.getWinBidBisName() == null) {
             //		FileUtils.writeAppendFile("中标相关信息.txt",map1.keySet().toString());
         }
-        String winBidBisName = data.getWinBidBisName();
-        boolean check = RegExpUtil.regCheck(winBidBisName, "-?([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,})?");
-        if(check){
-            data.setWinBidTotalAmount(winBidBisName);
-            data.setWinBidBisName(null);
-        }
+
         //TODO 每次新增加省份, 下面需要微调
 
         //  data.setClasses(data.getCategory());
@@ -244,7 +236,9 @@ public class GuiZhouTask implements Runnable {
         //    DataContentWithBLOBs datadb = mapper.selectById("spider_8_ggzy_jiangshu_url", data.getUrlId());
         //    data.setPubTime(datadb.getPubTime());
         //信息类型
-        data.setStageShow(data.getCategory().replaceAll("首页>交易信息>采购项目（含政府采购）>", ""));
+        // 告交易信息 > 标题名称-- >
+    //    data.setCategory(data.getCategory().replaceAll("交易信息>标题名称-->", ""));
+        data.setStageShow(data.getCategory().split("\\>")[2]);
 /*
         if ("采购公告".equals(data.getStageShow())) {
             String s = "项目预算[\\s\\S]{0,}第{0,}[\\s\\S]{0,}元[\\s\\S]{0,3}";
@@ -313,8 +307,6 @@ public class GuiZhouTask implements Runnable {
 
 
         }
-
-
 
         return data;
     }
