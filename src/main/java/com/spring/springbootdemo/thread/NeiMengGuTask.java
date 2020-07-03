@@ -225,43 +225,7 @@ public class NeiMengGuTask implements Runnable {
         //    DataContentWithBLOBs datadb = mapper.selectById("spider_8_ggzy_jiangshu_url", data.getUrlId());
         //    data.setPubTime(datadb.getPubTime());
         //信息类型
-        data.setStageShow(data.getCategory().replaceAll("交易信息>政府采购>", ""));
-        if ("采购公告".equals(data.getStageShow())) {
-            String s = "项目预算[\\s\\S]{0,}第{0,}[\\s\\S]{0,}元[\\s\\S]{0,3}";
-            String p_amount_x = "-?([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,})?[万元|万|元]?";
-            String p_amount = "-?([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,})?";
-            String p_amount_y = "[预算: |包:]-?([0-9]+|[0-9]{1,3}(,[0-9]{3})*)(.[0-9]{1,})?[万元|万|元]{0,1}";
-            List<String> matchers = RegExpUtil.getMatchers(allText, s);
-            System.out.println(matchers);
-            String string = matchers.toString();
-            RegExpUtil.getMatchers(string, p_amount_x);
-        //   String s1 = FieldUtils.formatAmount(string);
-            List<String> matchers1 = RegExpUtil.getMatchers(string, p_amount_y);
-            System.out.println(matchers1);
-            if (matchers != null && matchers.size() > 0) {
-                BigDecimal zero = new BigDecimal(Double.valueOf(0));
-                for (String str : matchers1) {
-                    String s3 = RegExpUtil.regGet(str, p_amount_x);
-                    if (s3.contains("万")) {
-
-                        String num = RegExpUtil.regGet(s3, p_amount);
-                        BigDecimal b = new BigDecimal(num);
-                        BigDecimal multiply = b.multiply(BigDecimal.valueOf(10000)).setScale(2, BigDecimal.ROUND_HALF_UP);
-                        //   data.setBudgetAmount(multiply.toString());
-                        s3 = multiply.toString();
-
-                    }
-
-                    String s2 = FieldUtils.formatAmount(s3);
-                    BigDecimal bigDecimal = BigDecimal.valueOf(Double.valueOf(s2));
-                    zero = zero.add(bigDecimal);
-
-                }
-                data.setBudgetAmount(zero.toString());
-             //   System.out.println(zero);
-            }
-        }
-
+        data.setStageShow(data.getCategory().replaceAll("政府采购>", ""));
         //      data.setStageShow(StrUtil.cleanBlank(data.getStageShow()));
         // 业务类型
         data.setClassifyShow("政府采购");

@@ -32,7 +32,8 @@ public interface DataContentMapper {
         //   @Select("select * from ${table} where id >=(select id from ${table} order by id limit ${from},1) limit ${to}")
     List<GovData> selectAll2(@Param("from") long from, @Param("to") long to, @Param("table") String table);
 
-
+    @Select("${sql}")
+    List<GovData> selectBySql(@Param("sql") String sql);
     @Select("select * from ${table} where url_id>=(select url_id from ${table} where stageShow = #{type} order by url_id limit ${from},1) limit ${to}")
     List<DataContentWithBLOBs> selectByType(@Param("from") long from, @Param("to") long to, @Param("table") String table, @Param("type") String type);
 
@@ -41,6 +42,7 @@ public interface DataContentMapper {
 
     @Select("select * from spider_2_ggzy_beijing_content where url_id>=(select url_id from spider_2_ggzy_beijing_content order by url_id limit #{from},1) limit #{to}")
     List<GovData> selectAllBJ(@Param("from") int from, @Param("to") int to);
+
 
 
     @Select({"select * from spider_2_ggzy_content where stageShow = #{stageShow}"})

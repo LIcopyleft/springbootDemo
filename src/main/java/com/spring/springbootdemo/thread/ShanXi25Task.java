@@ -20,15 +20,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class NingXiaTask implements Runnable {
+public class ShanXi25Task implements Runnable {
 
     private int beginIndex;
     private ConfigParam config;
     static DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-    private static final Logger logger = LoggerFactory.getLogger(NingXiaTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(ShanXi25Task.class);
 
 
-    public NingXiaTask(int beginIndex, ConfigParam config) {
+    public ShanXi25Task(int beginIndex, ConfigParam config) {
         this.beginIndex = beginIndex;
         this.config = config;
     }
@@ -84,9 +84,6 @@ public class NingXiaTask implements Runnable {
                             }
                             if (data.getProNo() == null) {
                                 data.setProNo(dataDB.getProno());
-                            }
-                            if (data.getTitle() == null) {
-                                data.setTitle(dataDB.getTitle());
                             }
 
                         }
@@ -147,7 +144,7 @@ public class NingXiaTask implements Runnable {
      * @throws IllegalAccessException
      */
     public static GovData clean_zbgg(GovData data) throws InvocationTargetException, IllegalAccessException {
-        if (data.getUrlId() == 37408) {
+        if (data.getUrlId() == 37408 ) {
             data.getUrlId();
         }
         //    final String p_date = "\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}|\\d{4}(年)\\d{1,2}月\\d{1,2}日{0,}";
@@ -174,11 +171,6 @@ public class NingXiaTask implements Runnable {
         }*/
 
         Elements sitemap = parse.getElementsByClass("location");
-        Element title = parse.getElementById("title");
-        if(title != null && StringUtils.isNotBlank(title.text())){
-
-            data.setTitle(title.text().replaceAll("\\[[\\S\\s]{0,7}\\]",""));
-        }
         //获取导航目录信息
         String memu = "";
         if (sitemap != null && sitemap.size() > 0) {
@@ -241,9 +233,7 @@ public class NingXiaTask implements Runnable {
         //    DataContentWithBLOBs datadb = mapper.selectById("spider_8_ggzy_jiangshu_url", data.getUrlId());
         //    data.setPubTime(datadb.getPubTime());
         //信息类型
-        // 告交易信息 > 标题名称-- >
-    //    data.setCategory(data.getCategory().replaceAll("交易信息>标题名称-->", ""));
-        data.setStageShow(data.getCategory().split("\\>")[2]);
+        data.setStageShow(data.getCategory().split("\\>")[3]);
 /*
         if ("采购公告".equals(data.getStageShow())) {
             String s = "项目预算[\\s\\S]{0,}第{0,}[\\s\\S]{0,}元[\\s\\S]{0,3}";

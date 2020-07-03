@@ -8,6 +8,7 @@ import com.spring.springbootdemo.model.ConfigParam;
 import com.spring.springbootdemo.model.DataContentWithBLOBs;
 import com.spring.springbootdemo.model.GovData;
 import com.spring.springbootdemo.utils.*;
+import lombok.var;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,15 +21,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class NingXiaTask implements Runnable {
+public class HuBeiTask implements Runnable {
 
     private int beginIndex;
     private ConfigParam config;
     static DataContentMapper mapper = SpringContextHolder.getBean("dataContentMapper");
-    private static final Logger logger = LoggerFactory.getLogger(NingXiaTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(HuBeiTask.class);
 
 
-    public NingXiaTask(int beginIndex, ConfigParam config) {
+    public HuBeiTask(int beginIndex, ConfigParam config) {
         this.beginIndex = beginIndex;
         this.config = config;
     }
@@ -84,9 +85,6 @@ public class NingXiaTask implements Runnable {
                             }
                             if (data.getProNo() == null) {
                                 data.setProNo(dataDB.getProno());
-                            }
-                            if (data.getTitle() == null) {
-                                data.setTitle(dataDB.getTitle());
                             }
 
                         }
@@ -147,7 +145,7 @@ public class NingXiaTask implements Runnable {
      * @throws IllegalAccessException
      */
     public static GovData clean_zbgg(GovData data) throws InvocationTargetException, IllegalAccessException {
-        if (data.getUrlId() == 37408) {
+        if (data.getUrlId() == 37408 ) {
             data.getUrlId();
         }
         //    final String p_date = "\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}|\\d{4}(年)\\d{1,2}月\\d{1,2}日{0,}";
@@ -174,18 +172,13 @@ public class NingXiaTask implements Runnable {
         }*/
 
         Elements sitemap = parse.getElementsByClass("location");
-        Element title = parse.getElementById("title");
-        if(title != null && StringUtils.isNotBlank(title.text())){
-
-            data.setTitle(title.text().replaceAll("\\[[\\S\\s]{0,7}\\]",""));
-        }
         //获取导航目录信息
         String memu = "";
         if (sitemap != null && sitemap.size() > 0) {
             memu = StrUtil.cleanBlank(sitemap.get(0).text().replace("您的当前位置:>", ""));
 
         }
-
+//var sb = new StringBuilder();
         Elements p = parse.getElementsByTag("p");
         List<Element> tableList = HtmlUtils.getHtmlTableList(parse);
         List<String> cellInfoList = new LinkedList<>();
@@ -241,8 +234,6 @@ public class NingXiaTask implements Runnable {
         //    DataContentWithBLOBs datadb = mapper.selectById("spider_8_ggzy_jiangshu_url", data.getUrlId());
         //    data.setPubTime(datadb.getPubTime());
         //信息类型
-        // 告交易信息 > 标题名称-- >
-    //    data.setCategory(data.getCategory().replaceAll("交易信息>标题名称-->", ""));
         data.setStageShow(data.getCategory().split("\\>")[2]);
 /*
         if ("采购公告".equals(data.getStageShow())) {

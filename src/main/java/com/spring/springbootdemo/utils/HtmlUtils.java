@@ -422,7 +422,7 @@ public class HtmlUtils {
         String flag = "";
         for (int i = 0; i < list.size(); i++) {
             String p = list.get(i);
-            if (p.startsWith("第一") || p.startsWith("第二") || p.startsWith("第三") || p.startsWith("第四") || p.startsWith("第五") || p.startsWith("第六")) {
+            /*if (p.startsWith("第一") || p.startsWith("第二") || p.startsWith("第三") || p.startsWith("第四") || p.startsWith("第五") || p.startsWith("第六")) {
                 flag = p.substring(0, 2);
                 String s = list.get(i + 1);
                 String s2 = list.get(i + 2);
@@ -435,7 +435,7 @@ public class HtmlUtils {
                     list.add(i + 2, "ZW" + flag + s2);
                 }
 
-            }
+            }*/
             resultList.add(p);
             if (countString(p, ":") > 1 && (p.contains(String.valueOf((char) 32)) || p.contains(String.valueOf((char) 160)))) {
                 String[] strings = CellUtils.splitCellInfo(p);

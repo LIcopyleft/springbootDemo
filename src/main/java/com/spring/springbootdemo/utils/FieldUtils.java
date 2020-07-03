@@ -1,5 +1,6 @@
 package com.spring.springbootdemo.utils;
 
+import cn.hutool.core.util.StrUtil;
 import com.spring.springbootdemo.model.GovData;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -55,6 +56,7 @@ public class FieldUtils {
                 } else if ("万元".equals(amount) || "万".equals(amount)) {
                     //     unit = 10000;
                     if (xAmount != null && StringUtils.isNotBlank(xAmount)) {
+                        xAmount = StrUtil.cleanBlank(xAmount);
                         BigDecimal b = new BigDecimal(xAmount);
                         BigDecimal multiply = b.multiply(BigDecimal.valueOf(10000)).setScale(2, BigDecimal.ROUND_HALF_UP);
                         //   data.setBudgetAmount(multiply.toString());
@@ -85,18 +87,23 @@ public class FieldUtils {
         if (formatAmount == null) {
             return null;
         }
-        BigDecimal bigDecimal = BigDecimal.valueOf(Double.valueOf(formatAmount)).setScale(2, BigDecimal.ROUND_HALF_UP);
+        try {
 
-        //判断金额  金额一般不会低于1000 , 修正未获取到单位而导致的金额不对 . 低于1000 则金额乘以 10000
-        if (bigDecimal.compareTo(new BigDecimal(1000)) < 0) {
-            logger.debug("自动修正金额");
-            BigDecimal amount = bigDecimal.multiply(new BigDecimal(10000));
-            bigDecimal = amount;
+
+            BigDecimal bigDecimal = BigDecimal.valueOf(Double.valueOf(formatAmount)).setScale(2, BigDecimal.ROUND_HALF_UP);
+
+            //判断金额  金额一般不会低于1000 , 修正未获取到单位而导致的金额不对 . 低于1000 则金额乘以 10000
+            if (bigDecimal.compareTo(new BigDecimal(1000)) < 0) {
+                logger.debug("自动修正金额");
+                BigDecimal amount = bigDecimal.multiply(new BigDecimal(10000));
+                bigDecimal = amount;
+            }
+
+            logger.debug("格式化后 : " + bigDecimal.toString());
+            return bigDecimal.toString();
+        } catch (Exception e) {
+            return null;
         }
-
-        logger.debug("格式化后 : " + bigDecimal.toString());
-        return bigDecimal.toString();
-
         //    Number parse = AmountFormatUtils.parse(dAmount);
     }
 
